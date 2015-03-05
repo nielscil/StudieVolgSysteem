@@ -1,12 +1,36 @@
 ﻿@{
         Layout = "~/Shared/_Layout.cshtml"; 
     Page.Title = "SLB Dashboard";
+    List<Student> gebruikers = Student.GetStudents();
 }
 
 @section navbar{
   <ul class="nav navbar-nav"> 
         <li class="active"><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
         <li><a href="#"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
-        <li><a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Evaluatie</a></li>
+        <li><a href="@Href("Evaluatie")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gespreksevaluatie</a></li>
       </ul>
 }
+
+<fieldset class="col-md-2">
+    <div class="panel panel-default">        
+        <div class="panel-heading">
+            <h3 class="panel-title">Leerlingen</h3>
+        </div><!--panel head-->
+        <div class="panel-body">
+            <table>
+                @if(gebruikers.Count > 0)
+                {
+                    foreach(Student g in gebruikers)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@g.Naam">@g.Naam @g.Achternaam</a>
+                            </td>                           
+                        </tr>
+                    }
+                }
+            </table>
+        </div><!--panel body-->                    
+    </div>
+</fieldset>

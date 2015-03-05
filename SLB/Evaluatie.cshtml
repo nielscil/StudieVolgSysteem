@@ -1,0 +1,122 @@
+﻿@{
+        Layout = "~/Shared/_Layout.cshtml"; 
+    Page.Title = "Gespreksevaluatie";
+    List<string> afspraken;
+    if(Session["afspraken"] != null)
+    {
+        afspraken = (List<string>)Session["afspraken"];
+    }
+    else
+    {
+        afspraken = new List<string>();
+    }
+    List<Student> gebruikers = Student.GetStudents(); //per slber
+    if(IsPost)
+    {
+        if(!Request["afspraakadd"].IsEmpty())
+        {
+            string test = Request.Form["afspraak"];
+            afspraken.Add(test);
+            Session["afspraken"] = afspraken;
+            Response.Redirect("Evaluatie");
+        }
+        else if(!Request["afspraakdel"].IsEmpty())
+        {
+            int index = Request.Form["index"].AsInt();
+            afspraken.RemoveAt(index);
+            Session["afspraken"] = afspraken;
+            Response.Redirect("Evaluatie");
+        }
+        else if(!Request["evaluatietoevoegen"].IsEmpty())
+        {
+            
+        }
+    }
+}
+
+@section navbar{
+  <ul class="nav navbar-nav"> 
+        <li><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
+        <li><a href="#"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
+        <li class="active"><a href="@Href("Evaluatie")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gespreksevaluatie</a></li>
+      </ul>
+}
+
+<div>
+    <fieldset class="col-md-4"> 
+        <div class="panel panel-default">        
+            <div class="panel-heading">
+                <h3 class="panel-title">SLB-gesprek evaluatie</h3>
+            </div><!--panel head-->
+            <div class="panel-body">
+                <form method="post">
+                    <table>
+                        <tr>
+                            <td><b>Naam Student</b></td>
+                            <td>                         
+                                <select>
+                                    @if(gebruikers.Count > 0)
+                                    {
+                                        foreach(Gebruiker g in gebruikers)
+                                        {
+                                            <option value="@g.Email">@g.Email</option>
+                                        }
+                                    }
+                                </select>
+                            </td><!--werkt nog niet-->
+                        </tr>                
+                        <tr>
+                            <td><b>Datum gesprek</b></td>
+                            <td> <input type="date" required /></td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top"><b>Wat is er besproken?</b></td>
+                            <td><textarea name="besproken" cols="35" rows="4" placeholder="Wat is er besproken?" required ></textarea></td>
+                        </tr>                         
+                        <tr>
+                           <td><b>Volgende gesprek op:</b></td> 
+                           <td><input id="DateVolgendeGesprek" type="date" required ></input>   <input id="TijdVolgdendeGesprek" type="time" required ></input></td>
+                        </tr>                
+                        <tr>
+                            <td colspan="3">
+                                <input type="submit" name="evaluatietoevoegen" class="btn btn-md btn-primary" value="Toevoegen"/>
+                            </td>
+                        </tr>
+              </table>
+              </form>
+            </div><!--panel body-->
+        </div><!--panel compleet-->
+    </fieldset>
+    <fieldset>
+        <div class="panel panel-default">        
+            <div class="panel-heading">
+                <h3 class="panel-title">Afspraken</h3>
+            </div><!--panel head-->
+            <div class="panel-body">
+                <table>
+                    @if (afspraken.Count > 0)
+                    {
+                        int index = 0;
+                                              
+                        foreach (string afspraak in afspraken)
+                        {
+                        <form method="post"> 
+                            <tr>
+                                <td>@afspraak <input type="submit" name="afspraakdel" class="btn btn-xs btn-danger" value="x"><input type="text" name="index" value="@index" hidden /></td>
+                            </tr>
+                        </form>
+                        index++;
+                        }
+                    }
+                    <form method="post"> 
+                        <tr>
+                            <td>
+                                <input type="text" name="afspraak" required />    <input type="submit" name="afspraakadd" class="btn btn-xs btn-primary" value="+">
+                            </td>
+                        </tr>
+                    </form>
+                </table>
+            </div><!--panel body-->
+        </div> <!--panel compleet-->
+    </fieldset>
+</div>
