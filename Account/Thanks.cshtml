@@ -1,0 +1,28 @@
+﻿@{
+    // Set the layout page and page title
+    Layout = "~/Shared/_Layout.cshtml";
+    Page.Title = "Bedankt voor het registeren";
+}
+@section navbar{
+    
+}
+
+@if (!WebSecurity.IsAuthenticated) {
+    <hgroup class="title">
+        <h1>@Page.Title.</h1>
+        <h2>Je bent bijna klaar!</h2>
+    </hgroup>
+
+    <p>
+        Er is een e-mail naar je toegestuurd met de instructies om je account te activeren.
+    </p>
+} else {
+    <hgroup class="title">
+        <h1>@Page.Title.</h1>
+        <h2>Je bent helemaal klaar!</h2>
+    </hgroup>
+
+    <p>
+       Je account is geactiveerd! Maak nu snel je verlanglijstje!
+    </p>
+}

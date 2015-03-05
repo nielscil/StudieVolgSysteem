@@ -1,0 +1,131 @@
+﻿@using WebMatrix.WebData
+
+@section navbar{
+    
+}
+
+@{
+    WebSecurity.RequireAuthenticatedUser();
+
+   Layout = "~/Shared/_Layout.cshtml";
+    Page.Title = "Account instellingen";
+    var action = Request.Form["action"];
+    var url = Request.QueryString["message"];
+    if (IsPost) {
+        if (action == "password") {
+            Validation.RequireField("currentPassword", "Huige wachtwoordveld is nodig!");
+            Validation.Add("currentPassword", Validator.StringLength(maxLength: Int32.MaxValue,minLength: 8, errorMessage: "Wachtwoord moet minimaal 8 characters lang zijn."));
+            Validation.RequireField("newPassword", "Nieuwe wachtwoordveld is nodig!");
+            Validation.Add("confirmPassword",Validator.Required("Bevestiging Nieuwe wachtwoordveld is nodig!"),Validator.EqualsTo("newPassword", "Het nieuwe wachtwoord komt niet overeen met de bevestiging."));
+            Validation.Add("newPassword",Validator.StringLength(maxLength: Int32.MaxValue,minLength: 8, errorMessage: "Wachtwoord moet minimaal 8 characters lang zijn."));
+            var currentPassword = Request.Form["currentPassword"];
+            var newPassword = Request.Form["newPassword"];
+            var confirmPassword = Request.Form["confirmPassword"];
+            if (Validation.IsValid()) {
+                    if (WebSecurity.ChangePassword(WebSecurity.CurrentUserName, currentPassword, newPassword)) {
+                        Response.Redirect("~/Account/Manage?message=ChangedPassword");
+                        return;
+                    } else {
+                        ModelState.AddFormError("Er is een fout opgetreden. neem contact op met de administrator.");
+                    }
+            } else {
+                ModelState.AddFormError("Het wachtwoord is niet veranderd, verbeter de onderstaande fouten.");
+            }
+        }else if(action == "adres") {
+            Validation.RequireField("adres","Adresveld mag niet leeg zijn.");
+            Validation.RequireField("zip", "Postcodeveld mag niet leeg zijn.");
+            Validation.RequireField("woonplaats", "Woonplaatsveld mag niet leeg zijn.");
+            var adres = Request.Form["adres"];
+            var zip = Request.Form["zip"];
+            var woonplaats = Request.Form["woonplaats"];
+            var heeftschoorsteen = false;
+            if(Request.Form["heeftschoorsteen"] != null){
+            heeftschoorsteen = true;
+            }
+            var schoorsteen = Request.Form["schoorsteen"];
+            if(Validation.IsValid()) {
+                Users.UpdateUser(adres,zip,woonplaats,heeftschoorsteen,schoorsteen);
+                Response.Redirect("~/Account/Manage?message=ChangedAdress");
+                    return;               
+            } else {
+                ModelState.AddFormError("Het adres is niet veranderd, verbeter de onderstaande fouten.");
+            }
+            
+        } else if(action == "email"){
+            Validation.RequireField("email", "e-mailadresveld mag niet leeg zijn.");
+            Validation.RequireField("emailher", "dit veld mag niet leeg zijn.");
+            Validation.Add("email",Validator.EqualsTo("emailher","Het nieuwe e-mailadres komt niet overeen!"),Validator.Regex(@"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" + @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$","Dit is geen geldig e-mailadres."));
+            Validation.Add("emailher",Validator.Regex(@"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" + @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$","Dit is geen geldig e-mailadres."));
+            var email = Request.Form["email"];
+            if(Validation.IsValid()){
+                Users.UpdateUser(email);
+                Response.Redirect("~/Account/Manage?message=ChangedAdress");
+                    return;               
+            } else {
+                ModelState.AddFormError("Het e-mailadres is niet veranderd, verbeter de onderstaande fouten.");
+            }
+        }
+    }
+}
+<hgroup class="title">
+    <h1>@Page.Title</h1>
+</hgroup>
+
+<h3>Welkom @WebSecurity.CurrentUserName, pas hier je accountinstellingen aan.</h3>
+
+    @Html.ValidationSummary(excludeFieldErrors: true)
+    @if(url == "ChangedPassword"){
+        <h3>Uw wachtwoord is succesvol aangepast!</h3>
+    }else if(url == "ChangedAdress"){
+        <h3>Uw huisinstellingen zijn succesvol aangepast!</h3>
+    }else if(url == "ChangedEmail"){
+        <h3>Uw e-mailadres is succesvol aangepast!</h3>
+    }
+
+<form method="post">
+    <fieldset id="form">
+        <legend>Wachtwoord</legend>
+        <table>
+                <tr>
+                    <td><label for="currentPassword" @if (!ModelState.IsValidField("currentPassword")) {<text>class="error-label"</text>}>Huidige wachtwoord:</label></td>
+                    <td><input type="password" id="currentPassword" name="currentPassword" @Validation.For("currentPassword") placeholder="huidige wachtwoord"/></td>
+                    <td>@Html.ValidationMessage("currentPassword")</td>
+                </tr>
+            <tr>
+                <td><label for="newPassword" @if (!ModelState.IsValidField("newPassword")) {<text>class="error-label"</text>}>Nieuwe wachtwoord:</label></td>
+                <td><input type="password" id="newPassword" name="newPassword" @Validation.For("newPassword") placeholder="Kies een sterk wachtwoord!"/></td>
+                <td>@Html.ValidationMessage("newPassword")</td>
+            </tr>
+            <tr>
+                <td><label for="confirmPassword" @if (!ModelState.IsValidField("confirmPassword")) {<text>class="error-label"</text>}>Herhaal wachtwoord:</label></td>
+                <td><input type="password" id="confirmPassword" name="confirmPassword" @Validation.For("confirmPassword") placeholder="Herhaal wachtwoord"/></td>
+                <td>@Html.ValidationMessage("confirmPassword")</td>
+            </tr>
+            <tr>
+            <td colspan="1"></td>
+            <td><button type="submit" name="action" value="password">Verander het wachtwoord</button></td>
+            </tr>
+        </table>            
+    </fieldset>
+</form>
+<form method="post">
+    <fieldset id="form">
+        <legend>E-mail</legend>
+        <table>
+            <tr>
+                <td><label for="email" @if (!ModelState.IsValidField("email")) {<text>class="error-label"</text>}>Nieuwe e-mailadres:</label></td>
+                <td><input type="text" id="email" name="email" @Validation.For("email") placeholder="bijv. naam@provider.nl"/></td>
+                <td>@Html.ValidationMessage("email")</td>
+            </tr>
+            <tr>
+                <td><label for="emailher" @if (!ModelState.IsValidField("emailher")) {<text>class="error-label"</text>}>Herhaal e-mailadres:</label></td>
+                <td><input type="text" id="mailher" name="emailher" @Validation.For("mailher") placeholder="Herhaal e-mailadres"/></td>
+                <td>@Html.ValidationMessage("emailher")</td>
+            </tr>
+            <tr>
+                <td colspan="1"></td>
+                <td><button type="submit" name="action" value="email">Verander het e-mailadres</button></td>
+            </tr>
+        </table>
+    </fieldset>
+</form>

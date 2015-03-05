@@ -1,0 +1,6 @@
+﻿@{
+   if(!WebSecurity.IsAuthenticated && !Roles.IsUserInRole(WebSecurity.CurrentUserName,"Student"))
+   {
+       Response.Redirect("~");
+   }
+}

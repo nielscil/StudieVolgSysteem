@@ -1,0 +1,141 @@
+body{
+   background-color: #e1e8f0;
+   padding:0;
+   height:100%;
+}
+}
+#header{
+   position: relative;
+   background-color: CadetBlue;
+   border-radius: 10px;
+   width: auto;
+   height: 60px;
+   border: 1px solid black;
+}
+p{
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #9d9d9d;
+}
+h1{
+    text-align: center;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+#navbar{
+    width: 700px;
+    margin: 0 auto 0 auto;
+}
+#navbar-3-items{
+    list-style-type: none;
+    margin: 0 auto 0 auto;
+    position: relative;
+    width: 600px;
+    padding: 0;
+}
+#navbar-1-item{
+    list-style-type: none;
+    margin: 0 auto 0 auto;
+    position: relative;
+    width: 200px;
+    padding: 0;
+}
+.navlins:hover{
+    text-decoration: none;
+}
+.navlinks {
+    display: block;
+    text-decoration: none;
+    padding: 20px;
+}
+
+#agenda{
+    display: inline-block;
+    position: relative;
+    float: left;
+    width: 198px;
+    height: 58px;
+    text-align: center;
+    background-color: #90eced;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+#account{
+    display: inline-block;
+    position: relative;
+    float: left;
+    width: 198px;
+    height: 58px;
+    text-align: center;
+    background-color: #90eced;
+    border-right: 1px solid black;
+}
+#login{
+    display: inline-block;
+    position: relative;
+    width: 198px;
+    height: 58px;
+    text-align: center;
+    background-color: #90eced;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+#logout{
+    display: inline-block;
+    position: relative;
+    width: 198px;
+    height: 58px;
+    text-align: center;
+    background-color: #90eced;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+#pagina{
+    height: auto;
+    min-height: 600px;
+}
+#disclaimer {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-align: center;
+    font-size: 16px;
+    padding-top: 20px;
+}
+
+#nhl {
+    text-decoration: none;
+    color: #9d9d9d;
+}
+
+#nhl:hover {
+    color: white;
+}
+#welkom{
+    text-align: center;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+#loginpopup{
+    border-spacing: 10px;
+    border-collapse: separate;
+    margin-left: 100px; //hier moet gecentereerd worden, wil alleen niet?
+}
+#content{
+	padding-bottom:60px;
+}
+#footer{
+    width:100%;
+	height:60px;
+	position:absolute;
+	bottom:0;
+	left:0;
+	background-color: #222;
+    border-color: #080808;
+    border-radius: 4px;
+}
+#wrapper{
+min-height: 100%;
+height: auto !important;
+margin: 0 auto -60px;
+}
+#makers{
+    text-align: center;
+}
