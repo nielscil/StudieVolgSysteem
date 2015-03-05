@@ -3,6 +3,8 @@ body{
    padding:0;
    height:100%;
 }
+html{
+    height: 100%;
 }
 #header{
    position: relative;
@@ -96,7 +98,6 @@ h1{
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     text-align: center;
     font-size: 16px;
-    padding-top: 20px;
 }
 
 #nhl {
@@ -118,23 +119,21 @@ h1{
     border-collapse: separate;
     margin-left: 100px; //hier moet gecentereerd worden, wil alleen niet?
 }
-#content{
-	padding-bottom:60px;
-}
+
 #footer{
-    width:100%;
-	height:60px;
-	position:absolute;
-	bottom:0;
-	left:0;
+    position: relative;
+    margin-top: -60px;
+    height: 60px;
+    padding-top: 20px
 	background-color: #222;
     border-color: #080808;
     border-radius: 4px;
 }
+#main{
+    padding-bottom: 60px;
+}
 #wrapper{
 min-height: 100%;
-height: auto !important;
-margin: 0 auto -60px;
 }
 #makers{
     text-align: center;
