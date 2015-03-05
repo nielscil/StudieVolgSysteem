@@ -301,6 +301,21 @@ public class Student : Gebruiker
         return lijst;
     }
 
+    public static List<Student> GetStudents(int SLBerID)
+    {
+        Database db = Database.Open(Constants.DBName);
+        var rows = db.Query("SELECT * FROM gebruikers,student WHERE gebruikerID = studentID");
+        db.Close();
+        List<Student> lijst = new List<Student>();
+        foreach(var r in rows)
+        {
+
+            Student s = new Student(r.GebruikerID, r.Email, Roles.GetRolesForUser(r.Email), r.Naam, r.Achternaam, r.Woonplaats, r.Adres, r.Telefoon_nr, r.postcode, r.SLBerID, r.Opmerking, r.StudentNummer);
+            lijst.Add(s);
+        }
+        return lijst;
+    }
+
     public static Student GetStudent(int studentid)
     {
          Database db = Database.Open(Constants.DBName);
