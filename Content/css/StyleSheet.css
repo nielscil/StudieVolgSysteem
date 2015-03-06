@@ -6,10 +6,6 @@ body{
 html{
     height: 100%;
 }
-#pagenav{
-    margin: 3px 0 0 0;
-    height: 33px;
-}
 #header{
    position: relative;
    background-color: CadetBlue;
@@ -17,6 +13,14 @@ html{
    width: auto;
    height: 60px;
    border: 1px solid black;
+}
+#gebpanel{
+    margin-bottom: -20px;
+}
+.center {
+     float: none;
+     margin-left: auto;
+     margin-right: auto;
 }
 p{
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -26,33 +30,6 @@ h1{
     text-align: center;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-#navbar{
-    width: 700px;
-    margin: 0 auto 0 auto;
-}
-#navbar-3-items{
-    list-style-type: none;
-    margin: 0 auto 0 auto;
-    position: relative;
-    width: 600px;
-    padding: 0;
-}
-#navbar-1-item{
-    list-style-type: none;
-    margin: 0 auto 0 auto;
-    position: relative;
-    width: 200px;
-    padding: 0;
-}
-.navlins:hover{
-    text-decoration: none;
-}
-.navlinks {
-    display: block;
-    text-decoration: none;
-    padding: 20px;
-}
-
 #agenda{
     display: inline-block;
     position: relative;
@@ -109,10 +86,6 @@ h1{
     color: #9d9d9d;
 }
 
-.pull-right {
-  float: right !important;
-}
-
 #nhl:hover {
     color: white;
 }
@@ -145,8 +118,4 @@ min-height: 100%;
 }
 #makers{
     text-align: center;
-}
-img{
-    height: 15px;
-    width: 15px;
 }

@@ -1,6 +1,7 @@
 ﻿@{
     Layout = "~/Shared/_Layout.cshtml"; 
     Page.Title = "Admin Dashboard | Gebruikers";
+
     List<Gebruiker> gebruikers = Gebruiker.GetAllUsers();
     var maximumusers = Request.QueryString["maxuser"].AsInt();
     if(maximumusers == null)
@@ -11,6 +12,12 @@
     var action = Request.QueryString["action"];
     var succes = Request.QueryString["succesful"];
     var message = Request.QueryString["message"];
+    var zoektext = Request.QueryString["zoektext"];
+    if(zoektext != null)
+    {
+        gebruikers = Gebruiker.SearchUsers(zoektext);
+    }
+
     var url = Request.FilePath;
     url = url.Replace("/Admin/", "");
     var naam = "";
@@ -172,6 +179,17 @@
     <li class="active"><a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a></li>
 </ul>
 }
+@section navbar_right{
+<td>
+    <form class="navbar-form" role="search">
+        <div class="form-group">
+          <input type="text" value="@zoektext" name="zoektext" class="form-control" placeholder="Zoeken...">
+        </div>
+        <button type="submit" class="btn btn-default">Zoek</button>
+      </form>
+</td>
+
+}
 
 <!--Melding voor succesvol uitvoeren taak-->
 <div class="row">
@@ -188,19 +206,24 @@
         </div>
     }
     </div>
-    <div class="row">
-<!--Pagina laden-->    
-    <div class="col-lg-12">
-        <div class="panel panel-default">
+
+            <!--Pagina laden--> 
 @if((userid == null || !userid.IsInt()) && action == null)
 {
     int maxusers = gebruikers.Count() - from;
     int paginas = gebruikers.Count() / 25;
+    if(paginas == 0)
+    {
+        paginas = 1;
+    }
     if(maxusers > 25)
     {
         maxusers = 25;
     }
 //begin pagina met gebruikerslijst
+    <div class="row">   
+    <div class="col-lg-12">
+        <div class="panel panel-default" id="gebpanel">
             <div class="panel-heading">Gebruikers</div>
                 <table class="table">
                     @if(gebruikers.Count() > 0){
@@ -252,11 +275,13 @@
                                     <li><a href="@Href("Gebruikers?action=AddAdmin")">Admin</a></li>
                                 </ul>
                             </div>
-                <div class="pull-right">
-                    <table>
-                        <tr>
-                            <td>
-                                <ul class="pagination" id="pagenav">
+                </div>
+            </div>
+                        </div> 
+                </div>
+<div class="row text-center">
+    <div class="center-block">
+        <ul class="pagination">
                                     @if (paginas == 1 || from == 0)
                                     {
                                         <li class="disabled"><a href="" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
@@ -286,25 +311,19 @@
                                         <li><a href="Gebruikers?from=@(from + 25)" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
                                     }
                                 </ul>
-                            </td>
-                            <td>
-                                <select class="form-control maxuser" onchange="location.href=" style="width: 65px"> <!--hier naar kijken!-->
-                                    <option>5</option>
-                                    <option>10</option>
-                                    <option>20</option>
-                                    <option selected>25</option>
-                                    <option>50</option>
-                                </select>
-                            </td>
-                        </tr>
-                    </table>         
-                    </div>
-                </div>               
+    </div>
+    
+</div>
+                
+
 }
 else if((userid == null || userid.IsInt())&& action == "update")
 {
     //pagina laden voor updaten van een gebruiker
 Gebruiker gebruiker = Gebruiker.GetUser(userid.AsInt());
+    <div class="row">   
+    <div class="col-lg-12">
+        <div class="panel panel-default">
 <div class="panel-heading">@gebruiker.Naam @gebruiker.Achternaam</div>
 <form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID&action=update">
     <table>
@@ -370,12 +389,18 @@ Gebruiker gebruiker = Gebruiker.GetUser(userid.AsInt());
     </div>
   </div>
 </div>
+            </div>
+        </div>
+        </div>
 <!--Einde popup verwijderbevestiging-->
 }else if((userid == null || userid.IsInt())&& action == "updatestudent")
 {
     //pagina laden voor updaten student
     Student gebruiker = Student.GetStudent(userid.AsInt());
     List<SLB> slbers = SLB.GetSLBers();
+        <div class="row">   
+    <div class="col-lg-12">
+        <div class="panel panel-default">
 <div class="panel-heading">@gebruiker.Naam @gebruiker.Achternaam</div>
 <form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID&action=updatestudent">
     <table>
@@ -474,12 +499,18 @@ Gebruiker gebruiker = Gebruiker.GetUser(userid.AsInt());
     </div>
   </div>
 </div>
+            </div>
+        </div>
+            </div>
 <!--Einde popup verwijderbevestiging-->
 }
 else if (action == "AddStudent")
 {
     //pagina laden voor student toevoegen
     List<SLB> slbers = SLB.GetSLBers();
+        <div class="row">   
+    <div class="col-lg-12">
+        <div class="panel panel-default">
     <div class="panel-heading">Student Toevoegen</div>
     <form method="post" action="Gebruikers?action=AddStudent">
         <table>
@@ -552,10 +583,16 @@ else if (action == "AddStudent")
             <input type="submit" class="btn btn-primary" name="AddStudent" value="Toevoegen" />
         </div>
     </form>
+            </div>
+        </div>
+            </div>
 }
 else if (action == "AddSLB")
 {
     //pagina laden voor SLB toevoegen
+        <div class="row">   
+    <div class="col-lg-12">
+        <div class="panel panel-default">
     <div class="panel-heading">SLB'er Toevoegen</div>
     <form method="post" action="Gebruikers?action=AddSLB">
         <table>
@@ -602,10 +639,16 @@ else if (action == "AddSLB")
             <input type="submit" class="btn btn-primary" name="AddSLB" value="Toevoegen" />
         </div>
     </form>
+            </div>
+        </div>
+            </div>
 }
 else if (action == "AddAdmin")
 {
     //pagina laden voor admin toevoegen
+        <div class="row">   
+    <div class="col-lg-12">
+        <div class="panel panel-default">
     <div class="panel-heading">Administrator Toevoegen</div>
     <form method="post" action="Gebruikers?action=AddAdmin">
         <table>
@@ -652,7 +695,8 @@ else if (action == "AddAdmin")
             <input type="submit" class="btn btn-primary" name="AddAdmin" value="Toevoegen" />
         </div>
     </form>
-}
         </div>
     </div>
 </div>
+}
+

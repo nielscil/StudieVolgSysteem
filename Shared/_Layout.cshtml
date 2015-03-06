@@ -29,16 +29,27 @@
       @RenderSection("navbar")
         @if(WebSecurity.IsAuthenticated){
             Gebruiker g = Gebruiker.GetUser(WebSecurity.CurrentUserId);
-        <ul class="nav navbar-nav navbar-right">
+            <div class="navbar-right">
+                <table>
+                    <tr>
+                        @RenderSection("navbar_right",false)
+                        <td>
+                                <ul class="nav navbar-nav">
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Welkom @g.Naam @g.Achternaam <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li><a href="#"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Mijn Account</a></li>
+            <li><a href="/Account/Manage"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Mijn Account</a></li>
             <li class="divider"></li>
             <li><a href="/Account/Logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Uitloggen</a></li>
           </ul>
         </li>
       </ul>
+                        </td>
+                    </tr>
+                </table>
+            
+
+    </div>
         }
         else
         {
