@@ -146,3 +146,7 @@ min-height: 100%;
 #makers{
     text-align: center;
 }
+img{
+    height: 15px;
+    width: 15px;
+}

@@ -1,6 +1,7 @@
 ﻿@{
         Layout = "~/Shared/_Layout.cshtml"; 
     Page.Title = "SLB Dashboard";
+    List<Student> studenten = Student.GetStudents(WebSecurity.CurrentUserId);
 }
 
 @section navbar{
@@ -10,3 +11,21 @@
         <li><a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Evaluatie</a></li>
       </ul>
 }
+<div class="row">
+    <div class="col-lg-10">
+    </div>
+    <div class="col-lg-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">Studenten</div>
+                <table class="table">
+                    @foreach(Student s in studenten){
+                        <tr>
+                            <td><a href="#">@s.Naam @s.Achternaam</a></td>
+                            <td><img src="~/content/images/GreenDot.png" alt="green"/></td>
+                        </tr>
+                    }
+                </table>
+            <div class="panel-footer"></div>
+        </div>
+    </div>
+</div>

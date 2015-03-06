@@ -10,21 +10,21 @@ public class Cijfer
     public int CijferID {get;set;}
     public int StudentID {get;set;}
     public int VakID {get;set;}
-    public int Cijfer {get;set;}
+    public int Cijfertje {get;set;}
 
     public Cijfer(int cijferid,int studentid,int vakid,int cijfer)
     {
         this.CijferID = cijferid;
         this.StudentID = studentid;
         this.VakID = vakid;
-        this.Cijfer = cijfer;
+        this.Cijfertje = cijfer;
     }
 
     public Cijfer(int studentid,int vakid,int cijfer)
     {
         this.StudentID = studentid;
         this.VakID = vakid;
-        this.Cijfer = cijfer;
+        this.Cijfertje = cijfer;
     }
 
     public List<Cijfer> GetGradesFromStudent(int studentid)
