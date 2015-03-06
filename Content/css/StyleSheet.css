@@ -138,9 +138,7 @@ min-height: 100%;
 #makers{
     text-align: center;
 }
-.online-menu{
-    //width: 200px;
-    //border-bottom: 1px solid black;
-    //height: 30px;
-    
+img{
+    height: 15px;
+    width: 15px;
 }

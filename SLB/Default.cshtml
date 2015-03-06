@@ -1,6 +1,7 @@
 ﻿@{
         Layout = "~/Shared/_Layout.cshtml"; 
     Page.Title = "SLB Dashboard";
+    List<Student> studenten = Student.GetStudents(WebSecurity.CurrentUserId);
 }
 
 @section navbar{
@@ -17,10 +18,12 @@
         <div class="panel panel-default">
             <div class="panel-heading">Studenten</div>
                 <table class="table">
-                    <tr><td>Niels</td></tr>
-                    <tr><td>Joris de Draak</td></tr>
-                    <tr><td>Kjeld</td></tr>
-                    <tr><td>Danny</td></tr>
+                    @foreach(Student s in studenten){
+                        <tr>
+                            <td><a href="#">@s.Naam @s.Achternaam</a></td>
+                            <td><img src="~/content/images/GreenDot.png" alt="green"/></td>
+                        </tr>
+                    }
                 </table>
             <div class="panel-footer"></div>
         </div>
