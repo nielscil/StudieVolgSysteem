@@ -2,10 +2,17 @@
     Layout = "~/Shared/_Layout.cshtml"; 
     Page.Title = "Admin Dashboard | Gebruikers";
     List<Gebruiker> gebruikers = Gebruiker.GetAllUsers();
+    var maximumusers = Request.QueryString["maxuser"].AsInt();
+    if(maximumusers == null)
+    {
+        maximumusers = 25;
+    }
     var userid = Request.QueryString["userid"];
     var action = Request.QueryString["action"];
     var succes = Request.QueryString["succesful"];
     var message = Request.QueryString["message"];
+    var url = Request.FilePath;
+    url = url.Replace("/Admin/", "");
     var naam = "";
     var achternaam = "";
     var email = "";
@@ -16,7 +23,11 @@
     var SLBerID = "";
     var opmerking = "";
     var studentnr = "";
-    
+    var from = Request.QueryString["from"].AsInt();
+    if(from == null)
+    {
+        from = 0;
+    }
     if(IsPost)
     {
         naam = Request.Form["naam"];
@@ -162,6 +173,7 @@
     <li class="active"><a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a></li>
 </ul>
 }
+
 <!--Melding voor succesvol uitvoeren taak-->
 <div class="row">
     @if (succes == "true")
@@ -176,11 +188,19 @@
             <div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>@message</div>
         </div>
     }
+    </div>
+    <div class="row">
 <!--Pagina laden-->    
     <div class="col-lg-12">
         <div class="panel panel-default">
 @if((userid == null || !userid.IsInt()) && action == null)
 {
+    int maxusers = gebruikers.Count() - from;
+    int paginas = gebruikers.Count() / 25;
+    if(maxusers > 25)
+    {
+        maxusers = 25;
+    }
 //begin pagina met gebruikerslijst
             <div class="panel-heading">Gebruikers</div>
                 <table class="table">
@@ -191,13 +211,11 @@
                             <th>Naam</th>
                             <th>Rollen</th>
                         </tr>
-                        int count = 0;
-                        foreach(Gebruiker gebr in gebruikers)
+                        for(int i = from; i < maxusers + from; i++)
                         {
-                            count++;
                             bool isStudent = false;
                             string roles = "";
-                            foreach(string role in gebr.Role)
+                            foreach(string role in gebruikers[i].Role)
                             {
                                 roles += role;
                                 if(role == "Student")
@@ -207,19 +225,19 @@
 
                             }
                             <tr>
-                                <td>@count</td>
+                                <td>@(i + 1)</td>
                             @if(isStudent)
                             {
-                                <td><a href="@Href("Gebruikers?userid=" + gebr.GebruikerID + "&action=updatestudent")">@gebr.Email</a></td>
+                                <td><a href="@Href("Gebruikers?userid=" + gebruikers[i].GebruikerID + "&action=updatestudent")">@gebruikers[i].Email</a></td>
                             }
                             else
                             {
-                                <td><a href="@Href("Gebruikers?userid=" + gebr.GebruikerID + "&action=update")">@gebr.Email</a></td>
+                                <td><a href="@Href("Gebruikers?userid=" + gebruikers[i].GebruikerID + "&action=update")">@gebruikers[i].Email</a></td>
                             }   
-                                <td>@gebr.Naam @gebr.Achternaam</td>
+                                <td>@gebruikers[i].Naam @gebruikers[i].Achternaam</td>
                                 <td>@roles</td>
                             </tr>
-                        } 
+                        }
                     }
                     else
                     {
@@ -227,15 +245,62 @@
                     }
                 </table>
             <div class="panel-footer">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Toevoegen <span class="caret"></span></button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="@Href("Gebruikers?action=AddStudent")">Student</a></li>
-                        <li><a href="@Href("Gebruikers?action=AddSLB")">SLBer</a></li>
-                        <li><a href="@Href("Gebruikers?action=AddAdmin")">Admin</a></li>
-                    </ul>
-                </div>
-            </div>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Toevoegen <span class="caret"></span></button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="@Href("Gebruikers?action=AddStudent")">Student</a></li>
+                                    <li><a href="@Href("Gebruikers?action=AddSLB")">SLBer</a></li>
+                                    <li><a href="@Href("Gebruikers?action=AddAdmin")">Admin</a></li>
+                                </ul>
+                            </div>
+                <div class="pull-right">
+                    <table>
+                        <tr>
+                            <td>
+                                <ul class="pagination" id="pagenav">
+                                    @if (paginas == 1 || from == 0)
+                                    {
+                                        <li class="disabled"><a href="" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a href="Gebruikers?from=@(from - 2)" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                                    }
+                                    @for (int i = 1; i <= paginas; i++)
+                                    {
+                                        if (from / 25 + 1 == i)
+                                        {
+                                            <li class="active"><a href="Gebruikers?from=@((i - 1) * 25)">@i <span class="sr-only">(current)</span></a></li>
+                                        }
+                                        else
+                                        {
+                                            <li><a href="Gebruikers?from=@((i - 1) * 25)">@i <span class="sr-only">(current)</span></a></li>
+                                        }
+
+                                    }
+                                    @if (paginas == 1 || from + 25 >= gebruikers.Count())
+                                    {
+                                        <li class="disabled"><a href="" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a href="Gebruikers?from=@(from + 25)" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
+                                    }
+                                </ul>
+                            </td>
+                            <td>
+                                <select class="form-control maxuser" onchange="location.href=" style="width: 65px"> <!--hier naar kijken!-->
+                                    <option>5</option>
+                                    <option>10</option>
+                                    <option>20</option>
+                                    <option selected>25</option>
+                                    <option>50</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>         
+                    </div>
+                </div>               
 }
 else if((userid == null || userid.IsInt())&& action == "update")
 {

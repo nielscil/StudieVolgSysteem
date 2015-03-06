@@ -6,6 +6,10 @@ body{
 html{
     height: 100%;
 }
+#pagenav{
+    margin: 3px 0 0 0;
+    height: 33px;
+}
 #header{
    position: relative;
    background-color: CadetBlue;
@@ -103,6 +107,10 @@ h1{
 #nhl {
     text-decoration: none;
     color: #9d9d9d;
+}
+
+.pull-right {
+  float: right !important;
 }
 
 #nhl:hover {
