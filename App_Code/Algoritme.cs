@@ -27,7 +27,7 @@ public class Cijfer
         this.Cijfertje = cijfer;
     }
 
-    public List<Cijfer> GetGradesFromStudent(int studentid)
+    public static List<Cijfer> GetGradesFromStudent(int studentid)
     {
         Database db = Database.Open(Constants.DBName);
         var rows = db.Query("SELECT * FROM cijfers WHERE studentid=@0",studentid);
@@ -46,25 +46,25 @@ public class Cijfer
 public class Algoritme
 {
     enum Prioriteit {Laag=1, Gemiddeld, Hoog};
-    public static string DBname = "Demo";
-    Cijfer cijfers = new Cijfer();
     public Algoritme(){}
 
     //Berekent de prioriteit.
     public string ber_Prioriteit(int studID)
     {
         int prioProcent = 100;
-        int count = cijfers.GetGradesFromStudent(studID).Count;
+        int count = Cijfer.GetGradesFromStudent(studID).Count;
 
         //Berekend het prioProcent van de student.
-        foreach(Cijfer c in cijfers.GetGradesFromStudent(studID))
+        foreach(Cijfer c in Cijfer.GetGradesFromStudent(studID))
         {
-            switch(c.Cijfer)
+            switch(c.Cijfertje)
             {
-                case 5: case 4: prioProcent - (100 / count);
+                case 5: case 4: 
+                prioProcent = prioProcent - (100 / count);
                         break;
 
-                case 3: case 2: case 1: prioProcent - (100 / count) * 2;
+                case 3: case 2: case 1: 
+                prioProcent = prioProcent - (100 / count);
                         break;
             }
         }
