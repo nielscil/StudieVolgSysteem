@@ -57,6 +57,7 @@ public class Algoritme
         //Berekend het prioProcent van de student.
         foreach(Cijfer c in Cijfer.GetGradesFromStudent(studID))
         {
+            prioProcent = prioProcent - (100 / count) * (5 - c.Cijfertje + 1);
             switch(c.Cijfertje)
             {
                 case 5: case 4: 
@@ -64,7 +65,7 @@ public class Algoritme
                         break;
 
                 case 3: case 2: case 1: 
-                prioProcent = prioProcent - (100 / count);
+                prioProcent = prioProcent - (100 / count)*2;
                         break;
             }
         }
