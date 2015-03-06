@@ -29,7 +29,18 @@
         }
         else if(!Request["evaluatietoevoegen"].IsEmpty())
         {
-            
+            int evid = Evaluatie.AddEvaluatie(Request.Form["besproken"],Request.Form["datumVolgendeGesprek"],Request.Form["locatieVolgendeGesprek"]);
+            if(evid == -1)
+            {
+                //geef error
+            }
+            else
+            {
+                foreach(string afspraak in afspraken)
+                {
+                    Afspraak.AddAfspraak(afspraak,false,evid);
+                }
+            }
         }
     }
 }
@@ -64,11 +75,7 @@
                                     }
                                 </select>
                             </td><!--werkt nog niet-->
-                        </tr>                
-                        <tr>
-                            <td><b>Datum gesprek</b></td>
-                            <td> <input type="date" required /></td>
-                        </tr>
+                        </tr> 
                         <tr>
                             <td style="vertical-align: top"><b>Wat is er besproken?</b></td>
                             <td><textarea name="besproken" cols="35" rows="4" placeholder="Wat is er besproken?" required ></textarea></td>
