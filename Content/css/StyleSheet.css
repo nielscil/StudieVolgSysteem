@@ -3,6 +3,19 @@ body{
    padding:0;
    height:100%;
 }
+
+.jumbotron h1{
+    text-align: left;
+}
+
+.jumbotron hr{
+    border-top: 1px solid #C5C4C4;
+}
+.hideable{
+    display: none;
+    //visibility: hidden;
+}
+
 html{
     height: 100%;
 }
@@ -118,4 +131,8 @@ min-height: 100%;
 }
 #makers{
     text-align: center;
+}
+.img{
+    height: 15px;
+    width: 15px;
 }

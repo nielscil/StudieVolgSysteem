@@ -1,8 +1,20 @@
 ﻿@{
-        Layout = "~/Shared/_Layout.cshtml"; 
+    Layout = "~/Shared/_Layout.cshtml";
     Page.Title = "Gespreksevaluatie";
+    var agendaid = Request.QueryString["agendaid"];
+    string besproken = "";
+    string locatie = "";
+    string date = "";
+    string tijd = "";
+    bool check = false;
+    if (agendaid == null || !agendaid.IsInt())
+    {
+        Response.Redirect("Default");
+    }
+    //get agendapunt
+    //Student student = Student.GetStudent(agendapunt.StudentID);
     List<string> afspraken;
-    if(Session["afspraken"] != null)
+    if (Session["afspraken"] != null)
     {
         afspraken = (List<string>)Session["afspraken"];
     }
@@ -10,92 +22,129 @@
     {
         afspraken = new List<string>();
     }
-    List<Student> gebruikers = Student.GetStudents(); //per slber
-    if(IsPost)
+    if (IsPost)
     {
-        if(!Request["afspraakadd"].IsEmpty())
+        if (!Request["afspraakadd"].IsEmpty())
         {
             string test = Request.Form["afspraak"];
             afspraken.Add(test);
             Session["afspraken"] = afspraken;
-            Response.Redirect("Evaluatie");
+            Response.Redirect("Evaluatie?agendaid=" + agendaid);
         }
-        else if(!Request["afspraakdel"].IsEmpty())
+        else if (!Request["afspraakdel"].IsEmpty())
         {
             int index = Request.Form["index"].AsInt();
             afspraken.RemoveAt(index);
             Session["afspraken"] = afspraken;
-            Response.Redirect("Evaluatie");
+            Response.Redirect("Evaluatie?agendaid=" + agendaid);
         }
-        else if(!Request["evaluatietoevoegen"].IsEmpty())
+        else if (!Request["evaluatietoevoegen"].IsEmpty())
         {
-            int evid = Evaluatie.AddEvaluatie(Request.Form["besproken"],Request.Form["datumVolgendeGesprek"],Request.Form["locatieVolgendeGesprek"]);
-            if(evid == -1)
+            int evid = -1;
+            besproken = Request.Form["besproken"];
+            if (Request.Form["nieuw"] == "on")
+            {
+                check = true;
+                locatie = Request.Form["location"];
+                date = Request.Form["datum"];
+                tijd = Request.Form["tijd"];
+                Validation.Add("location", Validator.Required("Dit is nodig!"));
+                Validation.Add("datum", Validator.Required("Dit is nodig!"));
+                Validation.Add("tijd", Validator.Required("Dit is nodig!"));
+                if (Validation.IsValid())
+                {
+                    DateTime datum = DateTime.Parse(date + " " + tijd);
+                    evid = Evaluatie.AddEvaluatie(Request.Form["besproken"], datum, agendaid.AsInt(), Request.Form["locatie"]);
+                }
+                else
+                {
+                    <script type="text/javascript">
+                        $(window).load(function () {
+                            $('.hideable').show();
+                        });
+                    </script>
+                }
+            }
+            else
+            {
+                evid = Evaluatie.AddEvaluatie(Request.Form["besproken"], agendaid.AsInt());
+            }
+
+            if (evid == -1)
             {
                 //geef error
             }
             else
             {
-                foreach(string afspraak in afspraken)
+                foreach (string afspraak in afspraken)
                 {
-                    Afspraak.AddAfspraak(afspraak,false,evid);
+                    Afspraak.AddAfspraak(afspraak, evid);
                 }
             }
         }
     }
 }
-
+<script>
+    $(document).ready(function () {
+        $(".nieuweAfspraak").change(function () {
+            $(".hideable").toggle(400);
+        });
+    });
+</script>
 @section navbar{
-  <ul class="nav navbar-nav"> 
+    <ul class="nav navbar-nav">
         <li><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
         <li><a href="#"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
         <li class="active"><a href="@Href("Evaluatie")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gespreksevaluatie</a></li>
-      </ul>
+    </ul>
 }
 
 <div>
-    <fieldset class="col-md-4"> 
-        <div class="panel panel-default">        
+    <fieldset class="col-md-4">
+        <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">SLB-gesprek evaluatie</h3>
             </div><!--panel head-->
-            <div class="panel-body">
-                <form method="post">
+            <form method="post">
+                <div class="panel-body">
+
                     <table>
                         <tr>
                             <td><b>Naam Student</b></td>
-                            <td>                         
-                                <select>
-                                    @if(gebruikers.Count > 0)
-                                    {
-                                        foreach(Gebruiker g in gebruikers)
-                                        {
-                                            <option value="@g.Email">@g.Email</option>
-                                        }
-                                    }
-                                </select>
+                            <td>
+                                <input value="naam student" name="naam" readonly />
                             </td><!--werkt nog niet-->
-                        </tr> 
+                        </tr>
                         <tr>
                             <td style="vertical-align: top"><b>Wat is er besproken?</b></td>
-                            <td><textarea name="besproken" cols="35" rows="4" placeholder="Wat is er besproken?" required ></textarea></td>
-                        </tr>                         
-                        <tr>
-                           <td><b>Volgende gesprek op:</b></td> 
-                           <td><input id="DateVolgendeGesprek" type="date" required ></input>   <input id="TijdVolgdendeGesprek" type="time" required ></input></td>
-                        </tr>                
-                        <tr>
-                            <td colspan="3">
-                                <input type="submit" name="evaluatietoevoegen" class="btn btn-md btn-primary" value="Toevoegen"/>
-                            </td>
+                            <td><textarea name="besproken" cols="35" rows="4" placeholder="Wat is er besproken?" required>@besproken</textarea></td>
                         </tr>
-              </table>
-              </form>
-            </div><!--panel body-->
+                        <tr>
+                            <td>Volgende afspraak plannen</td>
+                            <td><input type="checkbox" class="nieuweAfspraak" name="nieuw" checked="@check" /> </td>
+                        </tr>
+                    </table>
+                    <div class="hideable">
+                        <table>
+                            <tr>
+                                <td><b>Volgende gesprek op:</b></td>
+                                <td><input name="datum" value="@date" type="date" />  <input name="tijd" value="@tijd" type="time" /></td>
+                            </tr>
+                            <tr>
+                                <td><b>Locatie:</b></td>
+                                <td><input name="location" value="@locatie" type="text" /></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div><!--panel body-->
+                <div class="panel-footer">
+                    <input type="submit" name="evaluatietoevoegen" class="btn btn-md btn-primary" value="Toevoegen" />
+                </div>
+            </form>
         </div><!--panel compleet-->
     </fieldset>
     <fieldset>
-        <div class="panel panel-default">        
+        <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">Afspraken</h3>
             </div><!--panel head-->
@@ -104,18 +153,18 @@
                     @if (afspraken.Count > 0)
                     {
                         int index = 0;
-                                              
+
                         foreach (string afspraak in afspraken)
                         {
-                        <form method="post"> 
-                            <tr>
-                                <td>@afspraak <input type="submit" name="afspraakdel" class="btn btn-xs btn-danger" value="x"><input type="text" name="index" value="@index" hidden /></td>
-                            </tr>
-                        </form>
-                        index++;
+                            <form method="post">
+                                <tr>
+                                    <td>@afspraak <input type="submit" name="afspraakdel" class="btn btn-xs btn-danger" value="x"><input type="text" name="index" value="@index" hidden /></td>
+                                </tr>
+                            </form>
+                            index++;
                         }
                     }
-                    <form method="post"> 
+                    <form method="post">
                         <tr>
                             <td>
                                 <input type="text" name="afspraak" required />    <input type="submit" name="afspraakadd" class="btn btn-xs btn-primary" value="+">

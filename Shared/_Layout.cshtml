@@ -1,77 +1,78 @@
 ﻿<!DOCTYPE html>
 
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <title></title>
-        <script src="~/Content/js/jquery.js"></script>
-        <script src="~/Content/js/bootstrap.js"></script>
-        <link rel="stylesheet" type="text/css" href="~/Content/css/bootstrap.css"/>
-        <link rel="stylesheet" type="text/css" href="~/Content/css/StyleSheet.css"/>
-    </head>
-    <body>
-        <div id="wrapper">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="~/Content/js/jquery.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+    <link rel="stylesheet" type="text/css" href="~/Content/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="~/Content/css/StyleSheet.css" />
+</head>
+<body>
+    <div id="wrapper">
         <nav class="navbar navbar-inverse">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-            <span class="sr-only">Menu</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="@Href("~")"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> SvS</a>
-        </div>
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <p class="navbar-text" id="welkom">StudieVolgSysteem</p>
-      @RenderSection("navbar")
-        @if(WebSecurity.IsAuthenticated){
-            Gebruiker g = Gebruiker.GetUser(WebSecurity.CurrentUserId);
-            <div class="navbar-right">
-                <table>
-                    <tr>
-                        @RenderSection("navbar_right",false)
-                        <td>
-                                <ul class="nav navbar-nav">
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Welkom @g.Naam @g.Achternaam <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="/Account/Manage"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Mijn Account</a></li>
-            <li class="divider"></li>
-            <li><a href="/Account/Logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Uitloggen</a></li>
-          </ul>
-        </li>
-      </ul>
-                        </td>
-                    </tr>
-                </table>
-            
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Menu</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="@Href("~")"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> SvS</a>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <p class="navbar-text" id="welkom">StudieVolgSysteem</p>
+                    @RenderSection("navbar")
+                    @if (WebSecurity.IsAuthenticated)
+                    {
+                        Gebruiker g = Gebruiker.GetUser(WebSecurity.CurrentUserId);
+                        <div class="navbar-right">
+                            <table>
+                                <tr>
+                                    @RenderSection("navbar_right", false)
+                                    <td>
+                                        <ul class="nav navbar-nav">
+                                            <li class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Welkom @g.Naam @g.Achternaam <span class="caret"></span></a>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li><a href="/Account/Manage"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Mijn Account</a></li>
+                                                    <li class="divider"></li>
+                                                    <li><a href="/Account/Logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Uitloggen</a></li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
 
+
+                        </div>
+                    }
+                    else if(App.LoginShow)
+                    {
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="dropdown">
+                                <a href="#inloggen" class="dropdown-toggle" data-toggle="modal" role="button" aria-expanded="false"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Inloggen</a>
+                            </li>
+                        </ul>
+                    }
+
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+        @RenderSection("popup", false)
+        <div id="main" class="clear-top">
+            <div class="row">
+                <div class="col-lg-12">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
     </div>
-        }
-        else
-        {
-        <ul class="nav navbar-nav navbar-right">
-          <li class="dropdown">
-          <a href="#inloggen" class="dropdown-toggle" data-toggle="modal" role="button" aria-expanded="false"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Inloggen</a>
-        </li>
-      </ul>
-        }
-
-    </div><!-- /.navbar-collapse -->
-</div><!-- /.container-fluid -->
-</nav>
-        @RenderSection("popup",false)
-    <div id="main" class="clear-top">
-        <div class="row">
-            <div class="col-lg-12">
-            @RenderBody()
-            </div>
-            </div>
-            </div>
-        </div>
-        <div id="footer"><p id="disclaimer">In opdracht van <a id="nhl" href="http://nhl.nl/nhl" target="_blank">NHL hogeschool</a> &copy; @DateTime.Now.Year</p></div>   
-    </body>
+    <div id="footer"><p id="disclaimer">In opdracht van <a id="nhl" href="http://nhl.nl/nhl" target="_blank">NHL hogeschool</a> &copy; @DateTime.Now.Year</p></div>
+</body>
 </html>

@@ -1,10 +1,10 @@
 ﻿@{
-    Layout = "~/Shared/_Layout.cshtml"; 
+    Layout = "~/Shared/_Layout.cshtml";
     Page.Title = "Admin Dashboard | Gebruikers";
 
     List<Gebruiker> gebruikers = Gebruiker.GetAllUsers();
     var maximumusers = Request.QueryString["maxuser"].AsInt();
-    if(maximumusers == null)
+    if (maximumusers == null)
     {
         maximumusers = 25;
     }
@@ -13,7 +13,7 @@
     var succes = Request.QueryString["succesful"];
     var message = Request.QueryString["message"];
     var zoektext = Request.QueryString["zoektext"];
-    if(zoektext != null)
+    if (zoektext != null)
     {
         gebruikers = Gebruiker.SearchUsers(zoektext);
     }
@@ -31,11 +31,11 @@
     var opmerking = "";
     var studentnr = "";
     var from = Request.QueryString["from"].AsInt();
-    if(from == null)
+    if (from == null)
     {
         from = 0;
     }
-    if(IsPost)
+    if (IsPost)
     {
         naam = Request.Form["naam"];
         achternaam = Request.Form["achternaam"];
@@ -46,25 +46,25 @@
         telefoonnr = Request.Form["telefoon"];
         var wachtwoord = Request.Form["pass"];
         bool succesful = false;
-        Validation.Add("straat",Validator.Regex(@"^([1-9][e][\s])*([a-zA-Z]+(([\.][\s])|([\s]))?)+[1-9][0-9]*(([-][1-9][0-9]*)|([\s]?[a-zA-Z]+))?$","Geen geldig adres"));
-        Validation.Add("zip",Validator.Regex(@"^[1-9][0-9]{3}[\s]?[A-Za-z]{2}$","Geen geldige postcode"));
-        Validation.Add("email",Validator.Regex(@"^([a-z]{4})+([0-9]{4})+(@student.nhl.nl|@nhl.nl)$","E-mailadres is niet juist!"));
-        Validation.Add("telefoon",Validator.Regex(@"(^(((0)[1-9]{2}[0-9][-]?[1-9][0-9]{5})|((\\+31|0|0031)[1-9][0-9][-]?[1-9][0-9]{6}))$)|(^(((\\+31|0|0031)6){1}[1-9]{1}[0-9]{7})$)","Geen geldig telefoonnummer!"));
-        if(!Request["addStudent"].IsEmpty() || !Request["updatestudent"].IsEmpty())
+        Validation.Add("straat", Validator.Regex(@"^([1-9][e][\s])*([a-zA-Z]+(([\.][\s])|([\s]))?)+[1-9][0-9]*(([-][1-9][0-9]*)|([\s]?[a-zA-Z]+))?$", "Geen geldig adres"));
+        Validation.Add("zip", Validator.Regex(@"^[1-9][0-9]{3}[\s]?[A-Za-z]{2}$", "Geen geldige postcode"));
+        Validation.Add("email", Validator.Regex(@"^([a-z]{4})+([0-9]{4})+(@student.nhl.nl|@nhl.nl)$", "E-mailadres is niet juist!"));
+        Validation.Add("telefoon", Validator.Regex(@"(^(((0)[1-9]{2}[0-9][-]?[1-9][0-9]{5})|((\\+31|0|0031)[1-9][0-9][-]?[1-9][0-9]{6}))$)|(^(((\\+31|0|0031)6){1}[1-9]{1}[0-9]{7})$)", "Geen geldig telefoonnummer!"));
+        if (!Request["addStudent"].IsEmpty() || !Request["updatestudent"].IsEmpty())
         {
             SLBerID = Request.Form["slb"];
             opmerking = Request.Form["opmerking"];
             studentnr = Request.Form["studentnr"];
         }
-        if(!Request["addStudent"].IsEmpty() || !Request["addSLB"].IsEmpty() || !Request["addAdmin"].IsEmpty())
+        if (!Request["addStudent"].IsEmpty() || !Request["addSLB"].IsEmpty() || !Request["addAdmin"].IsEmpty())
         {
-            Validation.Add("pass",MyValidator.Regex(@"[A-Z]+","Wachtwoord moet minstens 1 hoofdletter bevatten."),
-            MyValidator.Regex(@"[a-z]","Wachtwoord moet minimaal 1 kleine leter bevatten."),
-            MyValidator.Regex(@"[0-9]","Wachtwoord moet minimaal 1 cijfer bevatten."),
-            MyValidator.Regex(@"[+-.,!@#$%^&*]","Wachtwoord moet minimaal 1 speciaal teken bevatten"),
-            MyValidator.Password(naam,achternaam,email,"Wachtwoord mag geen naam of deel van email bevatten."));
+            Validation.Add("pass", MyValidator.Regex(@"[A-Z]+", "Wachtwoord moet minstens 1 hoofdletter bevatten."),
+            MyValidator.Regex(@"[a-z]", "Wachtwoord moet minimaal 1 kleine leter bevatten."),
+            MyValidator.Regex(@"[0-9]", "Wachtwoord moet minimaal 1 cijfer bevatten."),
+            MyValidator.Regex(@"[+-.,!@#$%^&*]", "Wachtwoord moet minimaal 1 speciaal teken bevatten"),
+            MyValidator.Password(naam, achternaam, email, "Wachtwoord mag geen naam of deel van email bevatten."));
         }
-        if(Validation.IsValid())
+        if (Validation.IsValid())
         {
             if (userid != null)
             {
@@ -87,9 +87,9 @@
                         Gebruiker g = Gebruiker.GetUser(userid.AsInt());
                         foreach (string rol in g.Role)
                         {
-                            if(rol == "SLB")
+                            if (rol == "SLB")
                             {
-                                if(SLB.HasStudent(userid.AsInt()))
+                                if (SLB.HasStudent(userid.AsInt()))
                                 {
                                     Response.Redirect("Gebruikers?succesful=false&message=Deze SLB'er heeft nog studenten. Hierdoor kan deze gebruiker niet verwijderd worden!");
                                     return;
@@ -145,14 +145,14 @@
                 else if (!Request["addSLB"].IsEmpty())
                 {
                     succesful = Gebruiker.AddUser(email, new string[] { "SLB" }, wachtwoord, naam, achternaam, woonplaats, adres, telefoonnr, postcode);
-                        if (succesful)
-                        {
-                            Response.Redirect("Gebruikers?succesful=true&message=Gebruiker succesvol toegevoegd");
-                        }
-                        else
-                        {
-                            Response.Redirect("Gebruikers?succesful=false&message=Er ging iets fout!");
-                        }
+                    if (succesful)
+                    {
+                        Response.Redirect("Gebruikers?succesful=true&message=Gebruiker succesvol toegevoegd");
+                    }
+                    else
+                    {
+                        Response.Redirect("Gebruikers?succesful=false&message=Er ging iets fout!");
+                    }
                 }
                 else if (!Request["addAdmin"].IsEmpty())
                 {
@@ -166,28 +166,28 @@
                         Response.Redirect("Gebruikers?succesful=false&message=Er ging iets fout!");
                     }
                 }
-            } 
+            }
         }
         succes = "false";
-        message = "Corrigeer de volgende fouten";              
+        message = "Corrigeer de volgende fouten";
     }
 }
 
 @section navbar{
-<ul class="nav navbar-nav"> 
-    <li><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
-    <li class="active"><a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a></li>
-</ul>
+    <ul class="nav navbar-nav">
+        <li><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
+        <li class="active"><a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a></li>
+    </ul>
 }
 @section navbar_right{
-<td>
-    <form class="navbar-form" role="search">
-        <div class="form-group">
-          <input type="text" value="@zoektext" name="zoektext" class="form-control" placeholder="Zoeken...">
-        </div>
-        <button type="submit" class="btn btn-default">Zoek</button>
-      </form>
-</td>
+    <td>
+        <form class="navbar-form" role="search">
+            <div class="form-group">
+                <input type="text" value="@zoektext" name="zoektext" class="form-control" placeholder="Zoeken...">
+            </div>
+            <button type="submit" class="btn btn-default">Zoek</button>
+        </form>
+    </td>
 
 }
 
@@ -205,42 +205,43 @@
             <div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>@message</div>
         </div>
     }
-    </div>
+</div>
 
-            <!--Pagina laden--> 
-@if((userid == null || !userid.IsInt()) && action == null)
+<!--Pagina laden-->
+@if ((userid == null || !userid.IsInt()) && action == null)
 {
     int maxusers = gebruikers.Count() - from;
     int paginas = gebruikers.Count() / 25;
-    if(paginas == 0)
+    if (paginas == 0)
     {
         paginas = 1;
     }
-    if(maxusers > 25)
+    if (maxusers > 25)
     {
         maxusers = 25;
     }
-//begin pagina met gebruikerslijst
-    <div class="row">   
-    <div class="col-lg-12">
-        <div class="panel panel-default" id="gebpanel">
-            <div class="panel-heading">Gebruikers</div>
+    //begin pagina met gebruikerslijst
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default" id="gebpanel">
+                <div class="panel-heading">Gebruikers</div>
                 <table class="table">
-                    @if(gebruikers.Count() > 0){
+                    @if (gebruikers.Count() > 0)
+                    {
                         <tr>
                             <th>#</th>
                             <th>E-mail</th>
                             <th>Naam</th>
                             <th>Rollen</th>
                         </tr>
-                        for(int i = from; i < maxusers + from; i++)
+                        for (int i = from; i < maxusers + from; i++)
                         {
                             bool isStudent = false;
                             string roles = "";
-                            foreach(string role in gebruikers[i].Role)
+                            foreach (string role in gebruikers[i].Role)
                             {
                                 roles += role;
-                                if(role == "Student")
+                                if (role == "Student")
                                 {
                                     isStudent = true;
                                 }
@@ -248,14 +249,14 @@
                             }
                             <tr>
                                 <td>@(i + 1)</td>
-                            @if(isStudent)
-                            {
-                                <td><a href="@Href("Gebruikers?userid=" + gebruikers[i].GebruikerID + "&action=updatestudent")">@gebruikers[i].Email</a></td>
-                            }
-                            else
-                            {
-                                <td><a href="@Href("Gebruikers?userid=" + gebruikers[i].GebruikerID + "&action=update")">@gebruikers[i].Email</a></td>
-                            }   
+                                @if (isStudent)
+                                {
+                                    <td><a href="@Href("Gebruikers?userid=" + gebruikers[i].GebruikerID + "&action=updatestudent")">@gebruikers[i].Email</a></td>
+                                }
+                                else
+                                {
+                                    <td><a href="@Href("Gebruikers?userid=" + gebruikers[i].GebruikerID + "&action=update")">@gebruikers[i].Email</a></td>
+                                }
                                 <td>@gebruikers[i].Naam @gebruikers[i].Achternaam</td>
                                 <td>@roles</td>
                             </tr>
@@ -266,437 +267,438 @@
                         <tr><td>Geen gebruikers gevonden!</td></tr>
                     }
                 </table>
-            <div class="panel-footer">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Toevoegen <span class="caret"></span></button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="@Href("Gebruikers?action=AddStudent")">Student</a></li>
-                                    <li><a href="@Href("Gebruikers?action=AddSLB")">SLBer</a></li>
-                                    <li><a href="@Href("Gebruikers?action=AddAdmin")">Admin</a></li>
-                                </ul>
-                            </div>
+                <div class="panel-footer">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Toevoegen <span class="caret"></span></button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="@Href("Gebruikers?action=AddStudent")">Student</a></li>
+                            <li><a href="@Href("Gebruikers?action=AddSLB")">SLBer</a></li>
+                            <li><a href="@Href("Gebruikers?action=AddAdmin")">Admin</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-                        </div> 
-                </div>
-<div class="row text-center">
-    <div class="center-block">
-        <ul class="pagination">
-                                    @if (paginas == 1 || from == 0)
-                                    {
-                                        <li class="disabled"><a href="" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-                                    }
-                                    else
-                                    {
-                                        <li><a href="Gebruikers?from=@(from - 2)" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-                                    }
-                                    @for (int i = 1; i <= paginas; i++)
-                                    {
-                                        if (from / 25 + 1 == i)
-                                        {
-                                            <li class="active"><a href="Gebruikers?from=@((i - 1) * 25)">@i <span class="sr-only">(current)</span></a></li>
-                                        }
-                                        else
-                                        {
-                                            <li><a href="Gebruikers?from=@((i - 1) * 25)">@i <span class="sr-only">(current)</span></a></li>
-                                        }
-
-                                    }
-                                    @if (paginas == 1 || from + 25 >= gebruikers.Count())
-                                    {
-                                        <li class="disabled"><a href="" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
-                                    }
-                                    else
-                                    {
-                                        <li><a href="Gebruikers?from=@(from + 25)" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
-                                    }
-                                </ul>
+        </div>
     </div>
-    
-</div>
-                
+    <div class="row text-center">
+        <div class="center-block">
+            <ul class="pagination">
+                @if (paginas == 1 || from == 0)
+                {
+                    <li class="disabled"><a href="" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                }
+                else
+                {
+                    <li><a href="Gebruikers?from=@(from - 2)" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                }
+                @for (int i = 1; i <= paginas; i++)
+                {
+                    if (from / 25 + 1 == i)
+                    {
+                        <li class="active"><a href="Gebruikers?from=@((i - 1) * 25)">@i <span class="sr-only">(current)</span></a></li>
+                    }
+                    else
+                    {
+                        <li><a href="Gebruikers?from=@((i - 1) * 25)">@i <span class="sr-only">(current)</span></a></li>
+                    }
+
+                }
+                @if (paginas == 1 || from + 25 >= gebruikers.Count())
+                {
+                    <li class="disabled"><a href="" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
+                }
+                else
+                {
+                    <li><a href="Gebruikers?from=@(from + 25)" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
+                }
+            </ul>
+        </div>
+
+    </div>
+
 
 }
-else if((userid == null || userid.IsInt())&& action == "update")
+else if ((userid == null || userid.IsInt()) && action == "update")
 {
     //pagina laden voor updaten van een gebruiker
-Gebruiker gebruiker = Gebruiker.GetUser(userid.AsInt());
-    <div class="row">   
-    <div class="col-lg-12">
-        <div class="panel panel-default">
-<div class="panel-heading">@gebruiker.Naam @gebruiker.Achternaam</div>
-<form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID&action=update">
-    <table>
-        <tr>
-            <td>Naam</td>
-            <td><input type="text" name="naam" value="@gebruiker.Naam" required/></td>
-            
-        </tr>
-        <tr>
-            <td>Achternaam</td>
-            <td><input type="text" name="achternaam" value="@gebruiker.Achternaam" required/></td>
-        </tr>
-        <tr>
-            <td>E-mailadres</td>
-            <td><input type="text" name="email" readonly value="@gebruiker.Email" /></td>
+    Gebruiker gebruiker = Gebruiker.GetUser(userid.AsInt());
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">@gebruiker.Naam @gebruiker.Achternaam</div>
+                <form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID&action=update">
+                    <table>
+                        <tr>
+                            <td>Naam</td>
+                            <td><input type="text" name="naam" value="@gebruiker.Naam" required /></td>
 
-        </tr>
-        <tr>
-            <td>Straat + huis nr.</td>
-            <td><input type="text" name="straat" value="@gebruiker.Adres" required/></td>
-            <td>@Html.ValidationMessage("straat")</td>
-        </tr>
-        <tr>
-            <td>Postcode</td>
-            <td><input type="text" name="zip" size="6" value="@gebruiker.Postcode" required/></td>
-            <td>@Html.ValidationMessage("zip")</td>
-        </tr>
-        <tr>
-            <td>Woonplaats</td>
-             <td><input type="text" name="woonplaats" value="@gebruiker.Woonplaats" required/></td>
-        </tr>
-       <tr>
-            <td>Telefoonnummer</td>
-            <td><input type="text" name="telefoon" value="@gebruiker.TelefoonNr" required/></td>
-           <td>@Html.ValidationMessage("telefoon")</td>
-        </tr>
-    </table>
-            <div class="panel-footer">
-                <a href="Gebruikers" class="btn btn-default">Annuleren</a>
-                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Deletebev">Verwijderen</button>
-                <input type="submit" class="btn btn-primary" name="update" value="Updaten"/>
+                        </tr>
+                        <tr>
+                            <td>Achternaam</td>
+                            <td><input type="text" name="achternaam" value="@gebruiker.Achternaam" required /></td>
+                        </tr>
+                        <tr>
+                            <td>E-mailadres</td>
+                            <td><input type="text" name="email" readonly value="@gebruiker.Email" /></td>
+
+                        </tr>
+                        <tr>
+                            <td>Straat + huis nr.</td>
+                            <td><input type="text" name="straat" value="@gebruiker.Adres" required /></td>
+                            <td>@Html.ValidationMessage("straat")</td>
+                        </tr>
+                        <tr>
+                            <td>Postcode</td>
+                            <td><input type="text" name="zip" size="6" value="@gebruiker.Postcode" required /></td>
+                            <td>@Html.ValidationMessage("zip")</td>
+                        </tr>
+                        <tr>
+                            <td>Woonplaats</td>
+                            <td><input type="text" name="woonplaats" value="@gebruiker.Woonplaats" required /></td>
+                        </tr>
+                        <tr>
+                            <td>Telefoonnummer</td>
+                            <td><input type="text" name="telefoon" value="@gebruiker.TelefoonNr" required /></td>
+                            <td>@Html.ValidationMessage("telefoon")</td>
+                        </tr>
+                    </table>
+                    <div class="panel-footer">
+                        <a href="Gebruikers" class="btn btn-default">Annuleren</a>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Deletebev">Verwijderen</button>
+                        <input type="submit" class="btn btn-primary" name="update" value="Updaten" />
+                    </div>
+                </form>
+
+                <!--Begin popup verwijderbevestiging-->
+                <div class="modal fade" id="Deletebev" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Waarschuwing!</h4>
+                            </div>
+                            <div class="modal-body">
+                                U staat op het punt om een gebruiker te verwijderen!<br> Weet u zeker dat u door wilt gaan? <br>
+                                Dit proces is niet omkeerbaar!
+                            </div>
+                            <div class="modal-footer">
+                                <form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
+                                    <input type="submit" class="btn btn-danger" name="delete" value="Verwijderen" />
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-</form>
-
-<!--Begin popup verwijderbevestiging-->
-<div class="modal fade" id="Deletebev" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Waarschuwing!</h4>
-      </div>
-      <div class="modal-body">
-        U staat op het punt om een gebruiker te verwijderen!<br> Weet u zeker dat u door wilt gaan? <br>
-          Dit proces is niet omkeerbaar!
-      </div>
-      <div class="modal-footer">
-          <form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
-              <input type="submit" class="btn btn-danger" name="delete" value="Verwijderen" />
-          </form>
-      </div>
+        </div>
     </div>
-  </div>
-</div>
-            </div>
-        </div>
-        </div>
-<!--Einde popup verwijderbevestiging-->
-}else if((userid == null || userid.IsInt())&& action == "updatestudent")
+    <!--Einde popup verwijderbevestiging-->
+}
+else if ((userid == null || userid.IsInt()) && action == "updatestudent")
 {
     //pagina laden voor updaten student
     Student gebruiker = Student.GetStudent(userid.AsInt());
     List<SLB> slbers = SLB.GetSLBers();
-        <div class="row">   
-    <div class="col-lg-12">
-        <div class="panel panel-default">
-<div class="panel-heading">@gebruiker.Naam @gebruiker.Achternaam</div>
-<form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID&action=updatestudent">
-    <table>
-        <tr>
-            <td>Naam</td>
-            <td><input type="text" name="naam" value="@gebruiker.Naam" required/></td>
-        </tr>
-        <tr>
-            <td>Achternaam</td>
-            <td><input type="text" name="achternaam" value="@gebruiker.Achternaam" required/></td>
-        </tr>
-        <tr>
-            <td>Studentnummer</td>
-            <td><input type="text" name="studentnr" readonly value="@gebruiker.StudentNr" /></td>
-        </tr>
-        <tr>
-            <td>SLB'er</td>
-            <td>
-                <select name="slb" required>
-                    @if(slbers.Count > 0)
-                    {
-                        bool hasSLBer = false;
-                        foreach(SLB slber in slbers)
-                        {
-                            if(slber.GebruikerID == gebruiker.SLBerID)
-                            {
-                                <option selected value="@slber.GebruikerID">@slber.Naam @slber.Achternaam</option>
-                                hasSLBer = true;
-                            }
-                            else
-                            {
-                                <option value="@slber.GebruikerID">@slber.Naam @slber.Achternaam</option>
-                            }
-                        }
-                        if(!hasSLBer)
-                        {
-                            <option selected value="-1">-</option>
-                        }
-                    }
-                    else
-                    {
-                        <option value="-1">Geen SLB'er(s) gevonden</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>E-mailadres</td>
-            <td><input type="text" name="email" readonly value="@gebruiker.Email" /></td>
-        </tr>
-        <tr>
-            <td>Straat + huis nr.</td>
-            <td><input type="text" name="straat" value="@gebruiker.Adres" required/></td>
-            <td>@Html.ValidationMessage("straat")</td>
-        </tr>
-        <tr>
-            <td>Postcode</td>
-            <td><input type="text" name="zip" size="6" value="@gebruiker.Postcode" required /></td>
-            <td>@Html.ValidationMessage("zip")</td>
-        </tr>
-        <tr>
-            <td>Woonplaats</td>
-             <td><input type="text" name="woonplaats" value="@gebruiker.Woonplaats" required /></td>
-        </tr>
-       <tr>
-            <td>Telefoonnummer</td>
-            <td><input type="text" name="telefoon" value="@gebruiker.TelefoonNr" required /></td>
-           <td>@Html.ValidationMessage("telefoon")</td>
-        </tr>
-    </table>
-        <div class="panel-footer">
-            <a href="Gebruikers" class="btn btn-default">Annuleren</a>
-             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Deletebev">Verwijderen</button>
-            <input type="submit" class="btn btn-primary" name="updatestudent" value="Updaten" />
-        </div>
-</form>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">@gebruiker.Naam @gebruiker.Achternaam</div>
+                <form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID&action=updatestudent">
+                    <table>
+                        <tr>
+                            <td>Naam</td>
+                            <td><input type="text" name="naam" value="@gebruiker.Naam" required /></td>
+                        </tr>
+                        <tr>
+                            <td>Achternaam</td>
+                            <td><input type="text" name="achternaam" value="@gebruiker.Achternaam" required /></td>
+                        </tr>
+                        <tr>
+                            <td>Studentnummer</td>
+                            <td><input type="text" name="studentnr" readonly value="@gebruiker.StudentNr" /></td>
+                        </tr>
+                        <tr>
+                            <td>SLB'er</td>
+                            <td>
+                                <select name="slb" required>
+                                    @if (slbers.Count > 0)
+                                    {
+                                        bool hasSLBer = false;
+                                        foreach (SLB slber in slbers)
+                                        {
+                                            if (slber.GebruikerID == gebruiker.SLBerID)
+                                            {
+                                                <option selected value="@slber.GebruikerID">@slber.Naam @slber.Achternaam</option>
+                                                hasSLBer = true;
+                                            }
+                                            else
+                                            {
+                                                <option value="@slber.GebruikerID">@slber.Naam @slber.Achternaam</option>
+                                            }
+                                        }
+                                        if (!hasSLBer)
+                                        {
+                                            <option selected value="-1">-</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="-1">Geen SLB'er(s) gevonden</option>
+                                    }
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>E-mailadres</td>
+                            <td><input type="text" name="email" readonly value="@gebruiker.Email" /></td>
+                        </tr>
+                        <tr>
+                            <td>Straat + huis nr.</td>
+                            <td><input type="text" name="straat" value="@gebruiker.Adres" required /></td>
+                            <td>@Html.ValidationMessage("straat")</td>
+                        </tr>
+                        <tr>
+                            <td>Postcode</td>
+                            <td><input type="text" name="zip" size="6" value="@gebruiker.Postcode" required /></td>
+                            <td>@Html.ValidationMessage("zip")</td>
+                        </tr>
+                        <tr>
+                            <td>Woonplaats</td>
+                            <td><input type="text" name="woonplaats" value="@gebruiker.Woonplaats" required /></td>
+                        </tr>
+                        <tr>
+                            <td>Telefoonnummer</td>
+                            <td><input type="text" name="telefoon" value="@gebruiker.TelefoonNr" required /></td>
+                            <td>@Html.ValidationMessage("telefoon")</td>
+                        </tr>
+                    </table>
+                    <div class="panel-footer">
+                        <a href="Gebruikers" class="btn btn-default">Annuleren</a>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Deletebev">Verwijderen</button>
+                        <input type="submit" class="btn btn-primary" name="updatestudent" value="Updaten" />
+                    </div>
+                </form>
 
-<!--Begin popup verwijderbevestiging-->
-<div class="modal fade" id="Deletebev" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Waarschuwing!</h4>
-      </div>
-      <div class="modal-body">
-        U staat op het punt om een gebruiker te verwijderen!<br> Weet u zeker dat u door wilt gaan? <br>
-          Dit proces is niet omkeerbaar!
-      </div>
-      <div class="modal-footer">
-          <form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
-              <input type="submit" class="btn btn-danger" name="delete" value="Verwijderen" />
-          </form>
-      </div>
-    </div>
-  </div>
-</div>
+                <!--Begin popup verwijderbevestiging-->
+                <div class="modal fade" id="Deletebev" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Waarschuwing!</h4>
+                            </div>
+                            <div class="modal-body">
+                                U staat op het punt om een gebruiker te verwijderen!<br> Weet u zeker dat u door wilt gaan? <br>
+                                Dit proces is niet omkeerbaar!
+                            </div>
+                            <div class="modal-footer">
+                                <form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
+                                    <input type="submit" class="btn btn-danger" name="delete" value="Verwijderen" />
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-            </div>
-<!--Einde popup verwijderbevestiging-->
+    </div>
+    <!--Einde popup verwijderbevestiging-->
 }
 else if (action == "AddStudent")
 {
     //pagina laden voor student toevoegen
     List<SLB> slbers = SLB.GetSLBers();
-        <div class="row">   
-    <div class="col-lg-12">
-        <div class="panel panel-default">
-    <div class="panel-heading">Student Toevoegen</div>
-    <form method="post" action="Gebruikers?action=AddStudent">
-        <table>
-            <tr>
-                <td>Naam</td>
-                <td><input type="text" name="naam" value="@naam" required /></td>
-            </tr>
-            <tr>
-                <td>Achternaam</td>
-                <td><input type="text" name="achternaam" value="@achternaam" required /></td>
-            </tr>
-            <tr>
-                <td>Studentnummer</td>
-                <td><input type="text" name="studentnr" value="@studentnr" required /></td>
-            </tr>
-            <tr>
-                <td>SLB'er</td>
-                <td>
-                    <select name="slb" required>
-                        @if (slbers.Count > 0)
-                        {
-                            foreach (SLB slber in slbers)
-                            {
-                                    <option value="@slber.GebruikerID">@slber.Naam @slber.Achternaam</option>
-                            }
-                        }
-                        else
-                        {
-                            <option value="-1">Geen SLB'er(s) gevonden</option>
-                        }
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>E-mailadres</td>
-                <td><input type="text" name="email" value="@email" required/></td>
-                <td>@Html.ValidationMessage("email")</td>
-            </tr>
-            <tr>
-                <td>Wachtwoord</td>
-                <td><input type="password" name="pass" required /></td>
-                <td>@Html.ValidationMessage("pass")</td>
-            </tr>
-            <tr>
-                <td>Straat + huis nr.</td>
-                <td><input type="text" name="straat" value="@adres" required /></td>
-                <td>@Html.ValidationMessage("straat")</td>
-            </tr>
-            <tr>
-                <td>Postcode</td>
-                <td><input type="text" name="zip" size="6" value="@postcode" required /></td>
-                <td>@Html.ValidationMessage("zip")</td>
-            </tr>
-            <tr>
-                <td>Woonplaats</td>
-                <td><input type="text" name="woonplaats" value="@woonplaats" required /></td>
-            </tr>
-            <tr>
-                <td>Telefoonnummer</td>
-                <td><input type="text" name="telefoon" value="@telefoonnr" required /></td>
-                <td>@Html.ValidationMessage("telefoon")</td>
-            </tr>
-            <tr>
-                <td>Opmerkingen</td>
-                <td><textarea name="opmerking">@opmerking</textarea></td>
-            </tr>
-        </table>
-        <div class="panel-footer">
-            <a href="Gebruikers" class="btn btn-default">Annuleren</a>
-            <input type="submit" class="btn btn-primary" name="AddStudent" value="Toevoegen" />
-        </div>
-    </form>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Student Toevoegen</div>
+                <form method="post" action="Gebruikers?action=AddStudent">
+                    <table>
+                        <tr>
+                            <td>Naam</td>
+                            <td><input type="text" name="naam" value="@naam" required /></td>
+                        </tr>
+                        <tr>
+                            <td>Achternaam</td>
+                            <td><input type="text" name="achternaam" value="@achternaam" required /></td>
+                        </tr>
+                        <tr>
+                            <td>Studentnummer</td>
+                            <td><input type="text" name="studentnr" value="@studentnr" required /></td>
+                        </tr>
+                        <tr>
+                            <td>SLB'er</td>
+                            <td>
+                                <select name="slb" required>
+                                    @if (slbers.Count > 0)
+                                    {
+                                        foreach (SLB slber in slbers)
+                                        {
+                                            <option value="@slber.GebruikerID">@slber.Naam @slber.Achternaam</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="-1">Geen SLB'er(s) gevonden</option>
+                                    }
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>E-mailadres</td>
+                            <td><input type="text" name="email" value="@email" required /></td>
+                            <td>@Html.ValidationMessage("email")</td>
+                        </tr>
+                        <tr>
+                            <td>Wachtwoord</td>
+                            <td><input type="password" name="pass" required /></td>
+                            <td>@Html.ValidationMessage("pass")</td>
+                        </tr>
+                        <tr>
+                            <td>Straat + huis nr.</td>
+                            <td><input type="text" name="straat" value="@adres" required /></td>
+                            <td>@Html.ValidationMessage("straat")</td>
+                        </tr>
+                        <tr>
+                            <td>Postcode</td>
+                            <td><input type="text" name="zip" size="6" value="@postcode" required /></td>
+                            <td>@Html.ValidationMessage("zip")</td>
+                        </tr>
+                        <tr>
+                            <td>Woonplaats</td>
+                            <td><input type="text" name="woonplaats" value="@woonplaats" required /></td>
+                        </tr>
+                        <tr>
+                            <td>Telefoonnummer</td>
+                            <td><input type="text" name="telefoon" value="@telefoonnr" required /></td>
+                            <td>@Html.ValidationMessage("telefoon")</td>
+                        </tr>
+                        <tr>
+                            <td>Opmerkingen</td>
+                            <td><textarea name="opmerking">@opmerking</textarea></td>
+                        </tr>
+                    </table>
+                    <div class="panel-footer">
+                        <a href="Gebruikers" class="btn btn-default">Annuleren</a>
+                        <input type="submit" class="btn btn-primary" name="AddStudent" value="Toevoegen" />
+                    </div>
+                </form>
             </div>
         </div>
-            </div>
+    </div>
 }
 else if (action == "AddSLB")
 {
     //pagina laden voor SLB toevoegen
-        <div class="row">   
-    <div class="col-lg-12">
-        <div class="panel panel-default">
-    <div class="panel-heading">SLB'er Toevoegen</div>
-    <form method="post" action="Gebruikers?action=AddSLB">
-        <table>
-            <tr>
-                <td>Naam</td>
-                <td><input type="text" name="naam" value="@naam" required /></td>
-            </tr>
-            <tr>
-                <td>Achternaam</td>
-                <td><input type="text" name="achternaam" value="@achternaam" required /></td>
-            </tr>
-            <tr>
-                <td>E-mailadres</td>
-                <td><input type="text" name="email" value="@email" required /></td>
-                <td>@Html.ValidationMessage("email")</td>
-            </tr>
-            <tr>
-                <td>Wachtwoord</td>
-                <td><input type="password" name="pass" required /></td>
-                <td>@Html.ValidationMessage("pass")</td>
-            </tr>
-            <tr>
-                <td>Straat + huis nr.</td>
-                <td><input type="text" name="straat" value="@adres" required /></td>
-                <td>@Html.ValidationMessage("straat")</td>
-            </tr>
-            <tr>
-                <td>Postcode</td>
-                <td><input type="text" name="zip" size="6" value="@postcode" required /></td>
-                <td>@Html.ValidationMessage("zip")</td>
-            </tr>
-            <tr>
-                <td>Woonplaats</td>
-                <td><input type="text" name="woonplaats" value="@woonplaats" required /></td>
-            </tr>
-            <tr>
-                <td>Telefoonnummer</td>
-                <td><input type="text" name="telefoon" value="@telefoonnr" required /></td>
-                <td>@Html.ValidationMessage("telefoon")</td>
-            </tr>
-        </table>
-        <div class="panel-footer">
-            <a href="Gebruikers" class="btn btn-default">Annuleren</a>
-            <input type="submit" class="btn btn-primary" name="AddSLB" value="Toevoegen" />
-        </div>
-    </form>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">SLB'er Toevoegen</div>
+                <form method="post" action="Gebruikers?action=AddSLB">
+                    <table>
+                        <tr>
+                            <td>Naam</td>
+                            <td><input type="text" name="naam" value="@naam" required /></td>
+                        </tr>
+                        <tr>
+                            <td>Achternaam</td>
+                            <td><input type="text" name="achternaam" value="@achternaam" required /></td>
+                        </tr>
+                        <tr>
+                            <td>E-mailadres</td>
+                            <td><input type="text" name="email" value="@email" required /></td>
+                            <td>@Html.ValidationMessage("email")</td>
+                        </tr>
+                        <tr>
+                            <td>Wachtwoord</td>
+                            <td><input type="password" name="pass" required /></td>
+                            <td>@Html.ValidationMessage("pass")</td>
+                        </tr>
+                        <tr>
+                            <td>Straat + huis nr.</td>
+                            <td><input type="text" name="straat" value="@adres" required /></td>
+                            <td>@Html.ValidationMessage("straat")</td>
+                        </tr>
+                        <tr>
+                            <td>Postcode</td>
+                            <td><input type="text" name="zip" size="6" value="@postcode" required /></td>
+                            <td>@Html.ValidationMessage("zip")</td>
+                        </tr>
+                        <tr>
+                            <td>Woonplaats</td>
+                            <td><input type="text" name="woonplaats" value="@woonplaats" required /></td>
+                        </tr>
+                        <tr>
+                            <td>Telefoonnummer</td>
+                            <td><input type="text" name="telefoon" value="@telefoonnr" required /></td>
+                            <td>@Html.ValidationMessage("telefoon")</td>
+                        </tr>
+                    </table>
+                    <div class="panel-footer">
+                        <a href="Gebruikers" class="btn btn-default">Annuleren</a>
+                        <input type="submit" class="btn btn-primary" name="AddSLB" value="Toevoegen" />
+                    </div>
+                </form>
             </div>
         </div>
-            </div>
+    </div>
 }
 else if (action == "AddAdmin")
 {
     //pagina laden voor admin toevoegen
-        <div class="row">   
-    <div class="col-lg-12">
-        <div class="panel panel-default">
-    <div class="panel-heading">Administrator Toevoegen</div>
-    <form method="post" action="Gebruikers?action=AddAdmin">
-        <table>
-            <tr>
-                <td>Naam</td>
-                <td><input type="text" name="naam" value="@naam" required /></td>
-            </tr>
-            <tr>
-                <td>Achternaam</td>
-                <td><input type="text" name="achternaam" value="@achternaam" required /></td>
-            </tr>
-            <tr>
-                <td>E-mailadres</td>
-                <td><input type="text" name="email" value="@email" required /></td>
-                <td>@Html.ValidationMessage("email")</td>
-            </tr>
-            <tr>
-                <td>Wachtwoord</td>
-                <td><input type="password" name="pass" required /></td>
-                <td>@Html.ValidationMessage("pass")</td>
-            </tr>
-            <tr>
-                <td>Straat + huis nr.</td>
-                <td><input type="text" name="straat" value="@adres" required /></td>
-                <td>@Html.ValidationMessage("straat")</td>
-            </tr>
-            <tr>
-                <td>Postcode</td>
-                <td><input type="text" name="zip" size="6" value="@postcode" required /></td>
-                <td>@Html.ValidationMessage("zip")</td>
-            </tr>
-            <tr>
-                <td>Woonplaats</td>
-                <td><input type="text" name="woonplaats" value="@woonplaats" /></td>
-            </tr>
-            <tr>
-                <td>Telefoonnummer</td>
-                <td><input type="text" name="telefoon" value="@telefoonnr" /></td>
-                <td>@Html.ValidationMessage("telefoon")</td>
-            </tr>
-        </table>
-        <div class="panel-footer">
-            <a href="Gebruikers" class="btn btn-default">Annuleren</a>
-            <input type="submit" class="btn btn-primary" name="AddAdmin" value="Toevoegen" />
-        </div>
-    </form>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Administrator Toevoegen</div>
+                <form method="post" action="Gebruikers?action=AddAdmin">
+                    <table>
+                        <tr>
+                            <td>Naam</td>
+                            <td><input type="text" name="naam" value="@naam" required /></td>
+                        </tr>
+                        <tr>
+                            <td>Achternaam</td>
+                            <td><input type="text" name="achternaam" value="@achternaam" required /></td>
+                        </tr>
+                        <tr>
+                            <td>E-mailadres</td>
+                            <td><input type="text" name="email" value="@email" required /></td>
+                            <td>@Html.ValidationMessage("email")</td>
+                        </tr>
+                        <tr>
+                            <td>Wachtwoord</td>
+                            <td><input type="password" name="pass" required /></td>
+                            <td>@Html.ValidationMessage("pass")</td>
+                        </tr>
+                        <tr>
+                            <td>Straat + huis nr.</td>
+                            <td><input type="text" name="straat" value="@adres" required /></td>
+                            <td>@Html.ValidationMessage("straat")</td>
+                        </tr>
+                        <tr>
+                            <td>Postcode</td>
+                            <td><input type="text" name="zip" size="6" value="@postcode" required /></td>
+                            <td>@Html.ValidationMessage("zip")</td>
+                        </tr>
+                        <tr>
+                            <td>Woonplaats</td>
+                            <td><input type="text" name="woonplaats" value="@woonplaats" /></td>
+                        </tr>
+                        <tr>
+                            <td>Telefoonnummer</td>
+                            <td><input type="text" name="telefoon" value="@telefoonnr" /></td>
+                            <td>@Html.ValidationMessage("telefoon")</td>
+                        </tr>
+                    </table>
+                    <div class="panel-footer">
+                        <a href="Gebruikers" class="btn btn-default">Annuleren</a>
+                        <input type="submit" class="btn btn-primary" name="AddAdmin" value="Toevoegen" />
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 }
 
