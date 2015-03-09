@@ -1,13 +1,17 @@
 ﻿@{
-        Layout = "~/Shared/_Layout.cshtml"; 
+    Layout = "~/Shared/_Layout.cshtml";
     Page.Title = "Admin Dashboard | Home";
 }
 
 @section navbar{
-  <ul class="nav navbar-nav"> 
-        <li class="active"><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
-        <li><a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a></li>
-      </ul>
+    <ul class="nav navbar-nav">
+        <li class="active">
+            <a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a>
+        </li>
+        <li>
+            <a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a>
+        </li>
+    </ul>
 }
 <div class="row">
     <div class="col-lg-6">

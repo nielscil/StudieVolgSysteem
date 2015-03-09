@@ -80,6 +80,20 @@ public class Gebruiker
         return new Gebruiker(row.GebruikerID,row.Email,Roles.GetRolesForUser(row.Email),row.Naam,row.Achternaam,row.Woonplaats,row.Adres,row.Telefoon_nr,row.Postcode);
     }
 
+    public static Gebruiker GetUser(string passreset)
+    {
+        Database db = Database.Open(Constants.DBName);
+        var r1 = db.QuerySingle("SELECT userid FROM webpages_Membership WHERE PasswordResetToken=@0",passreset);
+        if(r1 == null){
+            throw new Exception("Niet gevonden");
+        }
+        var row = db.QuerySingle("SELECT * FROM gebruikers WHERE gebruikerid=();",r1.UserID);
+        db.Close();
+        if(row == null)
+            throw new Exception("Niet gevonden");
+        return new Gebruiker(row.GebruikerID,row.Email,Roles.GetRolesForUser(row.Email),row.Naam,row.Achternaam,row.Woonplaats,row.Adres,row.Telefoon_nr,row.Postcode);
+    }
+
     /// <summary>
     /// Maakt gebruiker aan.
     /// </summary>
@@ -171,6 +185,53 @@ public class Gebruiker
             return true;
         else
             return false;
+    }
+
+    public static List<Gebruiker> SearchUsers(string input)
+    {
+        Database db = Database.Open(Constants.DBName);
+        List<Gebruiker> lijst = new List<Gebruiker>();
+        if(input.Contains(" "))
+        {
+            string[] raw = input.Split(' ');
+            foreach(string ra in raw)
+            {
+                if(ra.Length > 3)
+                {
+                    string r1 = ra + "%";
+                    var rows = db.Query("SELECT * FROM gebruikers WHERE email LIKE @0 OR naam LIKE @1 OR achternaam LIKE @2;",r1 ,r1,r1);
+                    foreach(var r in rows)
+                    {
+                        bool alreadyIn = false;
+                        foreach(Gebruiker g1 in lijst)
+                        {
+                            if (g1.Naam == r.Naam && g1.Achternaam == r.Achternaam && g1.Email == r.Email)
+                            {
+                                alreadyIn = true;
+                                break;
+                            }
+                        }
+                        if(!alreadyIn)
+                        {
+                            Gebruiker g = new Gebruiker(r.GebruikerID, r.Email, Roles.GetRolesForUser(r.Email), r.Naam, r.Achternaam, r.Woonplaats, r.Adres, r.Telefoon_nr, r.Postcode);
+                            lijst.Add(g);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            input += "%";
+            var rows = db.Query("SELECT * FROM gebruikers WHERE email LIKE @0 OR naam LIKE @1 OR achternaam LIKE @2;",input,input,input);
+            foreach(var r in rows)
+            {
+                Gebruiker g = new Gebruiker(r.GebruikerID, r.Email, Roles.GetRolesForUser(r.Email),r.Naam, r.Achternaam, r.Woonplaats, r.Adres, r.Telefoon_nr, r.Postcode);
+                lijst.Add(g);
+            }
+        }
+        db.Close();
+        return lijst;
     }
 }
 
@@ -304,7 +365,7 @@ public class Student : Gebruiker
     public static List<Student> GetStudents(int SLBerID)
     {
         Database db = Database.Open(Constants.DBName);
-        var rows = db.Query("SELECT * FROM gebruikers,student WHERE gebruikerID = studentID");
+        var rows = db.Query("SELECT * FROM gebruikers,student WHERE gebruikerID = studentID AND slberid =@0",SLBerID);
         db.Close();
         List<Student> lijst = new List<Student>();
         foreach(var r in rows)
@@ -402,10 +463,21 @@ public class Evaluatie
     public static int AddEvaluatie(string besproken, DateTime datumVolgendeGesprek,int agendaID,string locatieVolgendeGesprek) 
     {
         Database db = Database.Open(Constants.DBName);
-        db.Execute("INSERT INTO Evaluatie(besproken,datumVolgendeGesprek,agendaid,locatieVolgendeGesprek) VALUES (@0,@1,@2,@3)", besproken,datumVolgendeGesprek,agendaID,locatieVolgendeGesprek);
-        var id = db.QueryValue("SELECT gesprekid FROM Evaluatie where besproken=@0 AND datumvolgendegesprek=@1 AND agendaID=@2 AND locatievolgendegesprek=@3",besproken,datumVolgendeGesprek,agendaID,locatieVolgendeGesprek);
+        db.Execute("INSERT INTO Evaluatie(besproken,agendaid) VALUES (@0,@1)", besproken,agendaID);
+        var id = db.QueryValue("SELECT gesprekid FROM Evaluatie where agendaID=@0",agendaID);
         db.Close();
         if(id == null)
+            return -1;
+        else
+            return (int)id;
+    }
+    public static int AddEvaluatie(string besproken, int agendaID)
+    {
+        Database db = Database.Open(Constants.DBName);
+        db.Execute("INSERT INTO Evaluatie(besproken,agendaid) VALUES (@0,@1)", besproken, agendaID);
+        var id = db.QueryValue("SELECT gesprekid FROM Evaluatie where agendaID=@0", agendaID);
+        db.Close();
+        if (id == null)
             return -1;
         else
             return (int)id;
@@ -431,11 +503,10 @@ public class Afspraak
         this.afgevinkt = Afgevinkt;
         this.GesprekID = gesprekID;
     }
-    public static void AddAfspraak(string Opmerking, bool Afgevinkt, int gesprekID) 
+    public static void AddAfspraak(string Opmerking, int gesprekID) 
     {
         Database db = Database.Open(Constants.DBName);
-        db.Execute("INSERT INTO Afspraken(Opmerking,Afgevinkt,gesprekID) VALUES (@0,@1,@2)", Opmerking,Afgevinkt,gesprekID);
+        db.Execute("INSERT INTO Afspraken(Opmerking,Afgevinkt,gesprekID) VALUES (@0,@1,@2)", Opmerking,false,gesprekID);
         db.Close();
     }
 }
-

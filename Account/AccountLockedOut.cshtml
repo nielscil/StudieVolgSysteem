@@ -1,15 +1,22 @@
 ﻿@{
     Layout = "~/Shared/_Layout.cshtml";
     Page.Title = "Account is geblokkeerd";
+    App.LoginShow = false;
 }
 @section navbar{
     
 }
-<hgroup>
-    <h1>@Page.Title.</h1>
-    <h2>Je account is geblokkeerd doordat je te veel inlogpogingen hebt gedaan</h2>
-</hgroup>
+<div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-8">
+        <div class="panel panel-danger">
+            <div class="panel-heading">Account is geblokkeerd</div>
+            <div class="panel-body">
+                Je account is geblokkeerd doordat je te veel inlogpogingen hebt gedaan<br>
+                Je account wordt binnen 60 seconden weer vrijgegeven.
+            </div>
 
-<p>
-    Je account wordt binnen 60 seconden weer vrijgegeven.
-</p>
+        </div>
+    </div>
+    <div class="col-lg-2"></div>
+</div>

@@ -1,15 +1,20 @@
-﻿@{;
-        Layout = "~/Shared/_Layout.cshtml"; 
+﻿@{
+    Layout = "~/Shared/_Layout.cshtml";
     Page.Title = "SLB Dashboard";
     List<Student> studenten = Student.GetStudents(WebSecurity.CurrentUserId);
 }
 
 @section navbar{
-  <ul class="nav navbar-nav"> 
+    <ul class="nav navbar-nav">
         <li class="active"><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
         <li><a href="#"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
+<<<<<<< HEAD
         <li><a href="leerling"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Studenten</a></li>
       </ul>
+=======
+        <li><a href="@Href("Evaluatie")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gespreksevaluatie</a></li>
+    </ul>
+>>>>>>> origin/develop
 }
 
     <!--Lijst met studenten-->
@@ -19,14 +24,22 @@
     <div class="col-lg-2">
         <div class="panel panel-default">
             <div class="panel-heading">Studenten</div>
-                <table class="table">
-                    @foreach(Student s in studenten){
+            <table class="table">
+                @if(studenten.Count > 0){
+                    foreach (Student s in studenten)
+                    {
                         <tr>
-                            <td><a href="leerling?studentid=@s.GebruikerID">@s.Naam @s.Achternaam</a></td>
-                            <td><img src="~/content/images/GreenDot.png" alt="green"/></td>
+                            <td><a href="#">@s.Naam @s.Achternaam</a></td>
+                            <td><img src="~/content/images/GreenDot.png" class="img" alt="green" /></td>
                         </tr>
                     }
-                </table>
+                }else{
+                    <tr>
+                        <td>Geen studenten gevonden</td>
+                    </tr>
+                }
+
+            </table>
             <div class="panel-footer"></div>
         </div>
     </div>
