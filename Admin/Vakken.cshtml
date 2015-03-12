@@ -1,0 +1,489 @@
+﻿@using System.Collections.Specialized;
+@{
+    Layout = "~/Shared/_Layout.cshtml";
+    Page.Title = "Admin Dashboard | Vakken";
+    var from = Request.QueryString["from"].AsInt();
+    var succes = Request.QueryString["succesful"];
+    var message = Request.QueryString["message"];
+    string[] seperateurl = Request.Url.ToString().Split('?');
+    NameValueCollection querrystring;
+    if(seperateurl.Length > 1)
+    {
+        querrystring = System.Web.HttpUtility.ParseQueryString(seperateurl[1]);
+    }
+    else
+    {
+        querrystring = System.Web.HttpUtility.ParseQueryString("from=0");
+    } 
+    if (from == null)
+    {
+        from = 0;
+    }
+    List<Vak> vakken = Vak.GetSubjects();
+    List<Opleiding> addopleiding = (List<Opleiding>)Session["addopleiding"];
+    if(addopleiding == null)
+    {
+        addopleiding = new List<Opleiding>();
+    }
+    var zoektext = Request.QueryString["zoektext"];
+    var vakid = Request.QueryString["vakid"];
+    var action = Request.QueryString["action"];
+    string vaknaam = "";
+    List<Opleiding> opleidingen = Opleiding.GetStudies();
+    if (zoektext != null)
+    {
+        vakken = Vak.SearchSubject(zoektext);
+    }
+    if(IsPost)
+    {
+        if(!Request["update"].IsEmpty() && vakid.IsInt())
+        {
+            try
+            {
+                Vak.UpdateSubject(vakid.AsInt(),Request.Form["naam"]);
+            }
+            catch
+            {
+                Response.Redirect("Vakken?succesful=false&message=Er ging iets fout, probeer het opnieuw.");
+            }
+            Response.Redirect("Vakken?succesful=true&message=Succesvol geüpdatet");
+        }
+        else if(!Request["add"].IsEmpty())
+        {
+            try
+            {
+                int id = Vak.AddSubject(Request.Form["naam"]);
+                if(id == -1)
+                {
+                    Response.Redirect("Vakken?succesful=false&message=Er ging iets fout, probeer het opnieuw.");
+                }
+                foreach (Opleiding v in addopleiding)
+                {
+                    Opleiding.AddSubject(v.OpleidingID, id);
+                }
+                Session["addopleiding"] = null;
+            }
+            catch
+            {
+                Response.Redirect("Vakken?succesful=false&message=Er ging iets fout, probeer het opnieuw.");
+            }
+            Response.Redirect("Vakken?succesful=true&message=Succesvol toegevoegd");           
+        }
+        else if(!Request["add_addopl"].IsEmpty())
+        {
+            var opleidingid = Request.Form["opleiding"];
+            if((opleidingid != null || opleidingid.IsInt()) && opleidingid != "-1")
+            {
+                Opleiding v = Opleiding.GetStudy(opleidingid.AsInt());
+                addopleiding.Add(v);
+                Session["addopleiding"] = addopleiding;
+                vaknaam = Request.Form["naam"];
+            }
+        }
+        else if(!Request["update_addopl"].IsEmpty() && vakid.IsInt())
+        {
+            var opleidingid = Request.Form["opleiding"];
+            if ((opleidingid != null || opleidingid.IsInt()) && opleidingid != "-1")
+            {
+                Opleiding v = Opleiding.GetStudy(opleidingid.AsInt());
+                Opleiding.AddSubject(v.OpleidingID,vakid.AsInt());
+            }
+        }
+        else if(!Request["update_opldel"].IsEmpty() && vakid.IsInt())
+        {
+            int opleidingid = Request.Form["index"].AsInt();
+            Opleiding.DelSubject(opleidingid, vakid.AsInt());
+        }
+        else if(!Request["add_opldel"].IsEmpty())
+        {
+            int index = Request.Form["index"].AsInt();
+            if( index >= 0)
+            {
+                addopleiding.RemoveAt(index);
+                Session["addopleiding"] = addopleiding;
+                vaknaam = Request.Form["naam"];
+            }
+        }
+        else if (!Request["delete"].IsEmpty() && vakid.IsInt())
+        {
+            try
+            {
+                Vak.DelSubject(vakid.AsInt());
+            }
+            catch
+            {
+                Response.Redirect("Opleiding?succesful=false&message=Er ging iets fout, probeer het opnieuw.");
+            }
+            Response.Redirect("Opleiding?succesful=true&message=Succesvol verwijderd");
+        }
+    }
+}
+<script>
+    $(document).ready(function () {
+        $("#unhide").click(function () {
+            $(".hideable").show(400);
+        });
+        $("#hide").click(function () {
+            $(".hideable").hide(400);
+        });
+    });
+</script>
+@section navbar{
+    <ul class="nav navbar-nav">
+        <li><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
+        <li><a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a></li>
+        <li><a href="@Href("opleiding")"><span class="glyphicon glyphicon-education" aria-hidden="true"></span> Opleidingen</a></li>
+        <li class="active"><a href="@Href("Vakken")"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> Vakken</a></li>
+    </ul>
+}
+@section navbar_right{
+    <td>
+        <form class="navbar-form" role="search">
+            <div class="form-group">
+                <input type="text" value="@zoektext" name="zoektext" id="search" class="form-control" placeholder="Zoeken...">
+            </div>
+            <button type="submit" class="btn btn-default">Zoek</button>
+        </form>
+    </td>
+}
+
+<div class="row">
+    @if (succes == "true")
+    {
+        <div class="col-lg-12">
+            <div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>@message</div>
+        </div>
+    }
+    else if (succes == "false")
+    {
+        <div class="col-lg-12">
+            <div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>@message</div>
+        </div>
+    }
+</div>
+@if ((vakid == null || !vakid.IsInt()) && action == null)
+{
+    int maxvakken = vakken.Count - from;
+    int paginas = vakken.Count / 25 + 1;
+    if (maxvakken > 25)
+    {
+        maxvakken = 25;
+    }
+    //lijst
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default" id="gebpanel">
+                <div class="panel-heading">
+                    <div class="panel-title">Vakken</div>
+                </div>
+                <div class="list-group">
+                    @if (vakken.Count > 0)
+                    {
+                    for (int i = from; i < maxvakken + from; i++)
+                    {
+                    <a href="Vakken?vakid=@vakken[i].VakID" class="list-group-item">@vakken[i].Naam</a>
+                    }
+                    }
+                    else
+                    {
+                    <a href="" class="list-group-item disabled">Geen vakken gevonden</a>
+                    }
+
+                </div>
+                <div class="panel-footer">
+                    <a href="Vakken?action=add" class="btn btn-primary">Toevoegen</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row text-center">
+        <div class="center-block">
+            <ul class="pagination">
+                @if (paginas == 1 || from == 0)
+                {
+                    <li class="disabled"><a href="" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                }
+                else
+                {
+                    querrystring["from"] = (from - 25).ToString();
+                    string url = seperateurl[0] + "?" + querrystring.ToString();
+                    <li><a href="@url" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                }
+                @for (int i = 1; i <= paginas; i++)
+                {
+                    if (from / 25 + 1 == i)
+                    {
+                        querrystring["from"] = ((i - 1) * 25).ToString();
+                        string url = seperateurl[0] + "?" + querrystring.ToString();
+                        <li class="active"><a href="@url">@i <span class="sr-only">(current)</span></a></li>
+                    }
+                    else
+                    {
+                        querrystring["from"] = ((i - 1) * 25).ToString();
+                        string url = seperateurl[0] + "?" + querrystring.ToString();
+                        <li><a href="@url">@i <span class="sr-only">(current)</span></a></li>
+                    }
+
+                }
+                @if (paginas == 1 || from + 25 >= vakken.Count)
+                {
+                    <li class="disabled"><a href="" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
+                }
+                else
+                {
+                    querrystring["from"] = (from + 25).ToString();
+                    string url = seperateurl[0] + "?" + querrystring.ToString();
+                    <li><a href="@url" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
+                }
+            </ul>
+        </div>
+
+    </div>
+}
+else if (vakid.IsInt())
+{
+    //updaten
+    Vak o = Vak.GetSubject(vakid.AsInt());
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="panel-title">@o.Naam</div>
+                    </div>
+                    <form method="post">
+                        <div class="panel-body">
+                            <table>
+                                <tr>
+                                    <td>Naam</td>
+                                    <td><input type="text" name="naam" value="@o.Naam" required /></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="panel-footer">
+                            <a href="vakken" class="btn btn-default">Annuleren</a>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Deletebev">Verwijderen</button>
+                            <input type="submit" name="update" class="btn btn-primary" value="Updaten" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="panel panel-default hideable">
+                    <div class="panel-heading">
+                        <div class="panel-title">Opleiding toevoegen</div>
+                    </div>
+                    <form method="post">
+                        <div class="panel-body">
+                            <table>
+                                <tr>
+                                    <td>Opleiding naam</td>
+                                    <td>
+                                        <select name="opleiding">
+                                            @if (opleidingen.Count > 0)
+                                            {
+                                                int aantal = 0;
+                                                foreach (Opleiding v in opleidingen)
+                                                {
+                                                    bool hasalready = false;
+                                                    foreach (Opleiding v1 in Vak.GetStudies(o.VakID))
+                                                    {
+                                                        if(v1.OpleidingID == v.OpleidingID)
+                                                        {
+                                                            hasalready = true;
+                                                        }
+                                                    }
+                                                    if (!hasalready)
+                                                    {
+                                                        aantal++;
+                                                        <option value="@v.OpleidingID">@v.Naam</option>
+                                                    }
+                                                }
+                                                if (aantal == 0)
+                                                {
+                                                    <option value="-1">Geen opleidingen beschikbaar</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="-1">Geen opleidingen gevonden</option>
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="panel-footer">
+                            <button class="btn btn-default" id="hide">Annuleren</button>
+                            <input type="submit" name="update_addopl" class="btn btn-primary" value="Toevoegen" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-title">Opleidingen</div>
+                    </div>
+                    <ul class="list-group">
+                        @if(Vak.GetStudies(o.VakID).Count > 0)
+                        {
+                            foreach(Opleiding v in Vak.GetStudies(o.VakID))
+                            {
+                                <li class="list-group-item">
+                                    <form method="post">
+                                        @v.Naam <div class="pull-right"><input type="submit" name="update_opldel" class="btn btn-xs btn-danger" value="x"><input type="text" name="index" value="@v.OpleidingID" hidden /></div>
+                                    </form>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item">
+                                Geen opleiding
+                            </li>
+                        }
+                    </ul>
+                <div class="panel-footer">
+                    <button class="btn btn-primary" id="unhide">Opleiding toevoegen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Begin popup verwijderbevestiging-->
+    <div class="modal fade" id="Deletebev" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Waarschuwing!</h4>
+                </div>
+                <div class="modal-body">
+                    U staat op het punt om een Vak te verwijderen!<br> Weet u zeker dat u door wilt gaan? <br>
+                    Dit proces is niet omkeerbaar!
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="vakken?vakid=@o.VakID">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
+                        <input type="submit" class="btn btn-danger" name="delete" value="Verwijderen" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Einde popup verwijderbevestiging-->
+}
+else if (action == "add")
+{
+    //toevoegen
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="panel-title">Vak toevoegen</div>
+                    </div>
+                    <form method="post">
+                        <div class="panel-body">
+                            <table>
+                                <tr>
+                                    <td>Naam</td>
+                                    <td><input type="text" name="naam" value="@vaknaam" required /></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="panel-footer">
+                            <a href="vakken" class="btn btn-default">Annuleren</a>
+                            <input type="submit" name="add" class="btn btn-primary" value="Toevoegen" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="panel panel-default hideable">
+                    <div class="panel-heading">
+                        <div class="panel-title">Opleiding toevoegen</div>
+                    </div>
+                    <form method="post">
+                        <div class="panel-body">
+                            <table>
+                                <tr>
+                                    <td>Opleiding naam</td>
+                                    <td>
+                                        <select name="opleiding">
+                                            @if (opleidingen.Count > 0)
+                                            {
+                                                int aantal = 0;
+                                                foreach (Opleiding v in opleidingen)
+                                                {
+                                                    bool hasalready = false;
+                                                    foreach (Opleiding v1 in addopleiding)
+                                                    {
+                                                        if (v1.OpleidingID == v.OpleidingID)
+                                                        {
+                                                            hasalready = true;
+                                                        }
+                                                    }
+                                                    if (!hasalready)
+                                                    {
+                                                        aantal++;
+                                                        <option value="@v.OpleidingID">@v.Naam</option>
+                                                    }
+                                                }
+                                                if (aantal == 0)
+                                                {
+                                                    <option value="-1">Geen opleidingen beschikbaar</option>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <option value="-1">Geen opleidingen gevonden</option>
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="panel-footer">
+                            <button class="btn btn-default" id="hide">Annuleren</button>
+                            <input type="submit" name="add_addopl" class="btn btn-primary" value="Toevoegen" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-title">Opleidingen</div>
+                </div>
+                <ul class="list-group">
+                    @if (addopleiding.Count > 0)
+                    {
+                        int index = 0;
+                        foreach (Opleiding v in addopleiding)
+                        {
+                            <li class="list-group-item">
+                                <form method="post">
+                                    @v.Naam <div class="pull-right"><input type="submit" name="add_opldel" class="btn btn-xs btn-danger" value="x"><input type="text" name="index" value="@index" hidden /></div>
+                                </form>
+                            </li>
+                            index++;
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item">
+                            Geen Opleidingen
+                        </li>
+                    }
+                </ul>
+                <div class="panel-footer">
+                    <button class="btn btn-primary" id="unhide">Opleiding toevoegen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

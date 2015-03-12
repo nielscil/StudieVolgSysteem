@@ -11,6 +11,8 @@
         <li>
             <a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a>
         </li>
+        <li><a href="@Href("Opleiding")"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> Opleidingen</a></li>
+        <li><a href="@Href("Vakken")"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> Vakken</a></li>
     </ul>
 }
 <div class="row">
@@ -24,7 +26,27 @@
     <div class="col-lg-6">
         <div class="panel panel-default">
             <div class="panel-heading">Welkom</div>
-            <div class="panel-body">admin Stuff</div>
+            <div class="panel-body">
+                <div class="list-group">
+                    <a href="gebruikers" class="list-group-item">Gebruikers <span class="badge">@Gebruiker.Count()</span></a>
+                    <a href="opleiding" class="list-group-item">Opleidingen <span class="badge">@Opleiding.Count()</span></a>
+                    <a href="vakken" class="list-group-item">Vakken <span class="badge">@Vak.Count()</span></a>
+                </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <span class="badge">@Evaluatie.Count()</span>
+                            Evaluaties
+                        </li>
+                        <li class="list-group-item">
+                            <span class="badge">@Afspraak.Count()</span>
+                            Afspraken
+                        </li>
+                        <li class="list-group-item">
+                            <span class="badge">@Cijfer.Count()</span>
+                            Cijfers
+                        </li>
+                    </ul> 
+            </div>
             <div class="panel-footer">footer</div>
         </div>
     </div>

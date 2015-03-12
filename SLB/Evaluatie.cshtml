@@ -2,12 +2,13 @@
     Layout = "~/Shared/_Layout.cshtml";
     Page.Title = "Gespreksevaluatie";
     var agendaid = Request.QueryString["agendaid"];
+    var action = Request.QueryString["action"];
     string besproken = "";
     string locatie = "";
     string date = "";
     string tijd = "";
     bool check = false;
-    if (agendaid == null || !agendaid.IsInt())
+    if (agendaid == null || !agendaid.IsInt() || action == null)
     {
         Response.Redirect("Default");
     }
@@ -29,14 +30,14 @@
             string test = Request.Form["afspraak"];
             afspraken.Add(test);
             Session["afspraken"] = afspraken;
-            Response.Redirect("Evaluatie?agendaid=" + agendaid);
+            Response.Redirect("Evaluatie?agendaid=" + agendaid + "&action=" + action);
         }
         else if (!Request["afspraakdel"].IsEmpty())
         {
             int index = Request.Form["index"].AsInt();
             afspraken.RemoveAt(index);
             Session["afspraken"] = afspraken;
-            Response.Redirect("Evaluatie?agendaid=" + agendaid);
+            Response.Redirect("Evaluatie?agendaid=" + agendaid + "&action=" + action);
         }
         else if (!Request["evaluatietoevoegen"].IsEmpty())
         {
