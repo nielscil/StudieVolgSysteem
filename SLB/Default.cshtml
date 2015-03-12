@@ -8,13 +8,8 @@
     <ul class="nav navbar-nav">
         <li class="active"><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
         <li><a href="#"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
-<<<<<<< HEAD
         <li><a href="leerling"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Studenten</a></li>
       </ul>
-=======
-        <li><a href="@Href("Evaluatie")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gespreksevaluatie</a></li>
-    </ul>
->>>>>>> origin/develop
 }
 
     <!--Lijst met studenten-->
@@ -31,6 +26,18 @@
                         <tr>
                             <td><a href="#">@s.Naam @s.Achternaam</a></td>
                             <td><img src="~/content/images/GreenDot.png" class="img" alt="green" /></td>
+                            @switch(algoritme.ber_Prioriteit(studid)) 
+                            {
+                                case 1:
+                                    <td><img src="~/content/images/GreenDot.png" alt="green"/></td>  
+                                break;
+                                case 2:
+                                    <td><img src="~/content/images/OrangeDot.png" alt="green"/></td>
+                                break;
+                                case 3:
+                                    <td><img src="~/content/images/RedDot.png" alt="green"/></td>
+                                break;
+                            }
                         </tr>
                     }
                 }else{
