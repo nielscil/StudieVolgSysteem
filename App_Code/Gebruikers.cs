@@ -47,6 +47,14 @@ public class Gebruiker
         this.Postcode = postcode;
     }
 
+    public static int Count()
+    {
+        Database db = Database.Open(Constants.DBName);
+        int count = db.QueryValue("SELECT COUNT(gebruikerid) FROM gebruikers;");
+        db.Close();
+        return count;
+    }
+
     /// <summary>
     /// Geeft lijst met alle gebruikers
     /// </summary>
@@ -54,7 +62,7 @@ public class Gebruiker
     public static List<Gebruiker> GetAllUsers()
     {
         Database db = Database.Open(Constants.DBName);
-        var rows = db.Query("SELECT * FROM gebruikers;");
+        var rows = db.Query("SELECT * FROM gebruikers ORDER BY email;");
         db.Close();
         List<Gebruiker> lijst = new List<Gebruiker>();
         foreach(var r in rows)
@@ -199,7 +207,7 @@ public class Gebruiker
                 if(ra.Length > 3)
                 {
                     string r1 = ra + "%";
-                    var rows = db.Query("SELECT * FROM gebruikers WHERE email LIKE @0 OR naam LIKE @1 OR achternaam LIKE @2;",r1 ,r1,r1);
+                    var rows = db.Query("SELECT * FROM gebruikers WHERE email LIKE @0 OR naam LIKE @1 OR achternaam LIKE @2 ORDER BY email;",r1 ,r1,r1);
                     foreach(var r in rows)
                     {
                         bool alreadyIn = false;
@@ -438,75 +446,4 @@ public class SLB : Gebruiker
 
 }
 
-public class Evaluatie
-{
-    public int GesprekID {get;set;}
-    public string Besproken {get;set;}
-    public DateTime DatumVolgendeGesprek {get;set;}
-    public int AgendaID {get;set;}
-    public string LocatieVolgendeGesprek{get;set;}
-    public Evaluatie(int gesprekID,string besproken,DateTime datumVolgendeGesprek,int agendaID, string locatieVolgendeGesprek) 
-    {
-        this.GesprekID = gesprekID;
-        this.Besproken = besproken;
-        this.DatumVolgendeGesprek = datumVolgendeGesprek;
-        this.AgendaID = agendaID;
-        this.LocatieVolgendeGesprek = locatieVolgendeGesprek;
-    }
-    public Evaluatie(string besproken,DateTime datumVolgendeGesprek, int agendaID,string locatieVolgendeGesprek) 
-    {
-        this.Besproken = besproken;
-        this.DatumVolgendeGesprek = datumVolgendeGesprek;
-        this.AgendaID = agendaID;
-        this.LocatieVolgendeGesprek = locatieVolgendeGesprek;
-    }
-    public static int AddEvaluatie(string besproken, DateTime datumVolgendeGesprek,int agendaID,string locatieVolgendeGesprek) 
-    {
-        Database db = Database.Open(Constants.DBName);
-        db.Execute("INSERT INTO Evaluatie(besproken,agendaid) VALUES (@0,@1)", besproken,agendaID);
-        var id = db.QueryValue("SELECT gesprekid FROM Evaluatie where agendaID=@0",agendaID);
-        db.Close();
-        if(id == null)
-            return -1;
-        else
-            return (int)id;
-    }
-    public static int AddEvaluatie(string besproken, int agendaID)
-    {
-        Database db = Database.Open(Constants.DBName);
-        db.Execute("INSERT INTO Evaluatie(besproken,agendaid) VALUES (@0,@1)", besproken, agendaID);
-        var id = db.QueryValue("SELECT gesprekid FROM Evaluatie where agendaID=@0", agendaID);
-        db.Close();
-        if (id == null)
-            return -1;
-        else
-            return (int)id;
-    }
-}
 
-public class Afspraak 
-{
-    public int afspraakID {get;set;}
-    public string opmerking {get;set;}
-    public bool afgevinkt {get;set;}
-    public int GesprekID {get;set;}
-    public Afspraak(int AfspraakID,string Opmerking, bool Afgevinkt, int gesprekID)
-    {
-        this.afspraakID = AfspraakID;
-        this.opmerking = Opmerking;
-        this.afgevinkt = Afgevinkt;
-        this.GesprekID = gesprekID;
-    }
-    public Afspraak(string Opmerking, bool Afgevinkt, int gesprekID)
-    {
-        this.opmerking = Opmerking;
-        this.afgevinkt = Afgevinkt;
-        this.GesprekID = gesprekID;
-    }
-    public static void AddAfspraak(string Opmerking, int gesprekID) 
-    {
-        Database db = Database.Open(Constants.DBName);
-        db.Execute("INSERT INTO Afspraken(Opmerking,Afgevinkt,gesprekID) VALUES (@0,@1,@2)", Opmerking,false,gesprekID);
-        db.Close();
-    }
-}

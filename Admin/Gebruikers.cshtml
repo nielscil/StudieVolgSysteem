@@ -1,13 +1,18 @@
-﻿@{
+﻿@using System.Collections.Specialized;
+@{
     Layout = "~/Shared/_Layout.cshtml";
     Page.Title = "Admin Dashboard | Gebruikers";
-
-    List<Gebruiker> gebruikers = Gebruiker.GetAllUsers();
-    var maximumusers = Request.QueryString["maxuser"].AsInt();
-    if (maximumusers == null)
+    string[] seperateurl = Request.Url.ToString().Split('?');
+    NameValueCollection querrystring;
+    if(seperateurl.Length > 1)
     {
-        maximumusers = 25;
+        querrystring = System.Web.HttpUtility.ParseQueryString(seperateurl[1]);
     }
+    else
+    {
+        querrystring = System.Web.HttpUtility.ParseQueryString("from=0");
+    } 
+    List<Gebruiker> gebruikers = Gebruiker.GetAllUsers();
     var userid = Request.QueryString["userid"];
     var action = Request.QueryString["action"];
     var succes = Request.QueryString["succesful"];
@@ -17,9 +22,6 @@
     {
         gebruikers = Gebruiker.SearchUsers(zoektext);
     }
-
-    var url = Request.FilePath;
-    url = url.Replace("/Admin/", "");
     var naam = "";
     var achternaam = "";
     var email = "";
@@ -172,18 +174,19 @@
         message = "Corrigeer de volgende fouten";
     }
 }
-
 @section navbar{
     <ul class="nav navbar-nav">
         <li><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
         <li class="active"><a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a></li>
+        <li><a href="@Href("Opleiding")"><span class="glyphicon glyphicon-education" aria-hidden="true"></span> Opleidingen</a></li>
+        <li><a href="@Href("Vakken")"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> Vakken</a></li>
     </ul>
 }
 @section navbar_right{
     <td>
         <form class="navbar-form" role="search">
             <div class="form-group">
-                <input type="text" value="@zoektext" name="zoektext" class="form-control" placeholder="Zoeken...">
+                <input type="text" value="@zoektext" name="zoektext" id="search" class="form-control" placeholder="Zoeken...">
             </div>
             <button type="submit" class="btn btn-default">Zoek</button>
         </form>
@@ -210,8 +213,8 @@
 <!--Pagina laden-->
 @if ((userid == null || !userid.IsInt()) && action == null)
 {
-    int maxusers = gebruikers.Count() - from;
-    int paginas = gebruikers.Count() / 25;
+    int maxusers = gebruikers.Count - from;
+    int paginas = gebruikers.Count / 25;
     if (paginas == 0)
     {
         paginas = 1;
@@ -226,13 +229,13 @@
             <div class="panel panel-default" id="gebpanel">
                 <div class="panel-heading">Gebruikers</div>
                 <table class="table">
-                    @if (gebruikers.Count() > 0)
+                    @if (gebruikers.Count > 0)
                     {
                         <tr>
                             <th>#</th>
                             <th>E-mail</th>
-                            <th>Naam</th>
-                            <th>Rollen</th>
+                            <th class="hidden-sm hidden-xs">Naam</th>
+                            <th class="hidden-sm hidden-xs">Rollen</th>
                         </tr>
                         for (int i = from; i < maxusers + from; i++)
                         {
@@ -257,8 +260,8 @@
                                 {
                                     <td><a href="@Href("Gebruikers?userid=" + gebruikers[i].GebruikerID + "&action=update")">@gebruikers[i].Email</a></td>
                                 }
-                                <td>@gebruikers[i].Naam @gebruikers[i].Achternaam</td>
-                                <td>@roles</td>
+                                <td class="hidden-sm hidden-xs">@gebruikers[i].Naam @gebruikers[i].Achternaam</td>
+                                <td class="hidden-sm hidden-xs">@roles</td>
                             </tr>
                         }
                     }
@@ -289,27 +292,35 @@
                 }
                 else
                 {
-                    <li><a href="Gebruikers?from=@(from - 2)" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                    querrystring["from"] = (from - 25).ToString();
+                    string url = seperateurl[0] + "?" + querrystring.ToString();
+                    <li><a href="@url" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
                 }
                 @for (int i = 1; i <= paginas; i++)
                 {
                     if (from / 25 + 1 == i)
                     {
-                        <li class="active"><a href="Gebruikers?from=@((i - 1) * 25)">@i <span class="sr-only">(current)</span></a></li>
+                        querrystring["from"] = ((i - 1) * 25).ToString();
+                        string url = seperateurl[0] + "?" + querrystring.ToString();
+                        <li class="active"><a href="@url">@i <span class="sr-only">(current)</span></a></li>
                     }
                     else
                     {
-                        <li><a href="Gebruikers?from=@((i - 1) * 25)">@i <span class="sr-only">(current)</span></a></li>
+                        querrystring["from"] = ((i - 1) * 25).ToString();
+                        string url = seperateurl[0] + "?" + querrystring.ToString();
+                        <li><a href="@url">@i <span class="sr-only">(current)</span></a></li>
                     }
 
                 }
-                @if (paginas == 1 || from + 25 >= gebruikers.Count())
+                @if (paginas == 1 || from + 25 >= gebruikers.Count)
                 {
                     <li class="disabled"><a href="" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
                 }
                 else
                 {
-                    <li><a href="Gebruikers?from=@(from + 25)" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
+                    querrystring["from"] = (from + 25).ToString();
+                    string url = seperateurl[0] + "?" + querrystring.ToString();
+                    <li><a href="@url" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
                 }
             </ul>
         </div>

@@ -100,12 +100,12 @@
                             <div class="test">
                                 <table id="loginpopup">
                                     <tr>
-                                        <td><label for="username" @if (!ModelState.IsValidField("username")) { <text> class="error-label" </text> }>Gebruikersnaam:</label></td>
+                                        <td class="hidden-sm hidden-xs"><label for="username" @if (!ModelState.IsValidField("username")) { <text> class="error-label" </text> }>Gebruikersnaam:</label></td>
                                         <td><input type="text" id="username" name="username" @Validation.For("username") placeholder="gebruikersnaam" required /></td>
                                         <td class="error-label" style="width: 245px">@Html.ValidationMessage("username")</td>
                                     </tr>
                                     <tr>
-                                        <td><label for="password" @if (!ModelState.IsValidField("password")) { <text> class="error-label" </text> }>Wachtwoord:</label></td>
+                                        <td class="hidden-sm hidden-xs"><label for="password" @if (!ModelState.IsValidField("password")) { <text> class="error-label" </text> }>Wachtwoord:</label></td>
                                         <td><input type="password" id="password" name="password" @Validation.For("password") placeholder="wachtwoord" required /></td>
                                         <td class="error-label">@Html.ValidationMessage("password")</td>
                                     </tr>
