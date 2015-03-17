@@ -44,14 +44,14 @@
                                                     <li class="divider"></li>
                                                     <li><a href="/Account/Logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Uitloggen</a></li>
                                                 </ul>
-                                            </li>
-                                        </ul>
+                                            </li> <!-- einde dropdownmenu -->
+                                        </ul><!--einde navbar-nav-->
                                     </td>
                                 </tr>
                             </table>
 
 
-                        </div>
+                        </div><!--einde navbar-rechts -->
                     }
                     else if(App.LoginShow)
                     {
@@ -64,16 +64,16 @@
 
                 </div><!-- /.navbar-collapse -->
             </div><!-- /.container-fluid -->
-        </nav>
+        </nav><!--einde navbar-inverse-->
         @RenderSection("popup", false)
         <div id="main" class="clear-top">
             <div class="row">
                 <div class="col-lg-12">
                     @RenderBody()
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="footer"><p id="disclaimer">In opdracht van <a id="nhl" href="http://nhl.nl/nhl" target="_blank">NHL hogeschool</a> &copy; @DateTime.Now.Year</p></div>
+                </div><!--einde col-->
+            </div><!--einde row-->
+        </div><!--einde clear-top-->
+    </div><!--einde wrapper-->
+    <div id="footer"><p id="disclaimer">In opdracht van <a id="nhl" href="http://nhl.nl/nhl" target="_blank">NHL hogeschool</a> &copy; @DateTime.Now.Year</p></div><!--einde footer-->
 </body>
 </html>
