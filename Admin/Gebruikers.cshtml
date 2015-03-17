@@ -37,7 +37,8 @@
     {
         from = 0;
     }
-    if (IsPost)
+    //validatie voor updaten gebruikers
+    if (IsPost) 
     {
         naam = Request.Form["naam"];
         achternaam = Request.Form["achternaam"];
@@ -270,6 +271,7 @@
                         <tr><td>Geen gebruikers gevonden!</td></tr>
                     }
                 </table>
+                <!--gebruikers toevoegen-->
                 <div class="panel-footer">
                     <div class="btn-group">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Toevoegen <span class="caret"></span></button>
@@ -278,13 +280,14 @@
                             <li><a href="@Href("Gebruikers?action=AddSLB")">SLBer</a></li>
                             <li><a href="@Href("Gebruikers?action=AddAdmin")">Admin</a></li>
                         </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                    </div> <!---/btn-group-->
+                </div> <!--panel-group-->
+            </div> <!--/panel-default-->
+        </div> <!--/col-lg-12-->
+    </div> <!--/row-->
     <div class="row text-center">
         <div class="center-block">
+            <!--gebruikers sorteren per pagina-->
             <ul class="pagination">
                 @if (paginas == 1 || from == 0)
                 {
@@ -323,9 +326,8 @@
                     <li><a href="@url" aria-label="volgende"><span aria-hidden="true">&raquo;</span></a></li>
                 }
             </ul>
-        </div>
-
-    </div>
+        </div> <!--center-block-->
+    </div> <!--/row text-center-->
 
 
 }
@@ -397,13 +399,13 @@ else if ((userid == null || userid.IsInt()) && action == "update")
                                     <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
                                     <input type="submit" class="btn btn-danger" name="delete" value="Verwijderen" />
                                 </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                            </div> <!--/modal-footer-->
+                        </div> <!--/modal-content-->
+                    </div> <!--/model-dialog-->
+                </div> <!--/modal fade-->
+            </div> <!--panel-dafault-->
+        </div> <!--/col-lg-12-->
+    </div> <!--/row-->
     <!--Einde popup verwijderbevestiging-->
 }
 else if ((userid == null || userid.IsInt()) && action == "updatestudent")
@@ -508,13 +510,13 @@ else if ((userid == null || userid.IsInt()) && action == "updatestudent")
                                     <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
                                     <input type="submit" class="btn btn-danger" name="delete" value="Verwijderen" />
                                 </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                            </div> <!--/modal-footer-->
+                        </div> <!--/modal content-->
+                    </div> <!--/modal-dialog-->
+                </div> <!--/modal-fade-->
+            </div> <!--/panel-default-->
+        </div> <!--/col-lg-12-->
+    </div> <!--/row-->
     <!--Einde popup verwijderbevestiging-->
 }
 else if (action == "AddStudent")

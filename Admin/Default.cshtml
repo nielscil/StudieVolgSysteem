@@ -21,33 +21,34 @@
             <div class="panel-heading">Welkom</div>
             <div class="panel-body">admin Stuff</div>
             <div class="panel-footer">footer</div>
-        </div>
-    </div>
+        </div> <!--/pane; default-->
+    </div> <!--/col-lg-6-->
+    <!--laat statistieken zien voor de admin-->
     <div class="col-lg-6">
         <div class="panel panel-default">
             <div class="panel-heading">Welkom</div>
-            <div class="panel-body">
-                <div class="list-group">
-                    <a href="gebruikers" class="list-group-item">Gebruikers <span class="badge">@Gebruiker.Count()</span></a>
-                    <a href="opleiding" class="list-group-item">Opleidingen <span class="badge">@Opleiding.Count()</span></a>
-                    <a href="vakken" class="list-group-item">Vakken <span class="badge">@Vak.Count()</span></a>
-                </div>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <span class="badge">@Evaluatie.Count()</span>
-                            Evaluaties
-                        </li>
-                        <li class="list-group-item">
-                            <span class="badge">@Afspraak.Count()</span>
-                            Afspraken
-                        </li>
-                        <li class="list-group-item">
-                            <span class="badge">@Cijfer.Count()</span>
-                            Cijfers
-                        </li>
-                    </ul> 
-            </div>
+                <div class="panel-body">
+                    <div class="list-group">
+                        <a href="gebruikers" class="list-group-item">Gebruikers <span class="badge">@Gebruiker.Count()</span></a>
+                        <a href="opleiding" class="list-group-item">Opleidingen <span class="badge">@Opleiding.Count()</span></a>
+                        <a href="vakken" class="list-group-item">Vakken <span class="badge">@Vak.Count()</span></a>
+                    </div> <!--/list-group-->
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <span class="badge">@Evaluatie.Count()</span>
+                                Evaluaties
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge">@Afspraak.Count()</span>
+                                Afspraken
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge">@Cijfer.Count()</span>
+                                Cijfers
+                            </li>
+                        </ul> 
+                </div> <!--/panel-body-->
             <div class="panel-footer">footer</div>
-        </div>
-    </div>
-</div>
+        </div> <!--/panel-default-->
+    </div> <!--/col-lg-6-->
+</div> <!--/row-->

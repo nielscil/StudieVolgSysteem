@@ -2,7 +2,7 @@
         Layout = "~/Shared/_Layout.cshtml"; 
     Page.Title = "SLB Dashboard";
     List<Student> studenten = Student.GetStudents(WebSecurity.CurrentUserId);
-    var studid = Request.QueryString["studentid"];
+    var studid = Request.QueryString["studentid"]; //student id opvragen
     Algoritme algoritme = new Algoritme();
 }
 
@@ -22,34 +22,34 @@
                 <div class="panel-heading">Studenten</div>
                     <div class="panel-body">
                         <table class="table">
-                            @foreach(Student s in studenten){
+                            @foreach(Student s in studenten){ //lijst met studenten laden
                                 <tr>
                                     <td><a href="">@s.Naam @s.Achternaam</a></td>
-                                    <td><img src="~/content/images/GreenDot.png" alt="green"/></td>
-                                    @switch(algoritme.ber_Prioriteit(studid)) 
+                                    @if(Algoritme.ber_Prioriteit(s.GebruikerID) >= 75) 
                                     {
-                                        case 1:
-                                           <td><img src="~/content/images/GreenDot.png" alt="green"/></td>  
-                                        break;
-                                        case 2:
-                                            <td><img src="~/content/images/OrangeDot.png" alt="green"/></td>
-                                        break;
-                                        case 3:
-                                            <td><img src="~/content/images/RedDot.png" alt="green"/></td>
-                                        break;
+                                        <td><img src="~/content/images/GreenDot.png" class="img" alt="green" /></td> //groen bolletje als de student het goed doet
+                                    }
+                                    else if((Algoritme.ber_Prioriteit(s.GebruikerID) <= 75) && (Algoritme.ber_Prioriteit(s.GebruikerID) >= 50)) 
+                                    {
+                                        <td><img src="~/content/images/OrangeDot.png" class="img" alt="orange" /></td> //oranje minder goed
+                                    }
+                                    else 
+                                    {
+                                        <td><img src="~/content/images/RedDot.png" class="img" alt="red" /></td> //rood slecht
                                     }
                                 </tr>
                             }
                         </table>
-                    </div>
+                    </div><!--panel body-->
                 <div class="panel-footer"></div>
-            </div>
-        </div>
+            </div> <!--panel-default-->
+        </div> <!--/col-lg-12-->
     </div> <!--/lijst met studenten-->
 }
 
+//Nog niet af
 else {
-    Student gebruiker = Student.GetStudent(studid.AsInt());
+    Student gebruiker = Student.GetStudent(studid.AsInt()); //als er op een student geklikt wordt, worden gegevens geladen
     <div class="col-lg-8">
         <div class="panel panel-default">
             <div class="panel-heading">@gebruiker.Naam @gebruiker.Achternaam</div>
@@ -91,6 +91,8 @@ else {
             </div><!--panel footer-->
         </div><!--panel-->
     </div><!--class col-lg-8-->
+
+    <!--Nog niet af panel met cijfer-->
     <div class="col-lg-4">
         <div class="panel panel-default">
             <div class="panel-heading">Cijfers</div>

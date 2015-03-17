@@ -11,7 +11,7 @@ public class Algoritme
     public Algoritme(){}
 
     //Berekent de prioriteit.
-    public string ber_Prioriteit(int studID)
+    public static int ber_Prioriteit(int studID)
     {
         int prioProcent = 100;
         int count = Cijfer.GetGradesFromStudent(studID).Count;
@@ -19,7 +19,7 @@ public class Algoritme
         //Berekend het prioProcent van de student.
         foreach(Cijfer c in Cijfer.GetGradesFromStudent(studID))
         {
-            //prioProcent = prioProcent - (100 / count) * (5 - c.Cijfertje + 1);
+            prioProcent = prioProcent - (100 / count) * (5 - c.Cijfertje + 1);
             switch(c.Cijfertje)
             {
                 case 5: case 4: 
@@ -31,10 +31,7 @@ public class Algoritme
                         break;
             }
         }
-
-        if (prioProcent >= 75) {return "Laag";}
-        else if (prioProcent <= 75 && prioProcent >= 50) {return "Gemiddeld";}
-        else {return "Hoog";}
+        return prioProcent;
     }
 }
 

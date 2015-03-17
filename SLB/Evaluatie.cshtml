@@ -100,15 +100,15 @@
     </ul>
 }
 
+<!--tabel met studentevaluatie-->
 <div>
     <fieldset class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">SLB-gesprek evaluatie</h3>
-            </div><!--panel head-->
+            </div><!--/panel head-->
             <form method="post">
                 <div class="panel-body">
-
                     <table>
                         <tr>
                             <td><b>Naam Student</b></td>
@@ -136,8 +136,8 @@
                                 <td><input name="location" value="@locatie" type="text" /></td>
                             </tr>
                         </table>
-                    </div>
-                </div><!--panel body-->
+                    </div><!--/hideable-->
+                </div><!--/panel body-->
                 <div class="panel-footer">
                     <input type="submit" name="evaluatietoevoegen" class="btn btn-md btn-primary" value="Toevoegen" />
                 </div>
@@ -148,14 +148,14 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">Afspraken</h3>
-            </div><!--panel head-->
+            </div><!--/panel head-->
             <div class="panel-body">
                 <table>
                     @if (afspraken.Count > 0)
                     {
                         int index = 0;
 
-                        foreach (string afspraak in afspraken)
+                        foreach (string afspraak in afspraken) //button om afspraken te verwijderen
                         {
                             <form method="post">
                                 <tr>
@@ -165,7 +165,7 @@
                             index++;
                         }
                     }
-                    <form method="post">
+                    <form method="post"> <!--afspraak toevoegen-->
                         <tr>
                             <td>
                                 <input type="text" name="afspraak" required />    <input type="submit" name="afspraakadd" class="btn btn-xs btn-primary" value="+">
@@ -173,7 +173,7 @@
                         </tr>
                     </form>
                 </table>
-            </div><!--panel body-->
-        </div> <!--panel compleet-->
+            </div><!--/panel body-->
+        </div> <!--/panel compleet-->
     </fieldset>
 </div>
