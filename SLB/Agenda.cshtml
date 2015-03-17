@@ -1,3 +1,228 @@
-﻿@{
-    
+﻿@using System.Globalization;
+
+@{
+    Layout = "~/Shared/_Layout.cshtml";
+    Page.Title = "Agenda";
+    DateTime now = DateTime.Now;
+    Calendar cal = CultureInfo.CurrentCulture.Calendar;
+    DateTimeFormatInfo dfi = DateTimeFormatInfo.CurrentInfo;
+
+    //ophalen / berekenen week
+    var weeknr = Request.QueryString["week"];
+    if (weeknr == null)
+    {
+        weeknr = cal.GetWeekOfYear(now, dfi.CalendarWeekRule, dfi.FirstDayOfWeek).ToString();
+    }
+    var jaar = Request.QueryString["jaar"];
+    if (jaar == null)
+    {
+        jaar = DateTime.Now.Year.ToString();
+    }
+    DateTime FirstDayOfWeek = Agenda.FirstDateOfWeek(jaar.AsInt(), weeknr.AsInt());
+    List<Agenda> agenda = Agenda.GetAgendas(WebSecurity.CurrentUserId);
+    DateTime mindate;
+    if (agenda.Count > 0)
+    {
+        mindate = Agenda.FirstDateOfWeek(agenda.FirstOrDefault().Datum.Year,cal.GetWeekOfYear(agenda.FirstOrDefault().Datum,dfi.CalendarWeekRule, dfi.FirstDayOfWeek));
+    }
+    else
+    {
+        mindate = DateTime.Now;
+    }
+    if(mindate > FirstDayOfWeek)
+    {
+        Response.Redirect("agenda");
+    }
+    int minweek = cal.GetWeekOfYear(mindate, dfi.CalendarWeekRule, dfi.FirstDayOfWeek);
 }
+    <link rel="stylesheet" type="text/css" media="screen" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/base/jquery-ui.css">
+    <script src="~/Content/js/jquery-ui.js"></script>
+<script src="~/Content/js/date-picker_nl.js"></script>
+<!--weekpicker-->
+<script>
+            $(function () {
+                var startDate;
+                var endDate;
+                $.datepicker.regional["nl"];
+                var selectCurrentWeek = function () {
+                    window.setTimeout(function () {
+                        $('#weekpicker').datepicker('widget').find('.ui-datepicker-current-day a').addClass('ui-state-active')
+                    }, 1);
+                }
+                Date.prototype.getWeek = function () {
+                    var onejan = new Date(this.getFullYear(), 0, 1);
+                    return Math.ceil((((this - onejan) / 86400000) + onejan.getDay() + 1) / 7);
+                }
+                $('#weekpicker').datepicker({
+                    showOtherMonths: true,
+                    showWeek: true,
+                    selectOtherMonths: false,
+                    showOn: "button",
+                        buttonText: "Selecteer Week",
+                    minDate: new Date(@mindate.Year, @mindate.Month - 1, @mindate.Day),
+                    onSelect: function (dateText, inst) {
+                        var date = $(this).datepicker('getDate');
+                        var week = date.getWeek();
+                        var year = date.getFullYear();
+                        window.location.replace("Agenda?week=" + week + "&jaar=" + year);
+                        selectCurrentWeek();
+                    },
+                    beforeShow: function () {
+                        selectCurrentWeek();
+                    },
+                    beforeShowDay: function (date) {
+                        var cssClass = '';
+                        if (date >= startDate && date <= endDate)
+                            cssClass = 'ui-datepicker-current-day';
+                        return [true, cssClass];
+                    },
+                    onChangeMonthYear: function (year, month, inst) {
+                        selectCurrentWeek();
+                    }
+                }).datepicker('widget').addClass('ui-weekpicker');
+
+                $('.ui-weekpicker .ui-datepicker-calendar tr').live('mousemove', function () { $(this).find('td a').addClass('ui-state-hover'); });
+                $('.ui-weekpicker .ui-datepicker-calendar tr').live('mouseleave', function () { $(this).find('td a').removeClass('ui-state-hover'); });
+            });
+</script>
+@section navbar{
+    <ul class="nav navbar-nav">
+        <li><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
+        <li class="active"><a href="@Href("Agenda")"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
+        <li><a href="@Href("Evaluatie")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gespreksevaluatie</a></li>
+    </ul>
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Agenda
+        <div class="pull-right">
+            <nav>
+                <ul class="pager" id="agendanav">
+                    @{
+                        int yearVor = cal.GetYear(FirstDayOfWeek.AddDays(-7));
+                        int yearVol = cal.GetYear(FirstDayOfWeek.AddDays(7));
+                        int weekVor = cal.GetWeekOfYear(FirstDayOfWeek.AddDays(-7), dfi.CalendarWeekRule, dfi.FirstDayOfWeek);
+                        int weekVol = cal.GetWeekOfYear(FirstDayOfWeek.AddDays(7), dfi.CalendarWeekRule, dfi.FirstDayOfWeek);
+                        if (weekVor >= minweek)
+                        {
+                            <li><a href="Agenda?week=@weekVor&jaar=@yearVor"><span aria-hidden="true">&larr;</span> Week @weekVor.ToString()</a></li>
+                        }
+                        else
+                        {
+                            <li class="disabled"><a href=""><span aria-hidden="true">&larr;</span> Week @weekVor.ToString()</a></li>
+                        }
+                    }
+                    <li><input type="text" id="weekpicker" hidden/></li>
+                    <li><a href="Agenda?week=@weekVol&jaar=@yearVol">Week @weekVol.ToString() <span aria-hidden="true">&rarr;</span></a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <table class="table">
+        <tr>
+            <th style="width: 25px">Tijd</th>
+            <th>Maandag @FirstDayOfWeek.Date.ToString("d")</th>
+            <th>Dinsdag @FirstDayOfWeek.AddDays(1).Date.ToString("d")</th>
+            <th>Woensdag @FirstDayOfWeek.AddDays(2).Date.ToString("d")</th>
+            <th>Donderdag @FirstDayOfWeek.AddDays(3).Date.ToString("d")</th>
+            <th>Vrijdag @FirstDayOfWeek.AddDays(4).Date.ToString("d")</th>
+            <th>Zaterdag @FirstDayOfWeek.AddDays(5).Date.ToString("d")</th>
+            <th>Zondag @FirstDayOfWeek.AddDays(6).Date.ToString("d")</th>
+        </tr>
+        <tr>
+            <td>
+                <ul class="list-group">
+                    @{
+                        int voor = 7;
+                        int count = 0;
+
+                        for (int i = 0; i < 32; i++)
+                        {
+                            string achter = "00";
+                            if (i % 4 == 0)
+                            {
+                                voor++;
+                                achter = "00";
+                                count = 1;
+                            }
+                            else
+                            {
+                                achter = (15 * count).ToString();
+                                count++;
+                            }
+                            <li class="list-group-item" style="height: 20px; padding-top: 0">@(voor.ToString() + ":" + achter)</li>
+                        }
+                    }
+                </ul>
+            </td>
+            @for (int j = 0; j < 7; j++)
+            {
+                <td style="width:230px">
+                    <div class="list-group">
+                        @{
+                int[] lijst = Agenda.GetAgendaDay(WebSecurity.CurrentUserId, FirstDayOfWeek.AddDays(j));
+                for (int i = 0; i < 32; i++)
+                {
+                    if (lijst[i] != 0)
+                    {
+                        Agenda ag = Agenda.GetAgenda(lijst[i]);
+                        Student st = Student.GetStudent(ag.StudentID);
+                        DateTime date = FirstDayOfWeek.Date.AddHours(8);
+                        string url = "";
+                        if (date.AddDays(j).AddMinutes(15 * i) < DateTime.Now)
+                        {
+                            url = string.Format("Evaluatie?agendaid={0}", ag.AfspaakID);
+                        }
+                        else
+                        {
+                            url = string.Format("Agenda?agendaid={0}", ag.AfspaakID);
+                        }
+
+                        if (i == ag.Begin && ag.Tijdsduur > 1)
+                        {
+                            <a href="@url" class="list-group-item list-group-item-danger" style="height: 20px; padding-top: 0;border-bottom:hidden">@st.Naam @st.Achternaam</a>
+                        }
+                        else if (i == ag.Begin && ag.Tijdsduur == 1)
+                        {
+                            <a href="@url" class="list-group-item list-group-item-danger" style="height: 20px; padding-top: 0">@st.Naam @st.Achternaam | @ag.Locatie</a>
+                        }
+                        else if (i == (ag.Begin + ag.Tijdsduur) / 2 && i != ag.Begin + ag.Tijdsduur)
+                        {
+                            <a href="@url" class="list-group-item list-group-item-danger" style="height: 20px; padding-top: 0;border-top:hidden;border-bottom:hidden;">@ag.Locatie</a>
+                        }
+                        else if (i == (ag.Begin + ag.Tijdsduur) / 2 && i == ag.Begin + ag.Tijdsduur)
+                        {
+                            <a href="@url" class="list-group-item list-group-item-danger" style="height: 20px; padding-top: 0;border-top:hidden;">@ag.Locatie</a>
+                        }
+                        else if (i != ag.Begin + ag.Tijdsduur)
+                        {
+                            <a href="@url" class="list-group-item list-group-item-danger" style="height: 20px; padding-top: 0;border-top:hidden;"></a>
+                        }
+                        else
+                        {
+                            <a href="@url" class="list-group-item list-group-item-danger" style="height: 20px; padding-top: 0"></a>
+                        }
+                    }
+                    else
+                    {
+                        DateTime date = FirstDayOfWeek.Date.AddHours(8);
+                        if (date.AddDays(j).AddMinutes(15 * i) < DateTime.Now)
+                        {
+                            <a href="" class="list-group-item list-group-item-default disabled" style="height: 20px; padding-top: 0"></a>
+                        }
+                        else
+                        {
+                            <a href="" class="list-group-item list-group-item-info" style="height: 20px; padding-top: 0"></a>
+                        }
+
+                    }
+                }
+                        }
+                    </div>
+                </td>
+            }
+        </tr>
+    </table>
+    <div class="panel-footer"></div>
+</div>

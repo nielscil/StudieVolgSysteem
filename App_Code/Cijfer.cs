@@ -6,7 +6,7 @@ using WebMatrix.Data;
 using WebMatrix.WebData;
 
 /// <summary>
-/// Summary description for Cijfer
+/// Cijfers uitwisselen met database
 /// </summary>
 public class Cijfer
 {
@@ -14,7 +14,15 @@ public class Cijfer
     public int StudentID { get; set; }
     public int VakID { get; set; }
     public int Cijfertje { get; set; }
-
+    public int EcS {get;set;}
+    public int gekregenEcS {get;set;}
+    /// <summary>
+    /// Maakt cijfer aan
+    /// </summary>
+    /// <param name="cijferid">cijferid</param>
+    /// <param name="studentid">studentid</param>
+    /// <param name="vakid">vakid</param>
+    /// <param name="cijfer">cijfer</param>
     public Cijfer(int cijferid, int studentid, int vakid, int cijfer)
     {
         this.CijferID = cijferid;
@@ -22,14 +30,23 @@ public class Cijfer
         this.VakID = vakid;
         this.Cijfertje = cijfer;
     }
-
+    /// <summary>
+    /// Maakt cijfer aan
+    /// </summary>
+    /// <param name="studentid">studentid</param>
+    /// <param name="vakid">vakid</param>
+    /// <param name="cijfer">cijfer</param>
     public Cijfer(int studentid, int vakid, int cijfer)
     {
         this.StudentID = studentid;
         this.VakID = vakid;
         this.Cijfertje = cijfer;
     }
-
+    /// <summary>
+    /// Haalt lijst met cijfers op voor specifieke student
+    /// </summary>
+    /// <param name="studentid">studentid</param>
+    /// <returns>lijst met cijfers</returns>
     public static List<Cijfer> GetGradesFromStudent(int studentid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -43,7 +60,10 @@ public class Cijfer
         }
         return list;
     }
-
+    /// <summary>
+    /// Telt aantal cijfers in de database
+    /// </summary>
+    /// <returns>aantal cijfers</returns>
     public static int Count()
     {
         Database db = Database.Open(Constants.DBName);

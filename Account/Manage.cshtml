@@ -10,6 +10,7 @@
     {
         if (!Request["wachtwoord"].IsEmpty())
         {
+            //wachtwoord validatie
             Validation.RequireField("currentPassword", "Huige wachtwoordveld is nodig!");
             Validation.Add("currentPassword", Validator.StringLength(maxLength: Int32.MaxValue, minLength: 8, errorMessage: "Wachtwoord moet minimaal 8 characters lang zijn."));
             Validation.RequireField("newPassword", "Nieuwe wachtwoordveld is nodig!");
@@ -42,6 +43,7 @@
         }
         else if (!Request["updategeg"].IsEmpty())
         {
+            //validatie van adres en telefoon
             Validation.Add("straat", Validator.Regex(@"^([1-9][e][\s])*([a-zA-Z]+(([\.][\s])|([\s]))?)+[1-9][0-9]*(([-][1-9][0-9]*)|([\s]?[a-zA-Z]+))?$", "Geen geldig adres"));
             Validation.Add("zip", Validator.Regex(@"^[1-9][0-9]{3}[\s]?[A-Za-z]{2}$", "Geen geldige postcode"));
             Validation.Add("telefoon", Validator.Regex(@"(^(((0)[1-9]{2}[0-9][-]?[1-9][0-9]{5})|((\\+31|0|0031)[1-9][0-9][-]?[1-9][0-9]{6}))$)|(^(((\\+31|0|0031)6){1}[1-9]{1}[0-9]{7})$)", "Geen geldig telefoonnummer!"));
@@ -68,21 +70,22 @@
     }
 }
 @section navbar{
-    @if (Roles.IsUserInRole(WebSecurity.CurrentUserName, "Admin"))
+<!--navbar-->
+    @if (Roles.IsUserInRole(WebSecurity.CurrentUserName, "Admin")) //voor admim
     {
         <ul class="nav navbar-nav">
             <li><a href="@Href("~/Admin/Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
             <li><a href="@Href("~/Admin/Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a></li>
         </ul>
     }
-    else if (Roles.IsUserInRole(WebSecurity.CurrentUserName, "Student"))
+    else if (Roles.IsUserInRole(WebSecurity.CurrentUserName, "Student")) //voor student
     {
         <ul class="nav navbar-nav">
             <li><a href="@Href("~/Students/Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
             <li><a href="@Href("~/Students/Agenda")"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
         </ul>
     }
-    else if (Roles.IsUserInRole(WebSecurity.CurrentUserName, "SLB"))
+    else if (Roles.IsUserInRole(WebSecurity.CurrentUserName, "SLB")) //voor slb
     {
         <ul class="nav navbar-nav">
             <li><a href="@Href("~/SLB/Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
@@ -91,6 +94,7 @@
         </ul>
     }
 }
+<!--succes/foutmelding-->
 <div class="row">
     @if (succes == "true")
     {
@@ -105,9 +109,12 @@
         </div>
     }
 </div>
+<!--einde succes/foutmelding-->
+<!--begin pagina-->
 @{
 
     <div class="row">
+        <!--Gegevens updaten-->
         <div class="col-lg-6">
             <div class="panel panel-default">
                 <div class="panel-heading">Gegevens bekijken en updaten</div>
@@ -156,6 +163,8 @@
                 </form>
             </div>
         </div>
+        <!--Einde Gegevens-->
+        <!--Wachtwoord veranderen-->
         <div class="col-lg-6">
             <div class="panel panel-default">
                 <div class="panel-heading">Wachtwoord updaten</div>
@@ -185,5 +194,6 @@
                 </form>
             </div>
         </div>
+        <!--Einde wachtwoord-->
     </div>
 }

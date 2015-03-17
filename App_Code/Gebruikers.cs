@@ -5,12 +5,18 @@ using System.Web.Security;
 using WebMatrix.Data;
 using WebMatrix.WebData;
 
+/// <summary>
+/// Constante waardes
+/// </summary>
 public static class Constants{
     //database naam invullen
     public static string DBName = "Demo";
     //meer constanten toevoegen
 }
 
+/// <summary>
+/// Gebruiker uitwisselen met database
+/// </summary>
 public class Gebruiker
 {
     public int GebruikerID {get;set;}
@@ -23,6 +29,18 @@ public class Gebruiker
     public string TelefoonNr {get;set;}
     public string Postcode {get;set;}
 
+    /// <summary>
+    /// aanmaken van Gebruiker
+    /// </summary>
+    /// <param name="userID">gebruikerid</param>
+    /// <param name="email">email</param>
+    /// <param name="role">rol</param>
+    /// <param name="name">naam</param>
+    /// <param name="surname">achternaam</param>
+    /// <param name="hometown">woonplaats</param>
+    /// <param name="adress">adres</param>
+    /// <param name="telefoonnr">telnr</param>
+    /// <param name="postcode">postcode</param>
     public Gebruiker(int userID,string email,string[] role,string name,string surname,string hometown,string adress, string telefoonnr,string postcode)
     {
         this.Email = email;
@@ -35,6 +53,17 @@ public class Gebruiker
         this.TelefoonNr = telefoonnr;
         this.Postcode = postcode;
     }
+    /// <summary>
+    /// aanmaken van Gebruiker
+    /// </summary>
+    /// <param name="email">email</param>
+    /// <param name="role">rol</param>
+    /// <param name="name">naam</param>
+    /// <param name="surname">achternaam</param>
+    /// <param name="hometown">woonplaats</param>
+    /// <param name="adress">adres</param>
+    /// <param name="telefoonnr">telnr</param>
+    /// <param name="postcode">postcode</param>
     public Gebruiker(string email,string[] role,string name,string surname,string hometown,string adress, string telefoonnr,string postcode)
     {
         this.Email = email;
@@ -46,7 +75,10 @@ public class Gebruiker
         this.TelefoonNr = telefoonnr;
         this.Postcode = postcode;
     }
-
+    /// <summary>
+    /// Telt aantal gebruikers in database
+    /// </summary>
+    /// <returns>aantal gebruikers</returns>
     public static int Count()
     {
         Database db = Database.Open(Constants.DBName);
@@ -195,6 +227,11 @@ public class Gebruiker
             return false;
     }
 
+    /// <summary>
+    /// Zoekt naar gebruikers met bepaalde naam of email
+    /// </summary>
+    /// <param name="input">inkomende zoekterm</param>
+    /// <returns>lijst met gebruikers</returns>
     public static List<Gebruiker> SearchUsers(string input)
     {
         Database db = Database.Open(Constants.DBName);
@@ -243,18 +280,51 @@ public class Gebruiker
     }
 }
 
+/// <summary>
+/// Student uitwisselen met database
+/// </summary>
 public class Student : Gebruiker
 {
     public int SLBerID {get;set;}
     public string Opmerkingen {get;set;}
     public string StudentNr {get;set;}
 
+    /// <summary>
+    /// Student aanmaken
+    /// </summary>
+    /// <param name="studentID">studentid</param>
+    /// <param name="email">email</param>
+    /// <param name="role">rol</param>
+    /// <param name="name">naam</param>
+    /// <param name="surname">achternaam</param>
+    /// <param name="hometown">woonplaats</param>
+    /// <param name="adress">adres</param>
+    /// <param name="telefoonnr">telefoon nummer</param>
+    /// <param name="postcode">postcode</param>
+    /// <param name="slberID">slberid</param>
+    /// <param name="opmerking">opmerking</param>
+    /// <param name="studentNr">studentnummer</param>
     public Student(int studentID,string email,string[] role,string name,string surname,string hometown,string adress, string telefoonnr,string postcode,int slberID,string opmerking,string studentNr) : base(studentID,email,role,name,surname,hometown,adress,telefoonnr,postcode)
     {
         SLBerID = slberID;
         Opmerkingen = opmerking;
         StudentNr = studentNr;
     }
+
+    /// <summary>
+    /// Student aanmaken
+    /// </summary>
+    /// <param name="email">email</param>
+    /// <param name="role">rol</param>
+    /// <param name="name">naam</param>
+    /// <param name="surname">achternaam</param>
+    /// <param name="hometown">woonplaats</param>
+    /// <param name="adress">adres</param>
+    /// <param name="telefoonnr">telefoon nummer</param>
+    /// <param name="postcode">postcode</param>
+    /// <param name="slberID">slberid</param>
+    /// <param name="opmerking">opmerking</param>
+    /// <param name="studentNr">studentnummer</param>
     public Student(string email,string[] role,string name,string surname,string hometown,string adress, string telefoonnr,string postcode,int slberID,string opmerking,string studentNr) : base(email,role,name,surname,hometown,adress,telefoonnr,postcode)
     {
         SLBerID = slberID;
@@ -283,7 +353,7 @@ public class Student : Gebruiker
     }
 
     /// <summary>
-    /// Maakt gebruiker aan.
+    /// Maakt student aan in database
     /// </summary>
     /// <param name="email">email</param>
     /// <param name="wachtwoord">wachtwoord</param>
@@ -355,6 +425,10 @@ public class Student : Gebruiker
         return true;
     }
 
+    /// <summary>
+    /// Haalt lijst met studenten op
+    /// </summary>
+    /// <returns>lijst van studenten</returns>
     public static List<Student> GetStudents()
     {
         Database db = Database.Open(Constants.DBName);
@@ -369,7 +443,11 @@ public class Student : Gebruiker
         }
         return lijst;
     }
-
+    /// <summary>
+    ///  Haalt lijst met studenten op voor specifieke SLB'er
+    /// </summary>
+    /// <param name="SLBerID">slberid</param>
+    /// <returns>lijst van studenten</returns>
     public static List<Student> GetStudents(int SLBerID)
     {
         Database db = Database.Open(Constants.DBName);
@@ -384,7 +462,11 @@ public class Student : Gebruiker
         }
         return lijst;
     }
-
+    /// <summary>
+    /// Haalt specifieke student op
+    /// </summary>
+    /// <param name="studentid">studentid</param>
+    /// <returns>student</returns>
     public static Student GetStudent(int studentid)
     {
          Database db = Database.Open(Constants.DBName);
@@ -400,16 +482,42 @@ public class SLB : Gebruiker
 {
     public int SLBerID {get;set;}
 
+    /// <summary>
+    /// aanmaken van Gebruiker
+    /// </summary>
+    /// <param name="SLBerID">gebruikerid</param>
+    /// <param name="email">email</param>
+    /// <param name="role">rol</param>
+    /// <param name="naam">naam</param>
+    /// <param name="achternaam">achternaam</param>
+    /// <param name="woonplaats">woonplaats</param>
+    /// <param name="adres">adres</param>
+    /// <param name="telefoonnr">telnr</param>
+    /// <param name="postcode">postcode</param>
     public SLB(int SLBerID,string email,string[] roles,string naam,string achternaam,string woonplaats,string adres,string telefoonnr,string postcode) : base(SLBerID,email,roles,naam,achternaam,woonplaats,adres,telefoonnr,postcode)
     {
         
     }
-
+    /// <summary>
+    /// aanmaken van Gebruiker
+    /// </summary>
+    /// <param name="email">email</param>
+    /// <param name="role">rol</param>
+    /// <param name="naam">naam</param>
+    /// <param name="achternaam">achternaam</param>
+    /// <param name="woonplaats">woonplaats</param>
+    /// <param name="adres">adres</param>
+    /// <param name="telefoonnr">telnr</param>
+    /// <param name="postcode">postcode</param>
     public SLB(string email,string[] roles,string naam,string achternaam,string woonplaats,string adres,string telefoonnr,string postcode) : base(email,roles,naam,achternaam,woonplaats,adres,telefoonnr,postcode)
     {
         
     }
-
+    /// <summary>
+    /// Controleert of slber een student heeft
+    /// </summary>
+    /// <param name="slbid">slberid</param>
+    /// <returns>true als slber een student heeft, anders false</returns>
     public static bool HasStudent(int slbid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -419,7 +527,10 @@ public class SLB : Gebruiker
         else
             return false;
     }
-
+    /// <summary>
+    /// Haalt lijst van SLB'ers op
+    /// </summary>
+    /// <returns>lijst van SLB'ers</returns>
     public static List<SLB> GetSLBers()
     {
         Database db = Database.Open(Constants.DBName);
@@ -434,6 +545,12 @@ public class SLB : Gebruiker
         
         return lijst;
     }
+
+    /// <summary>
+    /// Haalt specifieke SLB'er op
+    /// </summary>
+    /// <param name="slbid">slberid</param>
+    /// <returns>SLB'er</returns>
     public static SLB GetSLBer(int slbid)
     {
         Database db = Database.Open(Constants.DBName);

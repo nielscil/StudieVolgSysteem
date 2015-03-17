@@ -1,7 +1,8 @@
 ﻿@{
     Layout = "~/Shared/_Layout.cshtml";
     Page.Title = "Studenten Volg Systeem";
-    App.LoginShow = true;
+    App.LoginShow = true; //laat inlogknop zien
+    //stuurt naar juiste pagina wanneer is ingelogd
     if (WebSecurity.IsAuthenticated && Roles.IsUserInRole(WebSecurity.CurrentUserName, "Student"))
     {
         Response.Redirect("~/Students/");

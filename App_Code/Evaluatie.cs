@@ -6,7 +6,7 @@ using WebMatrix.Data;
 using WebMatrix.WebData;
 
 /// <summary>
-/// Summary description for Evaluatie
+/// Evaluatie uitwisselen met database
 /// </summary>
 public class Evaluatie
 {
@@ -15,6 +15,15 @@ public class Evaluatie
     public DateTime DatumVolgendeGesprek { get; set; }
     public int AgendaID { get; set; }
     public string LocatieVolgendeGesprek { get; set; }
+
+    /// <summary>
+    /// Maakt evaluatie aan
+    /// </summary>
+    /// <param name="gesprekID">gesprekid</param>
+    /// <param name="besproken">besproken</param>
+    /// <param name="datumVolgendeGesprek">datum volgende gesprek</param>
+    /// <param name="agendaID">agendaid</param>
+    /// <param name="locatieVolgendeGesprek">locatie volgende gesprek</param>
     public Evaluatie(int gesprekID, string besproken, DateTime datumVolgendeGesprek, int agendaID, string locatieVolgendeGesprek)
     {
         this.GesprekID = gesprekID;
@@ -23,6 +32,14 @@ public class Evaluatie
         this.AgendaID = agendaID;
         this.LocatieVolgendeGesprek = locatieVolgendeGesprek;
     }
+
+    /// <summary>
+    /// Maakt evaluatie aan
+    /// </summary>
+    /// <param name="besproken">besproken</param>
+    /// <param name="datumVolgendeGesprek">datum volgende gesprek</param>
+    /// <param name="agendaID">agendaid</param>
+    /// <param name="locatieVolgendeGesprek">locatie volgende gesprek</param>
     public Evaluatie(string besproken, DateTime datumVolgendeGesprek, int agendaID, string locatieVolgendeGesprek)
     {
         this.Besproken = besproken;
@@ -30,6 +47,15 @@ public class Evaluatie
         this.AgendaID = agendaID;
         this.LocatieVolgendeGesprek = locatieVolgendeGesprek;
     }
+
+    /// <summary>
+    /// Voegt evaluatie toe aan database
+    /// </summary>
+    /// <param name="besproken">besproken</param>
+    /// <param name="datumVolgendeGesprek">datum volgende gesprek</param>
+    /// <param name="agendaID">agendaid</param>
+    /// <param name="locatieVolgendeGesprek">locatie volgende gesprek</param>
+    /// <returns>gesprekid van aangemaakte evaluatie</returns>
     public static int AddEvaluatie(string besproken, DateTime datumVolgendeGesprek, int agendaID, string locatieVolgendeGesprek)
     {
         Database db = Database.Open(Constants.DBName);
@@ -42,6 +68,12 @@ public class Evaluatie
         else
             return (int)id;
     }
+    /// <summary>
+    /// Voegt evaluatie toe aan database
+    /// </summary>
+    /// <param name="besproken">besproken</param>
+    /// <param name="agendaID">agendaid</param>
+    /// <returns>gesprekid van aangemaakte evaluatie</returns>
     public static int AddEvaluatie(string besproken, int agendaID)
     {
         Database db = Database.Open(Constants.DBName);
@@ -53,6 +85,25 @@ public class Evaluatie
         else
             return (int)id;
     }
+    /// <summary>
+    /// Checkt of een agenda afspraak al een evaluatie heeft
+    /// </summary>
+    /// <param name="agendaid">agendaid</param>
+    /// <returns>true als er al een evaluatie is, anders false</returns>
+    public static bool HasEvaluatie(int agendaid)
+    {
+        Database db = Database.Open(Constants.DBName);
+        var row = db.QuerySingle("SELECT * FROM Evaluatie WHERE agendaid=@0", agendaid);
+        if (row != null)
+            return true;
+        else
+            return false;
+    }
+
+    /// <summary>
+    /// Telt aantal evaluaties
+    /// </summary>
+    /// <returns>aantal evaluaties</returns>
     public static int Count()
     {
         Database db = Database.Open(Constants.DBName);

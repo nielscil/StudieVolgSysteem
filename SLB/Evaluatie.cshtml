@@ -8,7 +8,19 @@
     string date = "";
     string tijd = "";
     bool check = false;
-    if (agendaid == null || !agendaid.IsInt() || action == null)
+    if(action == null && agendaid != null && agendaid.IsInt())
+    {
+        
+       if(Evaluatie.HasEvaluatie(agendaid.AsInt()))
+       {
+           Response.Redirect("Evaluatie?agendaid=" + agendaid + "&action=update");
+       }
+       else
+       {
+           Response.Redirect("Evaluatie?agendaid=" + agendaid + "&action=add");
+       }
+    }
+    else if (agendaid == null || !agendaid.IsInt())
     {
         Response.Redirect("Default");
     }
@@ -95,85 +107,169 @@
 @section navbar{
     <ul class="nav navbar-nav">
         <li><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
-        <li><a href="#"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
+        <li><a href="@Href("Agenda")"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
         <li class="active"><a href="@Href("Evaluatie")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gespreksevaluatie</a></li>
     </ul>
 }
+@if (action == "add")
+{
+    Agenda agenda = Agenda.GetAgenda(agendaid.AsInt());
+    Student student = Student.GetStudent(agenda.StudentID);
+    <div>
+        <fieldset class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">SLB-gesprek evaluatie Toevoegen</h3>
+                </div><!--panel head-->
+                <form method="post">
+                    <div class="panel-body">
 
-<div>
-    <fieldset class="col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">SLB-gesprek evaluatie</h3>
-            </div><!--panel head-->
-            <form method="post">
-                <div class="panel-body">
-
-                    <table>
-                        <tr>
-                            <td><b>Naam Student</b></td>
-                            <td>
-                                <input value="naam student" name="naam" readonly />
-                            </td><!--werkt nog niet-->
-                        </tr>
-                        <tr>
-                            <td style="vertical-align: top"><b>Wat is er besproken?</b></td>
-                            <td><textarea name="besproken" cols="35" rows="4" placeholder="Wat is er besproken?" required>@besproken</textarea></td>
-                        </tr>
-                        <tr>
-                            <td>Volgende afspraak plannen</td>
-                            <td><input type="checkbox" class="nieuweAfspraak" name="nieuw" checked="@check" /> </td>
-                        </tr>
-                    </table>
-                    <div class="hideable">
                         <table>
                             <tr>
-                                <td><b>Volgende gesprek op:</b></td>
-                                <td><input name="datum" value="@date" type="date" />  <input name="tijd" value="@tijd" type="time" /></td>
+                                <td><b>Naam Student</b></td>
+                                <td>
+                                    <input value="@student.Naam  @student.Achternaam" name="naam" readonly />
+                                </td>
                             </tr>
                             <tr>
-                                <td><b>Locatie:</b></td>
-                                <td><input name="location" value="@locatie" type="text" /></td>
+                                <td style="vertical-align: top"><b>Wat is er besproken?</b></td>
+                                <td><textarea name="besproken" cols="35" rows="4" placeholder="Wat is er besproken?" required>@besproken</textarea></td>
+                            </tr>
+                            <tr>
+                                <td>Volgende afspraak plannen</td>
+                                <td><input type="checkbox" class="nieuweAfspraak" name="nieuw" checked="@check" /> </td>
                             </tr>
                         </table>
-                    </div>
-                </div><!--panel body-->
-                <div class="panel-footer">
-                    <input type="submit" name="evaluatietoevoegen" class="btn btn-md btn-primary" value="Toevoegen" />
-                </div>
-            </form>
-        </div><!--panel compleet-->
-    </fieldset>
-    <fieldset>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Afspraken</h3>
-            </div><!--panel head-->
-            <div class="panel-body">
-                <table>
-                    @if (afspraken.Count > 0)
-                    {
-                        int index = 0;
-
-                        foreach (string afspraak in afspraken)
-                        {
-                            <form method="post">
+                        <div class="hideable">
+                            <table>
                                 <tr>
-                                    <td>@afspraak <input type="submit" name="afspraakdel" class="btn btn-xs btn-danger" value="x"><input type="text" name="index" value="@index" hidden /></td>
+                                    <td><b>Volgende gesprek op:</b></td>
+                                    <td><input name="datum" value="@date" type="date" />  <input name="tijd" value="@tijd" type="time" /></td>
                                 </tr>
-                            </form>
-                            index++;
+                                <tr>
+                                    <td><b>Locatie:</b></td>
+                                    <td><input name="location" value="@locatie" type="text" /></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div><!--panel body-->
+                    <div class="panel-footer">
+                        <input type="submit" name="evaluatietoevoegen" class="btn btn-md btn-primary" value="Toevoegen" />
+                    </div>
+                </form>
+            </div><!--panel compleet-->
+        </fieldset>
+        <fieldset>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Afspraken</h3>
+                </div><!--panel head-->
+                <div class="panel-body">
+                    <table>
+                        @if (afspraken.Count > 0)
+                        {
+                            int index = 0;
+
+                            foreach (string afspraak in afspraken)
+                            {
+                                <form method="post">
+                                    <tr>
+                                        <td>@afspraak <input type="submit" name="afspraakdel" class="btn btn-xs btn-danger" value="x"><input type="text" name="index" value="@index" hidden /></td>
+                                    </tr>
+                                </form>
+                                index++;
+                            }
                         }
-                    }
-                    <form method="post">
-                        <tr>
-                            <td>
-                                <input type="text" name="afspraak" required />    <input type="submit" name="afspraakadd" class="btn btn-xs btn-primary" value="+">
-                            </td>
-                        </tr>
-                    </form>
-                </table>
-            </div><!--panel body-->
-        </div> <!--panel compleet-->
-    </fieldset>
-</div>
+                        <form method="post">
+                            <tr>
+                                <td>
+                                    <input type="text" name="afspraak" required />    <input type="submit" name="afspraakadd" class="btn btn-xs btn-primary" value="+">
+                                </td>
+                            </tr>
+                        </form>
+                    </table>
+                </div><!--panel body-->
+            </div> <!--panel compleet-->
+        </fieldset>
+    </div>
+}
+else if(action == "update")
+{
+    <div>
+        <fieldset class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">SLB-gesprek evaluatie Updaten</h3>
+                </div><!--panel head-->
+                <form method="post">
+                    <div class="panel-body">
+
+                        <table>
+                            <tr>
+                                <td><b>Naam Student</b></td>
+                                <td>
+                                    <input value="naam student" name="naam" readonly />
+                                </td><!--werkt nog niet-->
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top"><b>Wat is er besproken?</b></td>
+                                <td><textarea name="besproken" cols="35" rows="4" placeholder="Wat is er besproken?" required>@besproken</textarea></td>
+                            </tr>
+                            <tr>
+                                <td>Volgende afspraak plannen</td>
+                                <td><input type="checkbox" class="nieuweAfspraak" name="nieuw" checked="@check" /> </td>
+                            </tr>
+                        </table>
+                        <div class="hideable">
+                            <table>
+                                <tr>
+                                    <td><b>Volgende gesprek op:</b></td>
+                                    <td><input name="datum" value="@date" type="date" />  <input name="tijd" value="@tijd" type="time" /></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Locatie:</b></td>
+                                    <td><input name="location" value="@locatie" type="text" /></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div><!--panel body-->
+                    <div class="panel-footer">
+                        <input type="submit" name="evaluatieupdaten" class="btn btn-md btn-primary" value="Updaten" />
+                    </div>
+                </form>
+            </div><!--panel compleet-->
+        </fieldset>
+        <fieldset>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Afspraken</h3>
+                </div><!--panel head-->
+                <div class="panel-body">
+                    <table>
+                        @if (afspraken.Count > 0)
+                        {
+                            int index = 0;
+
+                            foreach (string afspraak in afspraken)
+                            {
+                                <form method="post">
+                                    <tr>
+                                        <td>@afspraak <input type="submit" name="afspraakdel" class="btn btn-xs btn-danger" value="x"><input type="text" name="index" value="@index" hidden /></td>
+                                    </tr>
+                                </form>
+                                index++;
+                            }
+                        }
+                        <form method="post">
+                            <tr>
+                                <td>
+                                    <input type="text" name="afspraak" required />    <input type="submit" name="afspraakadd" class="btn btn-xs btn-primary" value="+">
+                                </td>
+                            </tr>
+                        </form>
+                    </table>
+                </div><!--panel body-->
+            </div> <!--panel compleet-->
+        </fieldset>
+    </div>
+}

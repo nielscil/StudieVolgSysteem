@@ -11,30 +11,32 @@ public class Algoritme
     public Algoritme(){}
 
     //Berekent de prioriteit.
-    public string ber_Prioriteit(int studID)
+    public int ber_Prioriteit(int studID)
     {
-        int prioProcent = 100;
+        int prioLevel = 0;
         int count = Cijfer.GetGradesFromStudent(studID).Count;
 
         //Berekend het prioProcent van de student.
-        foreach(Cijfer c in Cijfer.GetGradesFromStudent(studID))
+        foreach (Cijfer c in Cijfer.GetGradesFromStudent(studID))
         {
-            //prioProcent = prioProcent - (100 / count) * (5 - c.Cijfertje + 1);
-            switch(c.Cijfertje)
-            {
-                case 5: case 4: 
-                prioProcent = prioProcent - (100 / count);
-                        break;
+            //Als het een cijfer is waar 1 ec gemist is.
+            if(c.Cijfertje < 6 && (c.EcS == 1 && (c.EcS != c.gekregenEcS)))
+                    prioLevel = prioLevel + 5;
 
-                case 3: case 2: case 1: 
-                prioProcent = prioProcent - (100 / count)*2;
-                        break;
-            }
+            //Als het een cijfer is waar 1 ec gemist is.
+            if(c.Cijfertje < 6 && (c.EcS == 2 && (c.EcS != c.gekregenEcS)))
+                    prioLevel = prioLevel + 10;
+
+            //Als het een cijfer is waar 1 ec gemist is.
+             if(c.Cijfertje < 6 && (c.EcS == 3 && (c.EcS != c.gekregenEcS)))
+                    prioLevel = prioLevel +  15;
+
+            //Als het een cijfer is waar 1 ec gemist is.
+            if(c.Cijfertje < 6 && (c.EcS > 3 && (c.EcS != c.gekregenEcS)))
+                    prioLevel = prioLevel +  20;
         }
 
-        if (prioProcent >= 75) {return "Laag";}
-        else if (prioProcent <= 75 && prioProcent >= 50) {return "Gemiddeld";}
-        else {return "Hoog";}
+        return prioLevel;
     }
-}
+}   
 

@@ -3,7 +3,23 @@ body{
    padding:0;
    height:100%;
 }
-
+#agendanav{
+    margin-top: -5px;
+    margin-bottom: -5px;
+}
+.pager li > .ui-datepicker-trigger:hover,
+.pager li > .ui-datepicker-trigger:focus {
+  text-decoration: none;
+  background-color: #eee;
+}
+.ui-datepicker-trigger{
+  display: inline-block;
+  padding: 5px 14px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  color: #337ab7;
+}
 .jumbotron h1{
     text-align: left;
 }

@@ -3,19 +3,28 @@ using System.Text.RegularExpressions;
 using System.Web; 
 using System.Web.WebPages;
 /// <summary>
-/// Summary description for Validator
+/// Validators
 /// </summary>
 public class PasswordValidator : RequestFieldValidatorBase
 {
     string name;
     string surname;
     string email;
+
+    /// <summary>
+    /// Maakt wachtwoordvalidator aan
+    /// </summary>
+    /// <param name="name">naam van gebruiker</param>
+    /// <param name="surname">achternaam van gebruiker</param>
+    /// <param name="email">email van gebruiker</param>
+    /// <param name="errorMessage">foutmelding</param>
     public PasswordValidator(string name,string surname,string email,string errorMessage = null): base (errorMessage)
     {
         this.name = name;
         this.surname = surname;
         this.email = email;
     }
+
     /// <summary>
     /// Checkt of wachtwoord geen namen bevat.
     /// </summary>
@@ -46,10 +55,17 @@ public class PasswordValidator : RequestFieldValidatorBase
 public class Regexval : RequestFieldValidatorBase
 {
     string regex;
+
+    /// <summary>
+    /// Regex validator
+    /// </summary>
+    /// <param name="regex">waarop gecontroleerd moet worden</param>
+    /// <param name="errorMessage">foutmelding</param>
     public Regexval(string regex,string errorMessage = null): base(errorMessage)
     {
         this.regex = regex;
     }
+
     /// <summary>
     /// checkt of de regex matcht met de inkomende value
     /// </summary>
@@ -65,6 +81,14 @@ public class Regexval : RequestFieldValidatorBase
 
 public class MyValidator
 {
+    /// <summary>
+    /// Validator voor wachtwoord
+    /// </summary>
+    /// <param name="name">naam van gebruiker</param>
+    /// <param name="surname">achternaam van gebruiker</param>
+    /// <param name="email">email van gebruiker</param>
+    /// <param name="errorMessage">foutmelding</param>
+    /// <returns>Passwordvalidator</returns>
     public static IValidator Password(string name,string surname,string email,string errorMessage = null){
         if(string.IsNullOrEmpty(errorMessage)){
             errorMessage = "Er ging iets fout";
@@ -72,6 +96,12 @@ public class MyValidator
         return new PasswordValidator(name,surname,email,errorMessage);
     }
 
+    /// <summary>
+    /// Validator voor regex
+    /// </summary>
+    /// <param name="regex">waarop gecontroleerd moet worden</param>
+    /// <param name="errorMessage">foutmelding</param>
+    /// <returns>Regexvalidator</returns>
     public static IValidator Regex(string regex, string errorMessage = null)
     {
         if (string.IsNullOrEmpty(errorMessage))

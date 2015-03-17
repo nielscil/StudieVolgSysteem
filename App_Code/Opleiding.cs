@@ -6,7 +6,7 @@ using WebMatrix.Data;
 using WebMatrix.WebData;
 
 /// <summary>
-/// Summary description for Opleiding
+/// Opleidingen uitwisselen met database
 /// </summary>
 public class Opleiding
 {
@@ -14,6 +14,12 @@ public class Opleiding
     public string Naam { get; set; }
     public List<Vak> Vakken { get; set; }
 
+    /// <summary>
+    /// Opleiding aanmaken
+    /// </summary>
+    /// <param name="opleidingid">opleidingid</param>
+    /// <param name="naam">naam</param>
+    /// <param name="vakken">vakken</param>
 	public Opleiding(int opleidingid,string naam,List<Vak> vakken)
 	{
         this.OpleidingID = opleidingid;
@@ -21,12 +27,21 @@ public class Opleiding
         this.Vakken = vakken;
 	}
 
+    /// <summary>
+    /// Opleiding aanmaken
+    /// </summary>
+    /// <param name="naam">naam</param>
+    /// <param name="vakken">vakken</param>
     public Opleiding(string naam, List<Vak> vakken)
     {
         this.Naam = naam;
         this.Vakken = vakken;
     }
 
+    /// <summary>
+    /// Haalt opleidingen op
+    /// </summary>
+    /// <returns>lijst met opleidingen</returns>
     public static List<Opleiding> GetStudies()
     {
         Database db = Database.Open(Constants.DBName);
@@ -42,6 +57,11 @@ public class Opleiding
         return list;
     }
 
+    /// <summary>
+    /// Haalt opleiding op
+    /// </summary>
+    /// <param name="opleidingid">opleidingid</param>
+    /// <returns>Opleiding</returns>
     public static Opleiding GetStudy(int opleidingid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -52,6 +72,11 @@ public class Opleiding
         return v;
     }
 
+    /// <summary>
+    /// Voegt opleiding toe
+    /// </summary>
+    /// <param name="naam">naam</param>
+    /// <returns>id van toegevoegde opleiding</returns>
     public static int AddStudy(string naam)
     {
         Database db = Database.Open(Constants.DBName);
@@ -64,6 +89,11 @@ public class Opleiding
             return (int)id;
     }
 
+    /// <summary>
+    /// Voegt vak toe aan opleiding
+    /// </summary>
+    /// <param name="opleidingid">opleidingid</param>
+    /// <param name="vakid">vakid</param>
     public static void AddSubject(int opleidingid, int vakid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -71,6 +101,11 @@ public class Opleiding
         db.Close();
     }
 
+    /// <summary>
+    /// Verwijderd vak van opleiding
+    /// </summary>
+    /// <param name="opleidingid">opleidingid</param>
+    /// <param name="vakid">vakid</param>
     public static void DelSubject(int opleidingid, int vakid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -78,6 +113,10 @@ public class Opleiding
         db.Close();
     }
 
+    /// <summary>
+    /// Verwijder opleiding
+    /// </summary>
+    /// <param name="opleidingid">opleidingid</param>
     public static void DelStudy(int opleidingid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -86,6 +125,11 @@ public class Opleiding
         db.Close();
     }
 
+    /// <summary>
+    /// Update opleiding
+    /// </summary>
+    /// <param name="opleidingid">opleidingid</param>
+    /// <param name="naam">naam</param>
     public static void UpdateStudy(int opleidingid, string naam)
     {
         Database db = Database.Open(Constants.DBName);
@@ -93,6 +137,10 @@ public class Opleiding
         db.Close();
     }
 
+    /// <summary>
+    /// Telt aantal opleidingen
+    /// </summary>
+    /// <returns>aantal opleidingen</returns>
     public static int Count()
     {
         Database db = Database.Open(Constants.DBName);
@@ -101,6 +149,11 @@ public class Opleiding
         return count;
     }
 
+    /// <summary>
+    /// Zoekt naar opleiding met een specifieke zoekterm
+    /// </summary>
+    /// <param name="input">zoekterm</param>
+    /// <returns>lijst van opleidingen</returns>
     public static List<Opleiding> SearchStudy(string input)
     {
         Database db = Database.Open(Constants.DBName);

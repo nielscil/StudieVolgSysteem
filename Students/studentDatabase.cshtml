@@ -1,0 +1,208 @@
+﻿@{
+  Layout = "~/Shared/_Layout.cshtml";
+  //error en succes popups
+  var succes = Request.QueryString["succesful"];
+    var message = Request.QueryString["message"];
+
+var name="";
+var date="";
+var time="";
+var location="";
+var datetime= date + time;
+ if(IsPost){
+    // var errors = string.Empty;
+        //geen lege input boxes
+       if(Request["Location"].IsEmpty()){
+           Response.Redirect("studentDatabase?succesful=false&message=Selecteer een lokaal!");
+        }
+        else
+        {
+            Response.Redirect("studentDatabase?succesful=true&message=✓"); 
+            
+        }
+        if(Request["Date"].IsEmpty()){
+            Response.Redirect("studentDatabase?succesful=false&message=Datum niet ingevult!");
+        }
+        else
+        {
+            Response.Redirect("studentDatabase?succesful=true&message=✓"); 
+            
+        }
+        if(Request["Time"].IsEmpty()){
+                Response.Redirect("studentDatabase?succesful=false&message=Tijd niet goed!");
+        }
+        else
+        {
+            Response.Redirect("studentDatabase?succesful=true&message=✓"); 
+            
+        }
+            // huidige ingelogde student
+            Student s = Student.GetStudent(WebSecurity.CurrentUserId);
+          //  SLB slb =SLB.GetSLBer(s.SLBerID);
+     
+     date = Request["Date"];
+     time = Request["Time"];
+     // van de tijd en datum een input datetime maken
+     DateTime datum = DateTime.Parse(Request.Form["Date"] + " " + Request.Form["Time"]);
+   //  time= Request["SLBerID"];
+
+   // database volstoppen met stuff
+     var SQLINSERT = "INSERT INTO Agenda (StudentID, SLBerID,Datum,locatie) VALUES (@0,@1,@2,@3)";
+     var db = Database.Open("Demo");
+     db.Execute(SQLINSERT,s.GebruikerID,s.SLBerID,datum,location);
+     Response.Redirect("Default.cshtml");
+     //als tijd en datum bezet is error.
+     if (Request["date"] == date)
+     {
+         if (Request["Time"] == time)
+         {
+              Response.Redirect("studentDatabase?succesful=false&message=Tijd al bezet");
+        }
+        else
+        {
+            Response.Redirect("studentDatabase?succesful=true&message=✓"); 
+            
+        }        
+     }
+     // als student al afspraak heeft gemaakt kan hij niet nog een afspraak maken
+     if(Request["StudentID"].AsInt() == s.GebruikerID)
+     {
+         Response.Redirect("studentDatabase?succesful=false&message=Afspraak al gemaakt!");
+        }
+        else
+        {
+            Response.Redirect("studentDatabase?succesful=true&message=✓"); 
+     }
+
+     
+     }
+
+
+
+
+ 
+ }
+@section navbar{
+<ul class="nav navbar-nav"> 
+    <li><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
+    <li class="active"><a href="#"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
+    <li><a href="@Href("Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a></li>
+</ul>
+}
+
+
+
+
+
+<!doctype html>
+<html lang="en">
+<head>
+    <!--jquery agenda om datum te selecteren--> 
+  <meta charset="utf-8">
+  <title>jQuery UI Datepicker - Default functionality</title>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <!-- nederlandse type-->
+  <script src="~/Content/js/date-picker_nl.js"></script>
+  <script>
+    // dropdownwindow en de selectbar voor datum
+      $( "#number" )
+      .selectmenu()
+      .selectmenu( "menuWidget" )
+        .addClass( "overflow" );
+        // zorgt er voor dat je niet een afspraak kan leveren in het verleden.
+      $(function () {
+          $("#datepicker").datepicker({ minDate: +1, maxDate: " +4M" });
+      });
+  </script>
+</head>
+<body>
+<h1>Afspraak maken</h1>
+
+		<div>  
+			<form action="" method="post">
+                <table>
+                    <tr>
+                        <td>  &nbsp;&nbsp;Locatie: &nbsp;&nbsp;</td><td><input name="username" type="text" value="G2.049" size="9"></td>
+                        <td>  &nbsp;&nbsp;Datum: &nbsp;&nbsp;</td><td><input name="date" type="text" id="datepicker" size="9"></td>
+                        <td>  &nbsp;&nbsp;Tijd:  &nbsp;&nbsp; <select name="Time" id="number">
+      
+                              <option value="8:00">8:00</option>
+                              <option value="8:15">8:15</option>
+                              <option value="8:30">8:30</option>
+                              <option value="8:45">8:45</option>
+                              <option value="9:00">9:00</option>
+                              <option value="9:15">9:15</option>
+                              <option value="9:30">9:30</option>
+                              <option value="9:45">9:45</option>
+                              <option value="10:00" selected="selected">10:00</option>
+                              <option value="10:15">10:15</option>
+                              <option value="10:30">10:30</option>
+                              <option value="10:45">10:45</option>
+                              <option value="11:00">11:00</option>
+                              <option value="11:15">11:15</option>
+                              <option value="11:30">11:30</option>
+                              <option value="11:45">11:45</option>
+                              <option value="12:00">12:00</option>
+                              <option value="12:15">12:15</option>
+                              <option value="12:30">12:30</option>
+                              <option value="12:45">12:45</option>
+                              <option value="13:00">13:00</option>
+                              <option value="13:15">13:15</option>
+                              <option value="13:30">13:30</option>
+                              <option value="13:45">13:45</option>
+                              <option value="14:00">14:00</option>
+                              <option value="14:15">14:15</option>
+                              <option value="14:30">14:30</option>
+                              <option value="14:45">14:45</option>
+                              <option value="15:00">15:00</option>
+                              <option value="15:15">15:15</option>
+                              <option value="15:30">15:30</option>
+                              <option value="15:45">15:45</option>
+                              <option value="16:00">16:00</option>
+                              <option value="16:15">16:15</option>
+                              <option value="16:30">16:30</option>
+                              </select ></td> <td>  &nbsp;&nbsp; <input type="submit" value="Add" size="9">  </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            
+                        </td>
+                    </tr>
+                </table> 
+                 @if(IsPost){
+                    <div>@Request["Locatie"]</div>
+                }
+
+                 @if(IsPost){
+                    <div>@Request["Date"]</div>
+                }
+                
+                @if(IsPost){
+                    <div>@Request["Time"]</div>
+                }  
+                
+               
+                <div>
+				
+                    <div class="row">
+    @if (succes == "true")
+    {
+        <div class="col-lg-12">
+            <div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>@message</div>
+        </div>
+    }
+    else if (succes == "false")
+    {
+        <div class="col-lg-12">
+            <div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>@message</div>
+        </div>
+    }
+</div>
+
+                </div>
+			</form>  
+		</div>
+</body>
+</html>

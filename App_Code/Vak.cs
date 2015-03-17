@@ -5,21 +5,38 @@ using System.Web.Security;
 using WebMatrix.Data;
 using WebMatrix.WebData;
 
+/// <summary>
+/// Vakken uitwisselen met database
+/// </summary>
 public class Vak
 {
     public int VakID { get; set; }
     public string Naam { get; set; }
+
+    /// <summary>
+    /// Maakt vak aan
+    /// </summary>
+    /// <param name="vakid">vakid</param>
+    /// <param name="naam">naam</param>
 	public Vak(int vakid,string naam)
 	{
         this.VakID = vakid;
         this.Naam = naam;
 	}
 
+    /// <summary>
+    /// Maakt vak aan
+    /// </summary>
+    /// <param name="naam">naam</param>
     public Vak(string naam)
     {
         this.Naam = naam;
     }
 
+    /// <summary>
+    /// Haalt lijst van vakken op
+    /// </summary>
+    /// <returns>lijst van vakken</returns>
     public static List<Vak> GetSubjects()
     {
         Database db = Database.Open(Constants.DBName);
@@ -34,6 +51,11 @@ public class Vak
         return list;
     }
 
+    /// <summary>
+    /// Haalt lijst van vakken op specifiek voor een opleiding
+    /// </summary>
+    /// <param name="opleidingid">opleidingid</param>
+    /// <returns>lijst van vakken</returns>
     public static List<Vak> GetSubjects(int opleidingid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -48,6 +70,11 @@ public class Vak
         return list;
     }
 
+    /// <summary>
+    /// Haalt opleidingen op bij een specifiek vak
+    /// </summary>
+    /// <param name="vakid">vakid</param>
+    /// <returns>lijst van opleidingen</returns>
     public static List<Opleiding> GetStudies(int vakid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -62,6 +89,11 @@ public class Vak
         return list;
     }
 
+    /// <summary>
+    /// Haalt vak op
+    /// </summary>
+    /// <param name="vakid">vakid</param>
+    /// <returns>vak</returns>
     public static Vak GetSubject(int vakid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -71,6 +103,11 @@ public class Vak
         return v;
     }
 
+    /// <summary>
+    /// Voegt nieuw vak toe
+    /// </summary>
+    /// <param name="naam">naam</param>
+    /// <returns>id van toegevoegde vak</returns>
     public static int AddSubject(string naam)
     {
         Database db = Database.Open(Constants.DBName);
@@ -83,6 +120,11 @@ public class Vak
             return (int)row;
     }
 
+    /// <summary>
+    /// Update vak
+    /// </summary>
+    /// <param name="vakid">vakid</param>
+    /// <param name="naam">naam</param>
     public static void UpdateSubject(int vakid,string naam)
     {
         Database db = Database.Open(Constants.DBName);
@@ -90,6 +132,10 @@ public class Vak
         db.Close();
     }
 
+    /// <summary>
+    /// Telt aantal vakken
+    /// </summary>
+    /// <returns>aantal vakken</returns>
     public static int Count()
     {
         Database db = Database.Open(Constants.DBName);
@@ -98,6 +144,10 @@ public class Vak
         return count;
     }
 
+    /// <summary>
+    /// Verwijderd specifiek vak
+    /// </summary>
+    /// <param name="vakid">vakid</param>
     public static void DelSubject(int vakid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -106,6 +156,11 @@ public class Vak
         db.Close();
     }
 
+    /// <summary>
+    /// Zoekt naar vakken met een specifieke zoekterm
+    /// </summary>
+    /// <param name="input">zoekterm</param>
+    /// <returns>lijst van vakken</returns>
     public static List<Vak> SearchSubject(string input)
     {
         Database db = Database.Open(Constants.DBName);
