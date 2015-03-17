@@ -79,11 +79,10 @@
                 <div class="col-lg-3">
                                         <h3>Eigenschap 4</h3>
                     <p>*Insert Joris z'n Verkooppraatje hier*</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
+                </div><!--einde col-->
+            </div><!--einde row-->
+        </div><!--einde container-->
+    </div><!--einde jumbotron -->
 
     <!--Begin Login popup-->
     @section popup{
@@ -93,7 +92,7 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="myModalLabel">Inloggen</h4>
-                    </div>
+                    </div><!--einde modal-header-->
                     <form method="post">
                         <div class="modal-body">
                             @* If one or more validation errors exist, show an error *@
@@ -114,17 +113,17 @@
                                         <td><label class="checkbox" for="rememberMe">Onthoud mij?</label></td>
                                         <td class="error-label"><input type="checkbox" id="rememberMe" name="rememberMe" value="true" /></td>
                                     </tr>
-                                </table>
+                                </table><!-- einde table login pop up-->
                             </div>
-                        </div>
+                        </div><!-- einde modal-body-->
                         <div class="modal-footer">
                             <a href="/Account/ForgotPassword" class="btn btn-default">Wachtwoord Vergeten</a>
                             <input type="submit" value="Inloggen" class="btn btn-primary" />
-                        </div>
+                        </div><!--einde modal-footer-->
                     </form>
-                </div>
-            </div>
-        </div>
+                </div><!--einde modal-content-->
+            </div><!--einde modal-dialog-->
+        </div><!-- einde modal-fade-->
     }
     <!--Einde Login popup-->
 }
