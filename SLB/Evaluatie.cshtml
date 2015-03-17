@@ -115,15 +115,32 @@
 {
     Agenda agenda = Agenda.GetAgenda(agendaid.AsInt());
     Student student = Student.GetStudent(agenda.StudentID);
-    <div>
-        <fieldset class="col-md-4">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">SLB-gesprek evaluatie Toevoegen</h3>
-                </div><!--panel head-->
-                <form method="post">
-                    <div class="panel-body">
-
+<!--tabel met studentevaluatie-->
+<div>
+    <fieldset class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">SLB-gesprek evaluatie</h3>
+            </div><!--/panel head-->
+            <form method="post">
+                <div class="panel-body">
+                    <table>
+                        <tr>
+                            <td><b>Naam Student</b></td>
+                            <td>
+                                <input value="naam student" name="naam" readonly />
+                            </td><!--werkt nog niet-->
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top"><b>Wat is er besproken?</b></td>
+                            <td><textarea name="besproken" cols="35" rows="4" placeholder="Wat is er besproken?" required>@besproken</textarea></td>
+                        </tr>
+                        <tr>
+                            <td>Volgende afspraak plannen</td>
+                            <td><input type="checkbox" class="nieuweAfspraak" name="nieuw" checked="@check" /> </td>
+                        </tr>
+                    </table>
+                    <div class="hideable">
                         <table>
                             <tr>
                                 <td><b>Naam Student</b></td>
@@ -260,14 +277,14 @@ else if(action == "update")
                                 index++;
                             }
                         }
-                        <form method="post">
+                        <form method="post"><!--afspraak toevoegen-->
                             <tr>
                                 <td>
                                     <input type="text" name="afspraak" required />    <input type="submit" name="afspraakadd" class="btn btn-xs btn-primary" value="+">
                                 </td>
                             </tr>
                         </form>
-                    </table>
+                    </table><!--/panel body-->
                 </div><!--panel body-->
             </div> <!--panel compleet-->
         </fieldset>

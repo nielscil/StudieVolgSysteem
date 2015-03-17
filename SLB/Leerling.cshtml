@@ -1,13 +1,106 @@
-﻿@{
-    
+﻿@{;
+        Layout = "~/Shared/_Layout.cshtml"; 
+    Page.Title = "SLB Dashboard";
+    List<Student> studenten = Student.GetStudents(WebSecurity.CurrentUserId);
+    var studid = Request.QueryString["studentid"]; //student id opvragen
+    Algoritme algoritme = new Algoritme();
 }
 
 @section navbar{
   <ul class="nav navbar-nav"> 
         <li><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
-        <li><a href="@Href("Agenda")"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
-        <li class="active"><a href="@Href("Evaluatie")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gespreksevaluatie</a></li>
+      <li><a href="@Href("Agenda")"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
+        <li  class="active"><a href="leerling"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Studenten</a></li>
       </ul>
 }
 
+@if(studid == null) {
+    <!--Lijst met studenten-->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Studenten</div>
+                    <div class="panel-body">
+                        <table class="table">
+                            @foreach(Student s in studenten){ //lijst met studenten laden
+                                <tr>
+                                    <td><a href="">@s.Naam @s.Achternaam</a></td>
+                                    @if(Algoritme.ber_Prioriteit(s.GebruikerID) >= 75) 
+                                    {
+                                        <td><img src="~/content/images/GreenDot.png" class="img" alt="green" /></td> //groen bolletje als de student het goed doet
+                                    }
+                                    else if((Algoritme.ber_Prioriteit(s.GebruikerID) <= 75) && (Algoritme.ber_Prioriteit(s.GebruikerID) >= 50)) 
+                                    {
+                                        <td><img src="~/content/images/OrangeDot.png" class="img" alt="orange" /></td> //oranje minder goed
+                                    }
+                                    else 
+                                    {
+                                        <td><img src="~/content/images/RedDot.png" class="img" alt="red" /></td> //rood slecht
+                                    }
+                                </tr>
+                            }
+                        </table>
+                    </div><!--panel body-->
+                <div class="panel-footer"></div>
+            </div> <!--panel-default-->
+        </div> <!--/col-lg-12-->
+    </div> <!--/lijst met studenten-->
+}
 
+//Nog niet af
+else {
+    Student gebruiker = Student.GetStudent(studid.AsInt()); //als er op een student geklikt wordt, worden gegevens geladen
+    <div class="col-lg-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">@gebruiker.Naam @gebruiker.Achternaam</div>
+            <table>
+                <tr>
+                    <td>Naam</td>
+                    <td>@gebruiker.Naam</td>
+            
+                </tr>
+                <tr>
+                    <td>Achternaam</td>
+                    <td>@gebruiker.Achternaam</td>
+                </tr>
+                <tr>
+                    <td>E-mailadres</td>
+                    <td>@gebruiker.Email</td>
+
+                </tr>
+                <tr>
+                    <td>Straat + huis nr.</td>
+                    <td>@gebruiker.Adres</td>
+                </tr>
+                <tr>
+                    <td>Postcode</td>
+                    <td>@gebruiker.Postcode</td>
+                </tr>
+                <tr>
+                    <td>Woonplaats</td>
+                        <td>@gebruiker.Woonplaats</td>
+                </tr>
+                <tr>
+                    <td>Telefoonnummer</td>
+                    <td>@gebruiker.TelefoonNr</td>
+                </tr>
+            </table>
+            <div class="panel-footer">
+                <a href="Gebruikers" class="btn btn-default">Terug</a>
+                <a href="Gebruikers" class="btn btn-primary">Afspraak plannen</a>
+            </div><!--panel footer-->
+        </div><!--panel-->
+    </div><!--class col-lg-8-->
+
+    <!--Nog niet af panel met cijfer-->
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">Cijfers</div>
+            <table>
+                <tr>
+                 <td><!--cijfers en shit--></td>
+                </tr>
+            </table>      
+        </div>    
+    </div>
+ }

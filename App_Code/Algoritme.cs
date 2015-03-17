@@ -11,7 +11,8 @@ public class Algoritme
     public Algoritme(){}
 
     //Berekent de prioriteit.
-    public int ber_Prioriteit(int studID)
+
+    public static int ber_Prioriteit(int studID)
     {
         int prioLevel = 0;
         int count = Cijfer.GetGradesFromStudent(studID).Count;

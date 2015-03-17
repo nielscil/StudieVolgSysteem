@@ -11,19 +11,39 @@
         <li><a href="@Href("Evaluatie")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gespreksevaluatie</a></li>
     </ul>
 }
+    <!--Lijst met studenten-->
 <div class="row">
     <div class="col-lg-10">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Komende afspraken</div> <!--/panel-heading-->
+            <div class="panel-body">
+                Hier komt een soort twitter-achtige timeline met afspraken en deadlines                
+            </div> <!--/panel-body-->
+            <div class="panel-footer"></div>
+        </div> <!--/panel-default-->
     </div>
     <div class="col-lg-2">
         <div class="panel panel-default">
             <div class="panel-heading">Studenten</div>
             <table class="table">
                 @if(studenten.Count > 0){
-                    foreach (Student s in studenten)
+                    foreach (Student s in studenten) //laadt lijstje met studenten
                     {
                         <tr>
                             <td><a href="#">@s.Naam @s.Achternaam</a></td>
-                            <td><img src="~/content/images/GreenDot.png" class="img" alt="green" /></td>
+                            @if(Algoritme.ber_Prioriteit(s.GebruikerID) >= 75) 
+                            {
+                                <td><img src="~/content/images/GreenDot.png" class="img" alt="green" /></td> //groen bolletje als de student het goed doet
+                            }
+                            else if((Algoritme.ber_Prioriteit(s.GebruikerID) <= 75) && (Algoritme.ber_Prioriteit(s.GebruikerID) >= 50)) 
+                            {
+                                <td><img src="~/content/images/OrangeDot.png" class="img" alt="orange" /></td> //oranje is minder goed
+                            }
+                            else 
+                            {
+                                <td><img src="~/content/images/RedDot.png" class="img" alt="red" /></td> //rood is slecht
+                            }
                         </tr>
                     }
                 }else{
@@ -31,9 +51,8 @@
                         <td>Geen studenten gevonden</td>
                     </tr>
                 }
-
             </table>
             <div class="panel-footer"></div>
-        </div>
-    </div>
-</div>
+        </div> <!--/panel-default-->
+    </div> <!--/col-lg-2-->
+</div> <!--/lijst met studenten-->
