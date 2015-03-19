@@ -67,6 +67,22 @@
             }
 
         }
+        else if(!Request["updateurl"].IsEmpty())
+        {
+            if(!Request.Form["url"].IsEmpty())
+            {
+                try
+                {
+                    SLB.UpdateUrl(WebSecurity.CurrentUserId, Request.Form["url"]);
+                }
+                catch
+                {
+                    Response.Redirect("manage?succesful=false&message=Er ging iets fout");
+                }
+                Response.Redirect("manage?succesful=true&message=Rooster succesvol geüpdatet");
+            }
+            Response.Redirect("manage?succesful=false&message=Graag een url invullen");
+        }
     }
 }
 @section navbar{
@@ -76,13 +92,14 @@
         <ul class="nav navbar-nav">
             <li><a href="@Href("~/Admin/Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
             <li><a href="@Href("~/Admin/Gebruikers")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Gebruikers</a></li>
+            <li><a href="@Href("Opleiding")"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> Opleidingen</a></li>
+            <li><a href="@Href("Vakken")"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> Vakken</a></li>
         </ul>
     }
     else if (Roles.IsUserInRole(WebSecurity.CurrentUserName, "Student")) //voor student
     {
         <ul class="nav navbar-nav">
-            <li><a href="@Href("~/Students/Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
-            <li><a href="@Href("~/Students/Agenda")"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
+            <li><a href="@Href("~/Students/Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Agenda</a></li>
         </ul>
     }
     else if (Roles.IsUserInRole(WebSecurity.CurrentUserName, "SLB")) //voor slb
@@ -102,10 +119,16 @@
             <div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>@message</div>
         </div>
     }
-    else if (succes == "false")
+    else if (succes == "false" && (message == "" || message == null))
     {
         <div class="col-lg-12">
             <div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>@Html.ValidationSummary(excludeFieldErrors: true)</div>
+        </div>
+    }
+    else if(succes == "false")
+    {
+        <div class="col-lg-12">
+            <div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>@message</div>
         </div>
     }
 </div>
@@ -193,6 +216,26 @@
                     </div>
                 </form>
             </div>
+            @if (Roles.IsUserInRole(WebSecurity.CurrentUserName, "SLB"))
+            {
+                SLB slb = SLB.GetSLBer(WebSecurity.CurrentUserId);
+                <div class="panel panel-default">
+                    <div class="panel-heading"><div class="panel-title">Rooster updaten</div></div>
+                    <form method="post">
+                        <div class="panel-body">
+                            <table>
+                                <tr>
+                                    <td>Rooster URl</td>
+                                    <td><input type="text" name="url" value="@slb.URL" /></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="panel-footer">
+                            <input type="submit" class="btn btn-primary" value="Updaten" name="updateurl" />
+                        </div>
+                    </form>
+                </div>
+            }
         </div>
         <!--Einde wachtwoord-->
     </div>

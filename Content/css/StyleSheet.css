@@ -3,6 +3,9 @@ body{
    padding:0;
    height:100%;
 }
+td{
+    padding-right: 10px;
+}
 #agendanav{
     margin-top: -5px;
     margin-bottom: -5px;

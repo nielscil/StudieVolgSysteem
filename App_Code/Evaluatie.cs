@@ -14,7 +14,6 @@ public class Evaluatie
     public string Besproken { get; set; }
     public DateTime DatumVolgendeGesprek { get; set; }
     public int AgendaID { get; set; }
-    public string LocatieVolgendeGesprek { get; set; }
 
     /// <summary>
     /// Maakt evaluatie aan
@@ -24,13 +23,11 @@ public class Evaluatie
     /// <param name="datumVolgendeGesprek">datum volgende gesprek</param>
     /// <param name="agendaID">agendaid</param>
     /// <param name="locatieVolgendeGesprek">locatie volgende gesprek</param>
-    public Evaluatie(int gesprekID, string besproken, DateTime datumVolgendeGesprek, int agendaID, string locatieVolgendeGesprek)
+    public Evaluatie(int gesprekID, string besproken, int agendaID)
     {
         this.GesprekID = gesprekID;
         this.Besproken = besproken;
-        this.DatumVolgendeGesprek = datumVolgendeGesprek;
         this.AgendaID = agendaID;
-        this.LocatieVolgendeGesprek = locatieVolgendeGesprek;
     }
 
     /// <summary>
@@ -40,12 +37,10 @@ public class Evaluatie
     /// <param name="datumVolgendeGesprek">datum volgende gesprek</param>
     /// <param name="agendaID">agendaid</param>
     /// <param name="locatieVolgendeGesprek">locatie volgende gesprek</param>
-    public Evaluatie(string besproken, DateTime datumVolgendeGesprek, int agendaID, string locatieVolgendeGesprek)
+    public Evaluatie(string besproken, int agendaID)
     {
         this.Besproken = besproken;
-        this.DatumVolgendeGesprek = datumVolgendeGesprek;
         this.AgendaID = agendaID;
-        this.LocatieVolgendeGesprek = locatieVolgendeGesprek;
     }
 
     /// <summary>
@@ -98,6 +93,17 @@ public class Evaluatie
             return true;
         else
             return false;
+    }
+
+    public static Evaluatie GetEvaluatie(int agendaid)
+    {
+        Database db = Database.Open(Constants.DBName);
+        var row = db.QuerySingle("SELECT * FROM evaluatie WHERE agendaid=@0", agendaid);
+        if (row == null)
+        {
+            throw new Exception("Niet gevonden");
+        }
+        return new Evaluatie(row.GesprekID, row.Besproken, row.AgendaID);
     }
 
     /// <summary>

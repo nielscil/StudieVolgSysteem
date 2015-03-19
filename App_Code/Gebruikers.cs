@@ -481,6 +481,7 @@ public class Student : Gebruiker
 public class SLB : Gebruiker
 {
     public int SLBerID {get;set;}
+    public string URL {get;set;}
 
     /// <summary>
     /// aanmaken van Gebruiker
@@ -494,9 +495,10 @@ public class SLB : Gebruiker
     /// <param name="adres">adres</param>
     /// <param name="telefoonnr">telnr</param>
     /// <param name="postcode">postcode</param>
-    public SLB(int SLBerID,string email,string[] roles,string naam,string achternaam,string woonplaats,string adres,string telefoonnr,string postcode) : base(SLBerID,email,roles,naam,achternaam,woonplaats,adres,telefoonnr,postcode)
+    /// <param name="url">rooster url</param>
+    public SLB(int SLBerID, string email, string[] roles, string naam, string achternaam, string woonplaats, string adres, string telefoonnr, string postcode)
+        : base(SLBerID, email, roles, naam, achternaam, woonplaats, adres, telefoonnr, postcode)
     {
-        
     }
     /// <summary>
     /// aanmaken van Gebruiker
@@ -509,15 +511,64 @@ public class SLB : Gebruiker
     /// <param name="adres">adres</param>
     /// <param name="telefoonnr">telnr</param>
     /// <param name="postcode">postcode</param>
-    public SLB(string email,string[] roles,string naam,string achternaam,string woonplaats,string adres,string telefoonnr,string postcode) : base(email,roles,naam,achternaam,woonplaats,adres,telefoonnr,postcode)
+    /// <param name="url">rooster url</param>
+    public SLB(string email, string[] roles, string naam, string achternaam, string woonplaats, string adres, string telefoonnr, string postcode)
+        : base(email, roles, naam, achternaam, woonplaats, adres, telefoonnr, postcode)
     {
-        
+    }
+
+    /// <summary>
+    /// aanmaken van Gebruiker
+    /// </summary>
+    /// <param name="SLBerID">gebruikerid</param>
+    /// <param name="email">email</param>
+    /// <param name="role">rol</param>
+    /// <param name="naam">naam</param>
+    /// <param name="achternaam">achternaam</param>
+    /// <param name="woonplaats">woonplaats</param>
+    /// <param name="adres">adres</param>
+    /// <param name="telefoonnr">telnr</param>
+    /// <param name="postcode">postcode</param>
+    /// <param name="url">rooster url</param>
+    public SLB(int SLBerID,string email,string[] roles,string naam,string achternaam,string woonplaats,string adres,string telefoonnr,string postcode,string url) : base(SLBerID,email,roles,naam,achternaam,woonplaats,adres,telefoonnr,postcode)
+    {
+        this.URL = url;
+    }
+    /// <summary>
+    /// aanmaken van Gebruiker
+    /// </summary>
+    /// <param name="email">email</param>
+    /// <param name="role">rol</param>
+    /// <param name="naam">naam</param>
+    /// <param name="achternaam">achternaam</param>
+    /// <param name="woonplaats">woonplaats</param>
+    /// <param name="adres">adres</param>
+    /// <param name="telefoonnr">telnr</param>
+    /// <param name="postcode">postcode</param>
+    /// <param name="url">rooster url</param>
+    public SLB(string email,string[] roles,string naam,string achternaam,string woonplaats,string adres,string telefoonnr,string postcode,string url) : base(email,roles,naam,achternaam,woonplaats,adres,telefoonnr,postcode)
+    {
+        this.URL = url;
     }
     /// <summary>
     /// Controleert of slber een student heeft
     /// </summary>
     /// <param name="slbid">slberid</param>
     /// <returns>true als slber een student heeft, anders false</returns>
+    /// 
+    public static string GetUrl(int slberid)
+    {
+        Database db = Database.Open(Constants.DBName);
+        var row = db.QueryValue("SELECT URL FROM SLBers WHERE slberid=@0", slberid);
+        if(row == null || row == DBNull.Value.ToString())
+        {
+            return "";
+        }
+        else
+        {
+            return (string)row;
+        }
+    }
     public static bool HasStudent(int slbid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -534,16 +585,32 @@ public class SLB : Gebruiker
     public static List<SLB> GetSLBers()
     {
         Database db = Database.Open(Constants.DBName);
-        var rows = db.Query("SELECT * FROM gebruikers WHERE gebruikerID in (SELECT UserID FROM webpages_UsersInRoles WHERE RoleID = 2);");
+        var rows = db.Query("SELECT  FROM gebruikers WHERE gebruikerID in (SELECT UserID FROM webpages_UsersInRoles WHERE RoleID = 2);");
         db.Close();
         List<SLB> lijst = new List<SLB>();
         foreach(var r in rows)
         {
-            SLB slb = new SLB(r.GebruikerID,r.Email,Roles.GetRolesForUser(r.Email),r.Naam,r.Achternaam,r.Woonplaats,r.Adres,r.Telefoon_nr,r.Postcode);
+            SLB slb = new SLB(r.GebruikerID,r.Email,Roles.GetRolesForUser(r.Email),r.Naam,r.Achternaam,r.Woonplaats,r.Adres,r.Telefoon_nr,r.Postcode,GetUrl(r.GebruikerID));
             lijst.Add(slb);
         }
         
         return lijst;
+    }
+
+    public static void UpdateUrl(int slberid,string URL)
+    {
+        if(URL.Contains("webcal"))
+        {
+            URL = URL.Replace("webcal", "http");
+        }
+        if(!URL.Contains("http://"))
+        {
+            URL = "http://" + URL;
+        }
+        Database db = Database.Open(Constants.DBName);
+        db.Execute("UPDATE slbers SET url=@0 WHERE slberid=@1",URL,slberid);
+        db.Close();
+        Rooster.UpdateRooster(slberid, URL);
     }
 
     /// <summary>
@@ -558,7 +625,7 @@ public class SLB : Gebruiker
         db.Close();
         if(r == null)
             throw new Exception("Geen SLB'er gevonden");
-        return new SLB(r.GebruikerID,r.Email,Roles.GetRolesForUser(r.Email),r.Naam,r.Achternaam,r.Woonplaats,r.Adres,r.Telefoon_nr,r.Postcode);
+        return new SLB(r.GebruikerID, r.Email, Roles.GetRolesForUser(r.Email), r.Naam, r.Achternaam, r.Woonplaats, r.Adres, r.Telefoon_nr, r.Postcode, GetUrl(r.GebruikerID));
     }
 
 }
