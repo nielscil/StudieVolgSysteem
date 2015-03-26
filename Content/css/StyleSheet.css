@@ -176,6 +176,9 @@ h1{
     border-collapse: separate;
     //margin-left: 100px; //hier moet gecentereerd worden, wil alleen niet?
     }
+    select{
+    width: 150px;
+}
 }
 @media (min-width: 768px) and (max-width: 991px) {
   #loginpopup{
@@ -183,6 +186,9 @@ h1{
     border-collapse: separate;
     //margin-left: 100px; //hier moet gecentereerd worden, wil alleen niet?
     }
+    select{
+    width: 200px;
+}
 }
 
 @media (min-width: 992px){
