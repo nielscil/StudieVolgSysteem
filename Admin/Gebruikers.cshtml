@@ -22,6 +22,7 @@
     {
         gebruikers = Gebruiker.SearchUsers(zoektext);
     }
+    var fileSavePath = "";
     var naam = "";
     var achternaam = "";
     var email = "";
@@ -51,7 +52,7 @@
         bool succesful = false;
         Validation.Add("straat", Validator.Regex(@"^([1-9][e][\s])*([a-zA-Z]+(([\.][\s])|([\s]))?)+[1-9][0-9]*(([-][1-9][0-9]*)|([\s]?[a-zA-Z]+))?$", "Geen geldig adres"));
         Validation.Add("zip", Validator.Regex(@"^[1-9][0-9]{3}[\s]?[A-Za-z]{2}$", "Geen geldige postcode"));
-        Validation.Add("email", Validator.Regex(@"^([a-z]{4})+([0-9]{4})+(@student.nhl.nl|@nhl.nl)$", "E-mailadres is niet juist!"));
+        Validation.Add("email", Validator.Regex(@"^([a-z]{4})+([0-9]{4}@student.nhl.nl)|([A-Za-z]{1,}.[a-zA-Z]{1,}@nhl.nl)$", "E-mailadres is niet juist!"));
         Validation.Add("telefoon", Validator.Regex(@"(^(((0)[1-9]{2}[0-9][-]?[1-9][0-9]{5})|((\\+31|0|0031)[1-9][0-9][-]?[1-9][0-9]{6}))$)|(^(((\\+31|0|0031)6){1}[1-9]{1}[0-9]{7})$)", "Geen geldig telefoonnummer!"));
         if (!Request["addStudent"].IsEmpty() || !Request["updatestudent"].IsEmpty())
         {
@@ -118,6 +119,12 @@
                 {
 
                     succesful = Student.UpdateUser(userid.AsInt(), new string[] { "Student" }, naam, achternaam, woonplaats, adres, telefoonnr, postcode, SLBerID.AsInt(), opmerking, studentnr);
+                        WebImage photo = WebImage.GetImageFromRequest(Request.Form["photo"]);
+                        if(photo != null)
+                        {
+                            byte[] foto = photo.GetBytes();
+                            Student.SaveImage(userid.AsInt(), foto);
+                        }         
                     if (succesful)
                     {
                         Response.Redirect("Gebruikers?succesful=true&message=Succesvol geüpdatet");
@@ -135,8 +142,14 @@
                     SLBerID = Request.Form["slb"];
                     opmerking = Request.Form["opmerking"];
                     studentnr = Request.Form["studentnr"];
-                    succesful = Student.AddUser(email, wachtwoord, new string[] { "Student" }, naam, achternaam, woonplaats, adres, telefoonnr, postcode, SLBerID.AsInt(), opmerking, studentnr);
-                    if (succesful)
+                    int id = Student.AddUser(email, wachtwoord, new string[] { "Student" }, naam, achternaam, woonplaats, adres, telefoonnr, postcode, SLBerID.AsInt(), opmerking, studentnr);
+                    WebImage photo = WebImage.GetImageFromRequest(Request.Form["photo"]);
+                        if(photo != null)
+                        {
+                            byte[] foto = photo.GetBytes();
+                            Student.SaveImage(id, foto);
+                        }    
+                    if (id != -1)
                     {
                         Response.Redirect("Gebruikers?succesful=true&message=Gebruiker succesvol toegevoegd");
                     }
@@ -147,9 +160,10 @@
                 }
                 else if (!Request["addSLB"].IsEmpty())
                 {
-                    succesful = Gebruiker.AddUser(email, new string[] { "SLB" }, wachtwoord, naam, achternaam, woonplaats, adres, telefoonnr, postcode);
-                    if (succesful)
+                    int id = Gebruiker.AddUser(email, new string[] { "SLB" }, wachtwoord, naam, achternaam, woonplaats, adres, telefoonnr, postcode);                   
+                    if (id != -1)
                     {
+                        SLB.AddSLB(id);
                         Response.Redirect("Gebruikers?succesful=true&message=Gebruiker succesvol toegevoegd");
                     }
                     else
@@ -159,8 +173,8 @@
                 }
                 else if (!Request["addAdmin"].IsEmpty())
                 {
-                    succesful = Gebruiker.AddUser(email, new string[] { "Admin" }, wachtwoord, naam, achternaam, woonplaats, adres, telefoonnr, postcode);
-                    if (succesful)
+                    int id = Gebruiker.AddUser(email, new string[] { "Admin" }, wachtwoord, naam, achternaam, woonplaats, adres, telefoonnr, postcode);
+                    if (id != -1)
                     {
                         Response.Redirect("Gebruikers?succesful=true&message=Gebruiker succesvol toegevoegd");
                     }
@@ -228,7 +242,7 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-default" id="gebpanel">
-                <div class="panel-heading">Gebruikers</div>
+                <div class="panel-heading"><div class="panel-title">Gebruikers</div></div>
                 <table class="table">
                     @if (gebruikers.Count > 0)
                     {
@@ -338,7 +352,7 @@ else if ((userid == null || userid.IsInt()) && action == "update")
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-default">
-                <div class="panel-heading">@gebruiker.Naam @gebruiker.Achternaam</div>
+                <div class="panel-heading"><div class="panel-title">@gebruiker.Naam @gebruiker.Achternaam</div></div>
                 <form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID&action=update">
                     <table>
                         <tr>
@@ -416,76 +430,88 @@ else if ((userid == null || userid.IsInt()) && action == "updatestudent")
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-default">
-                <div class="panel-heading">@gebruiker.Naam @gebruiker.Achternaam</div>
-                <form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID&action=updatestudent">
-                    <table>
-                        <tr>
-                            <td>Naam</td>
-                            <td><input type="text" name="naam" value="@gebruiker.Naam" required /></td>
-                        </tr>
-                        <tr>
-                            <td>Achternaam</td>
-                            <td><input type="text" name="achternaam" value="@gebruiker.Achternaam" required /></td>
-                        </tr>
-                        <tr>
-                            <td>Studentnummer</td>
-                            <td><input type="text" name="studentnr" readonly value="@gebruiker.StudentNr" /></td>
-                        </tr>
-                        <tr>
-                            <td>SLB'er</td>
-                            <td>
-                                <select name="slb" required>
-                                    @if (slbers.Count > 0)
-                                    {
-                                        bool hasSLBer = false;
-                                        foreach (SLB slber in slbers)
-                                        {
-                                            if (slber.GebruikerID == gebruiker.SLBerID)
+                <div class="panel-heading"><div class="panel-title">@gebruiker.Naam @gebruiker.Achternaam</div></div>
+                <form method="post" action="Gebruikers?userid=@gebruiker.GebruikerID&action=updatestudent" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <table>
+                                <tr>
+                                    <td>Naam</td>
+                                    <td><input type="text" name="naam" value="@gebruiker.Naam" required /></td>
+                                </tr>
+                                <tr>
+                                    <td>Achternaam</td>
+                                    <td><input type="text" name="achternaam" value="@gebruiker.Achternaam" required /></td>
+                                </tr>
+                                <tr>
+                                    <td>Studentnummer</td>
+                                    <td><input type="text" name="studentnr" readonly value="@gebruiker.StudentNr" /></td>
+                                </tr>
+                                <tr>
+                                    <td>SLB'er</td>
+                                    <td>
+                                        <select name="slb" required>
+                                            @if (slbers.Count > 0)
                                             {
-                                                <option selected value="@slber.GebruikerID">@slber.Naam @slber.Achternaam</option>
-                                                hasSLBer = true;
+                                                bool hasSLBer = false;
+                                                foreach (SLB slber in slbers)
+                                                {
+                                                    if (slber.GebruikerID == gebruiker.SLBerID)
+                                                    {
+                                                        <option selected value="@slber.GebruikerID">@slber.Naam @slber.Achternaam</option>
+                                                        hasSLBer = true;
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@slber.GebruikerID">@slber.Naam @slber.Achternaam</option>
+                                                    }
+                                                }
+                                                if (!hasSLBer)
+                                                {
+                                                    <option selected value="-1">-</option>
+                                                }
                                             }
                                             else
                                             {
-                                                <option value="@slber.GebruikerID">@slber.Naam @slber.Achternaam</option>
+                                                <option value="-1">Geen SLB'er(s) gevonden</option>
                                             }
-                                        }
-                                        if (!hasSLBer)
-                                        {
-                                            <option selected value="-1">-</option>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <option value="-1">Geen SLB'er(s) gevonden</option>
-                                    }
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>E-mailadres</td>
-                            <td><input type="text" name="email" readonly value="@gebruiker.Email" /></td>
-                        </tr>
-                        <tr>
-                            <td>Straat + huis nr.</td>
-                            <td><input type="text" name="straat" value="@gebruiker.Adres" required /></td>
-                            <td>@Html.ValidationMessage("straat")</td>
-                        </tr>
-                        <tr>
-                            <td>Postcode</td>
-                            <td><input type="text" name="zip" size="6" value="@gebruiker.Postcode" required /></td>
-                            <td>@Html.ValidationMessage("zip")</td>
-                        </tr>
-                        <tr>
-                            <td>Woonplaats</td>
-                            <td><input type="text" name="woonplaats" value="@gebruiker.Woonplaats" required /></td>
-                        </tr>
-                        <tr>
-                            <td>Telefoonnummer</td>
-                            <td><input type="text" name="telefoon" value="@gebruiker.TelefoonNr" required /></td>
-                            <td>@Html.ValidationMessage("telefoon")</td>
-                        </tr>
-                    </table>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>E-mailadres</td>
+                                    <td><input type="text" name="email" readonly value="@gebruiker.Email" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Straat + huis nr.</td>
+                                    <td><input type="text" name="straat" value="@gebruiker.Adres" required /></td>
+                                    <td>@Html.ValidationMessage("straat")</td>
+                                </tr>
+                                <tr>
+                                    <td>Postcode</td>
+                                    <td><input type="text" name="zip" size="6" value="@gebruiker.Postcode" required /></td>
+                                    <td>@Html.ValidationMessage("zip")</td>
+                                </tr>
+                                <tr>
+                                    <td>Woonplaats</td>
+                                    <td><input type="text" name="woonplaats" value="@gebruiker.Woonplaats" required /></td>
+                                </tr>
+                                <tr>
+                                    <td>Telefoonnummer</td>
+                                    <td><input type="text" name="telefoon" value="@gebruiker.TelefoonNr" required /></td>
+                                    <td>@Html.ValidationMessage("telefoon")</td>
+                                </tr>
+                                <tr>
+                                    <td>ProfielFoto</td>
+                                    <td><input type="file" name="photo" accept="image/*"></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-lg-4">
+                                <img class="img-zoomgeb" src="@Href("~/Content/images/UserPictures/Default?userid=" + gebruiker.GebruikerID.ToString())" class="picture" alt="Foto"/>                            
+                        </div>  
+                    </div>
+                                     
                     <div class="panel-footer">
                         <a href="Gebruikers" class="btn btn-default">Annuleren</a>
                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Deletebev">Verwijderen</button>
@@ -526,7 +552,7 @@ else if (action == "AddStudent")
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-default">
-                <div class="panel-heading">Student Toevoegen</div>
+                <div class="panel-heading"><div class="panel-title">Student Toevoegen</div></div>
                 <form method="post" action="Gebruikers?action=AddStudent">
                     <table>
                         <tr>
@@ -592,6 +618,10 @@ else if (action == "AddStudent")
                             <td>Opmerkingen</td>
                             <td><textarea name="opmerking">@opmerking</textarea></td>
                         </tr>
+                        <tr>
+                            <td>ProfielFoto</td>
+                            <td><input type="file" name="profile" accept="image/*"></td>
+                        </tr>
                     </table>
                     <div class="panel-footer">
                         <a href="Gebruikers" class="btn btn-default">Annuleren</a>
@@ -608,7 +638,7 @@ else if (action == "AddSLB")
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-default">
-                <div class="panel-heading">SLB'er Toevoegen</div>
+                <div class="panel-heading"><div class="panel-title">SLB'er Toevoegen</div></div>
                 <form method="post" action="Gebruikers?action=AddSLB">
                     <table>
                         <tr>
@@ -664,7 +694,7 @@ else if (action == "AddAdmin")
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-default">
-                <div class="panel-heading">Administrator Toevoegen</div>
+                <div class="panel-heading"><div class="panel-title">Administrator Toevoegen</div></div>
                 <form method="post" action="Gebruikers?action=AddAdmin">
                     <table>
                         <tr>

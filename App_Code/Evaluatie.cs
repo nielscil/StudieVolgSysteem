@@ -105,6 +105,16 @@ public class Evaluatie
         }
         return new Evaluatie(row.GesprekID, row.Besproken, row.AgendaID);
     }
+    public static Evaluatie GetEvaluatieGesprekid(int gesprekid)
+    {
+        Database db = Database.Open(Constants.DBName);
+        var row = db.QuerySingle("SELECT * FROM evaluatie WHERE gesprekid=@0", gesprekid);
+        if (row == null)
+        {
+            throw new Exception("Niet gevonden");
+        }
+        return new Evaluatie(row.GesprekID, row.Besproken, row.AgendaID);
+    }
 
     /// <summary>
     /// Telt aantal evaluaties

@@ -66,6 +66,20 @@ public class Afspraak
         return count;
     }
 
+    public static void UpdateAgenda(int agendaid,string locatie, bool definitief,int tijdsduur)
+    {
+        Database db = Database.Open(Constants.DBName);
+        db.Execute("Update agenda Set locatie=@0, definitief=@1 ,tijdsduur=@2 WHERE afspraakid=@3",locatie, definitief, tijdsduur, agendaid);
+        db.Close();
+    }
+
+    public static void UpdateAfspraak(int afspraakid, bool check) 
+    {
+        Database db = Database.Open(Constants.DBName);
+        db.Execute("UPDATE afspraken SET afgevinkt=@0 WHERE afspraakid=@1", check, afspraakid);
+        db.Close();
+    }
+
     public static List<Afspraak> GetAfspraken(int gesprekid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -77,6 +91,43 @@ public class Afspraak
             list.Add(new Afspraak(row.afspraakID, row.opmerking, row.afgevinkt, row.GesprekID, row.Deathline));
         }
         return list;
+    }
+
+    public static List<Afspraak> GetAfspraakSLB(int slberid)
+    {
+        List<Agenda> agendas = Agenda.GetAgendas(slberid);
+        List<Afspraak> afspraken = new List<Afspraak>();
+        foreach(Agenda a in agendas)
+        {
+            try
+            {
+                afspraken.AddRange(Afspraak.GetAfspraken(Evaluatie.GetEvaluatie(a.AfspaakID).GesprekID));
+            }
+            catch
+            {
+                
+            }
+        }
+        return afspraken;
+    }
+
+    public static List<Afspraak> GetAfsprakenStudent(int studentID)
+    {
+        List<Agenda> agendas = Agenda.GetAgendas(Student.GetStudent(studentID).SLBerID,studentID);
+        List<Afspraak> afspraken = new List<Afspraak>();
+        foreach(Agenda a in agendas)
+        {
+            try
+            {
+                int test = Evaluatie.GetEvaluatie(a.AfspaakID).GesprekID;
+                afspraken.AddRange(GetAfspraken(test));
+            }
+            catch
+            {
+                
+            }
+        }
+        return afspraken;
     }
 
     public static void DeleteAfspraak(long afspraakid)

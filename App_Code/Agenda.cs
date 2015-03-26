@@ -171,20 +171,20 @@ public class Agenda
                 Agenda a = new Agenda(r.AfspraakID, r.StudentID, r.SLBerID, r.Datum, r.locatie, r.Definitief,r.Begin, r.Tijdsduur);
                 list.Add(a);
             }
+            else
+            {
+                Agenda a = new Agenda(r.AfspraakID, r.StudentID, r.SLBerID, r.Datum, r.Begin);
+                list.Add(a);
+            }
             
         }
         return list;
     }
 
-    /// <summary>
-    /// Haal afspraken op voor specifieke student
-    /// </summary>
-    /// <param name="studentid">studentid</param>
-    /// <returns>lijst met afspraken</returns>
-    public static List<Agenda> GetAgendaStudent(int studentid)
+    public static List<Agenda> GetAgendas(int slberid,int studentid)
     {
         Database db = Database.Open(Constants.DBName);
-        var rows = db.Query("SELECT * FROM agenda WHERE studentid=@0 ORDER BY datum;", studentid);
+        var rows = db.Query("SELECT * FROM agenda WHERE slberid=@0 AND studentid=@1 ORDER BY datum;", slberid,studentid);
         db.Close();
         List<Agenda> list = new List<Agenda>();
         foreach (var r in rows)
@@ -205,53 +205,7 @@ public class Agenda
         return list;
     }
 
-    /// <summary>
-    /// Haal afspraken op voor specifieke slber
-    /// </summary>
-    /// <param name="slberid">slberid</param>
-    /// <returns>lijst met afspraken</returns>
-    private static List<Agenda> GetAgendasStudent(int slberid)
-    {
-        Database db = Database.Open(Constants.DBName);
-        var rows = db.Query("SELECT * FROM agenda WHERE slberid=@0 ORDER BY datum;", slberid);
-        db.Close();
-        List<Agenda> list = new List<Agenda>();
-        foreach (var r in rows)
-        {
-            bool def = r.Definitief ?? false;
-            if (def)
-            {
-                Agenda a = new Agenda(r.AfspraakID, r.StudentID, r.SLBerID, r.Datum, r.locatie, r.Definitief, r.Begin, r.Tijdsduur);
-                list.Add(a);
-            }
-            else
-            {
-                Agenda a = new Agenda(r.AfspraakID, r.StudentID, r.SLBerID, r.Datum, r.Begin);
-                list.Add(a);
-            }
-
-        }
-        return list;
-    }
-    /// <summary>
-    /// Haal lijst van afspraken op voor specieke slber en dag
-    /// </summary>
-    /// <param name="slberid">slberid</param>
-    /// <param name="day">dag</param>
-    /// <returns>lijst met afspraken</returns>
-    public static List<Agenda> GetAgendaByDayStudent(int slberid, DateTime day)
-    {
-        List<Agenda> raw = GetAgendasStudent(slberid);
-        List<Agenda> returnlist = new List<Agenda>();
-        foreach (Agenda a in raw)
-        {
-            if (a.Datum.Date == day.Date)
-            {
-                returnlist.Add(a);
-            }
-        }
-        return returnlist;
-    }
+    
     /// <summary>
     /// Haal lijst van afspraken op voor specieke slber en dag
     /// </summary>
@@ -301,42 +255,6 @@ public class Agenda
     /// <param name="slberid">slberid</param>
     /// <param name="day">dag</param>
     /// <returns>array van intergers</returns>
-    public static int[] GetAgendaDayStudent(int slberid,DateTime day)
-    {
-        List<Agenda> afsprakenDag = Agenda.GetAgendaByDayStudent(slberid, day);
-        List<Rooster> rooster = Rooster.GetRoosterDay(slberid, day);
-        int[] lijst = new int[32];
-        foreach(Rooster r in rooster)
-        {
-            int bg = r.Begin;
-            int length = r.Tijdsduur;
-            for(int i = bg; i < bg+ length; i++)
-            {
-                lijst[i] = -1;
-            }
-        }
-        foreach(Agenda a in afsprakenDag)
-        {
-            int bg = a.Begin;
-            int length = a.Tijdsduur;
-            if(length == 0)
-            {
-                length = 1;
-            }
-            for(int i = bg; i < bg + length;i++)
-            {
-                lijst[i] = a.AfspaakID;
-            }
-        }
-        return lijst;
-    }
-
-    /// <summary>
-    /// haalt specifieke dag op in een array
-    /// </summary>
-    /// <param name="slberid">slberid</param>
-    /// <param name="day">dag</param>
-    /// <returns>array van intergers</returns>
     public static int[] GetAgendaDay(int slberid, DateTime day)
     {
         List<Agenda> afsprakenDag = Agenda.GetAgendaByDay(slberid, day);
@@ -355,6 +273,10 @@ public class Agenda
         {
             int bg = a.Begin;
             int length = a.Tijdsduur;
+            if (length == 0)
+            {
+                length = 1;
+            }
             for (int i = bg; i < bg + length; i++)
             {
                 lijst[i] = a.AfspaakID;

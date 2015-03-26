@@ -12,25 +12,28 @@ public class Vak
 {
     public int VakID { get; set; }
     public string Naam { get; set; }
+    public int EC {get;set;}
 
     /// <summary>
     /// Maakt vak aan
     /// </summary>
     /// <param name="vakid">vakid</param>
     /// <param name="naam">naam</param>
-	public Vak(int vakid,string naam)
+	public Vak(int vakid,string naam,int ec)
 	{
         this.VakID = vakid;
         this.Naam = naam;
+        this.EC = ec;
 	}
 
     /// <summary>
     /// Maakt vak aan
     /// </summary>
     /// <param name="naam">naam</param>
-    public Vak(string naam)
+    public Vak(string naam,int ec)
     {
         this.Naam = naam;
+        this.EC = ec;
     }
 
     /// <summary>
@@ -45,7 +48,7 @@ public class Vak
         List<Vak> list = new List<Vak>();
         foreach(var r in rows)
         {
-            Vak v = new Vak(r.VakID, r.Naam);
+            Vak v = new Vak(r.VakID, r.Naam,r.EC);
             list.Add(v);
         }
         return list;
@@ -64,7 +67,7 @@ public class Vak
         List<Vak> list = new List<Vak>();
         foreach (var r in rows)
         {
-            Vak v = new Vak(r.VakID, r.Naam);
+            Vak v = new Vak(r.VakID, r.Naam,r.EC);
             list.Add(v);
         }
         return list;
@@ -99,7 +102,7 @@ public class Vak
         Database db = Database.Open(Constants.DBName);
         var row = db.QuerySingle("SELECT * FROM vakken WHERE vakid=@0;",vakid);
         db.Close();
-        Vak v = new Vak(row.VakID, row.Naam);
+        Vak v = new Vak(row.VakID, row.Naam,row.EC);
         return v;
     }
 
@@ -108,10 +111,10 @@ public class Vak
     /// </summary>
     /// <param name="naam">naam</param>
     /// <returns>id van toegevoegde vak</returns>
-    public static int AddSubject(string naam)
+    public static int AddSubject(string naam,int ec)
     {
         Database db = Database.Open(Constants.DBName);
-        db.Execute("INSERT INTO vakken (naam) VALUES(@0)", naam);
+        db.Execute("INSERT INTO vakken (naam,ec) VALUES(@0,@1)", naam, ec);
         var row = db.GetLastInsertId();
         db.Close();
         if (row == null)
@@ -125,10 +128,10 @@ public class Vak
     /// </summary>
     /// <param name="vakid">vakid</param>
     /// <param name="naam">naam</param>
-    public static void UpdateSubject(int vakid,string naam)
+    public static void UpdateSubject(int vakid,string naam,int ec)
     {
         Database db = Database.Open(Constants.DBName);
-        db.Execute("UPDATE vakken SET naam=@0 WHERE vakid=@1", naam,vakid);
+        db.Execute("UPDATE vakken SET naam=@0, ec=@1 WHERE vakid=@2", naam, ec,vakid);
         db.Close();
     }
 
@@ -169,7 +172,7 @@ public class Vak
         var rows = db.Query("SELECT * FROM vakken WHERE naam LIKE @0 ORDER BY naam;", input);
         foreach (var r in rows)
         {
-            Vak g = new Vak(r.VakID,r.Naam);
+            Vak g = new Vak(r.VakID,r.Naam,r.EC);
             lijst.Add(g);
         }
         db.Close();

@@ -2,7 +2,7 @@
 
 @{
     Layout = "~/Shared/_Layout.cshtml";
-    Page.Title = "Agenda";
+    Page.Title = "SLB Dashboard | Agenda";
     DateTime now = DateTime.Now;
     Calendar cal = CultureInfo.CurrentCulture.Calendar;
     DateTimeFormatInfo dfi = DateTimeFormatInfo.CurrentInfo;
@@ -45,13 +45,29 @@
             if(Validation.IsValid())
             {
                 DateTime afspraak = Request.Form["date"].AsDateTime();
-                Agenda.AddAgenda(Request.Form["student"].AsInt(), WebSecurity.CurrentUserId, afspraak, Request.Form["locatie"], true, Request.Form["begin"].AsInt(), Request.Form["tijdsduur"].AsInt());
+                int id = Agenda.AddAgenda(Request.Form["student"].AsInt(), WebSecurity.CurrentUserId, afspraak, Request.Form["locatie"], true, Request.Form["begin"].AsInt(), Request.Form["tijdsduur"].AsInt());
+                string body = string.Format("Beste {0}, <br><br> Je SLB'er heeft een afspraak op {1} in lokaal {2}. Als je deze datum niet beschikbaar bent, stuur dan een mailtje naar je SLB'er <br><br> Met vriendelijke groet, <br> het studievolgsysteem team", Student.GetStudent(Request.Form["student"].AsInt()).Naam, Agenda.GetAgenda(id).Datum, Request.Form["locatie"]);
+                Constants.SentMail(Student.GetStudent(Request.Form["student"].AsInt()).Email, "Afspraak aangemaakt", body);
                 Response.Redirect("agenda?week=" + cal.GetWeekOfYear(afspraak, dfi.CalendarWeekRule, dfi.FirstDayOfWeek) + "&jaar=" + afspraak.Year);
-            }
+                }
         }
         else if(!Request["update"].IsEmpty())
         {
             Agenda ag = Agenda.GetAgenda(Request.Form["agendaid"].AsInt());
+            string onderwerp = "";
+            string body = "";
+            if (!ag.Definitief)
+            {
+                onderwerp = "Afspraak geaccepteerd";
+                body = string.Format("Beste {0}, <br><br> Je afspraak op {1} in lokaal {2} is geaccepteerd. <br><br> Met vriendelijke groet, <br> Het studievolgsysteem team",Student.GetStudent(Request.Form["student"].AsInt()).Naam, ag.Datum, Request.Form["locatie"]);
+                
+            }
+            else
+            {
+                onderwerp = "Afspraak geupdate";
+                body = string.Format("Beste {0}, <br><br> Je afspraak op {1} in lokaal {2} is geupdate. <br><br> Met vriendelijk groet, <br> Het studievolgsysteem team", Student.GetStudent(Request.Form["student"].AsInt()).Naam, ag.Datum, Request.Form["locatie"]);
+            }
+            Constants.SentMail(Student.GetStudent(Request.Form["student"].AsInt()).Email, onderwerp, body);
             Agenda.UpdateAgenda(Request.Form["agendaid"].AsInt(), Request.Form["locatie"], true, Request.Form["tijdsduur"].AsInt());
             Response.Redirect("agenda?week=" + cal.GetWeekOfYear(ag.Datum, dfi.CalendarWeekRule, dfi.FirstDayOfWeek) + "&jaar=" + ag.Datum.Year);
         }
@@ -123,9 +139,8 @@
 @if(action == null && datum == null && begin == null)
 {
     <div class="panel panel-default">
-    <div class="panel-heading">
-        Agenda
-        <div class="pull-right">
+    <div class="panel-heading">Agenda
+<div class="pull-right">
             <nav>
                 <ul class="pager" id="agendanav">
                     @{
@@ -194,7 +209,7 @@
                 int[] lijst = Agenda.GetAgendaDay(WebSecurity.CurrentUserId, FirstDayOfWeek.AddDays(j));
                 for (int i = 0; i < 32; i++)
                 {
-                    if (lijst[i] > 0 )
+                    if (lijst[i] > 0)
                     {
                         Agenda ag = Agenda.GetAgenda(lijst[i]);
                         Student st = Student.GetStudent(ag.StudentID);
@@ -208,35 +223,59 @@
                         {
                             url = string.Format("Agenda?agendaid={0}&action=update", ag.AfspaakID);
                         }
-
-                        if (i == ag.Begin && ag.Tijdsduur > 1)
+                        if (ag.Definitief)
                         {
-                            <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0;border-bottom:hidden">@st.Naam @st.Achternaam</a>
-                        }
-                        else if (i == ag.Begin && ag.Tijdsduur == 1)
-                        {
-                            <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0">@st.Naam @st.Achternaam | @ag.Locatie</a>
-                        }
-                        else if (i == (ag.Begin + (ag.Tijdsduur / 2)) && i != ag.Begin + ag.Tijdsduur)
-                        {
-                            <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0;border-top:hidden;border-bottom:hidden;">@ag.Locatie</a>
-                        }
-                        else if (i == (ag.Begin + (ag.Tijdsduur / 2)) && i == ag.Begin + ag.Tijdsduur)
-                        {
-                            <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0;border-top:hidden;">@ag.Locatie</a>
-                        }
-                        else if (i != ag.Begin + ag.Tijdsduur)
-                        {
-                            <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0;border-top:hidden;"></a>
+                            if (i == ag.Begin && ag.Tijdsduur > 1)
+                            {
+                                <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0;border-bottom:hidden">@st.Naam @st.Achternaam</a>
+                            }
+                            else if (i == ag.Begin && ag.Tijdsduur == 1)
+                            {
+                                <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0">@st.Naam @st.Achternaam | @ag.Locatie</a>
+                            }
+                            else if (i == (ag.Begin + (ag.Tijdsduur / 2)) && i != ag.Begin + ag.Tijdsduur)
+                            {
+                                <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0;border-top:hidden;border-bottom:hidden;">@ag.Locatie</a>
+                            }
+                            else if (i == (ag.Begin + (ag.Tijdsduur / 2)) && i == ag.Begin + ag.Tijdsduur)
+                            {
+                                <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0;border-top:hidden;">@ag.Locatie</a>
+                            }
+                            else if (i != ag.Begin + ag.Tijdsduur)
+                            {
+                                <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0;border-top:hidden;"></a>
+                            }
+                            else
+                            {
+                                <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0"></a>
+                            }
                         }
                         else
                         {
-                            <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0"></a>
+                            url = "";
+                            if (date.AddDays(j).AddMinutes(15 * i) < DateTime.Now)
+                            {
+                                url = string.Format("", ag.AfspaakID);
+                            }
+                            else
+                            {
+                                url = string.Format("Agenda?agendaid={0}&action=aanvraag", ag.AfspaakID);
+                            }
+                            <a href="@url" class="list-group-item list-group-item-warning" style="height: 20px; padding-top: 0">@st.Naam @st.Achternaam</a>
                         }
+
                     }
                     else if (lijst[i] == -1)
                     {
-                        <a href="" class="list-group-item list-group-item-danger" style="height: 20px; padding-top: 0"></a>
+                        DateTime date = FirstDayOfWeek.Date.AddHours(8);
+                        if (date.AddDays(j).AddMinutes(15 * i) < DateTime.Now)
+                        {
+                            <div class="list-group-item list-group-item-danger" style="height: 20px; padding-top: 0"></div>
+                        }
+                        else
+                        {
+                            <a href="agenda?action=add&datum=@date.AddDays(j).Date.ToString("d")&begin=@i" class="list-group-item list-group-item-danger" style="height: 20px; padding-top: 0"></a>
+                        }
                     }
                     else
                     {
@@ -279,7 +318,7 @@ else if(action == "add" && datum != null && begin != null )
     int count = 0;
     for (int i = begin.AsInt(); i < 32; i++ )
     {
-        if (day[i] != 0)
+        if (day[i] > 0)
         {
             break;
         }
@@ -365,7 +404,7 @@ else if (action == "update" && agendaid != null && agendaid.IsInt())
     }
     <div class="panel panel-default">
         <div class="panel-heading">
-            <div class="panel-title">Afspraak Updaten | @datum @((begin.AsInt() / 4 + 8).ToString() + ":" + achter)</div>
+            <div class="panel-title">Afspraak Updaten | @ag.Datum.Date.ToString("d") @((ag.Begin / 4 + 8).ToString() + ":" + achter)</div>
         </div>
         <form method="post">
             <div class="panel-body">
@@ -402,7 +441,7 @@ else if (action == "update" && agendaid != null && agendaid.IsInt())
             </div>
             <div class="panel-footer">
                 <input type="text" name="agendaid" value="@ag.AfspaakID" hidden/>
-                <a href="Agenda?week=@cal.GetWeekOfYear(ag.Datum,dfi.CalendarWeekRule,dfi.FirstDayOfWeek)&jaar=@ag.Datum.Year" class="btn btn-default">Terug</a>
+                <a href="javascript:history.go(-1)" class="btn btn-default">Terug</a>
                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Deletebev">Verwijderen</button>
                 <input type="submit" class="btn btn-primary" name="update" value="Updaten" />
             </div>
@@ -433,5 +472,103 @@ else if (action == "update" && agendaid != null && agendaid.IsInt())
                 </div> <!--/modal fade-->
 
     <!--Einde popup verwijderbevestiging-->
+}
+else if (action == "aanvraag")
+{
+    Agenda ag = Agenda.GetAgenda(agendaid.AsInt());
+    Student student = Student.GetStudent(ag.StudentID);
+    string achter;
+    if (ag.Begin % 4 == 0)
+    {
+        achter = "00";
+    }
+    else
+    {
+        achter = ((ag.Begin % 4) * 15).ToString();
+    }
+    DateTime afspraak = ag.Datum;
+    int[] day = Agenda.GetAgendaDay(WebSecurity.CurrentUserId, afspraak);
+    int count = 0;
+    for (int i = ag.Begin + 1; i < 32; i++)
+    {
+        if (day[i] != 0)
+        {
+            break;
+        }
+        count++;
+    }
+    count += 1;
+    if (count > 4)
+    {
+        count = 4;
+    }
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-title">Afspraak accepteren | @ag.Datum.Date.ToString("d") @((ag.Begin / 4 + 8).ToString() + ":" + achter)</div>
+        </div>
+        <form method="post">
+            <div class="panel-body">
+                <table>
+                    <tr>
+                        <td>Student</td>
+                        <td>
+                            <input type="text" value="@student.Naam @student.Achternaam" readonly />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Locatie</td>
+                        <td><input name="locatie" required value="@ag.Locatie" /></td>
+                    </tr>
+                    <tr>
+                        <td>Tijdsduur</td>
+                        <td>
+                            <select name="tijdsduur" required>
+                                @for (int i = 1; i <= count; i++)
+                                {
+                                    if (i == 1)
+                                    {
+                                        <option selected value="@i">@(i * 15)</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@i">@(i * 15)</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="panel-footer">
+                <input type="text" name="agendaid" value="@ag.AfspaakID" hidden />
+                <a href="javascript:history.go(-1)" class="btn btn-default">Terug</a>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Deletebev">Weigeren</button>
+                <input type="submit" class="btn btn-primary" name="update" value="Accepteren" />
+            </div>
+        </form>
+
+    </div>
+ <!--Begin popup verwijderbevestiging-->
+    <div class="modal fade" id="Deletebev" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Waarschuwing!</h4>
+                </div>
+                <div class="modal-body">
+                    U staat op het punt om een Afspraak te Weigeren!<br> Weet u zeker dat u door wilt gaan? <br>
+                    Dit proces is niet omkeerbaar!
+                </div>
+                <div class="modal-footer">
+                    <form method="post">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
+                        <input type="text" name="agendaid" hidden value="@ag.AfspaakID" />
+                        <input type="submit" class="btn btn-danger" name="delete" value="Weigeren" />
+                    </form>
+                </div> <!--/modal-footer-->
+            </div> <!--/modal-content-->
+        </div> <!--/model-dialog-->
+    </div> <!--/modal fade-->
 }
 

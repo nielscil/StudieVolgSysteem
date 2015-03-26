@@ -14,29 +14,32 @@ public class Algoritme
 
     public static int ber_Prioriteit(int studID)
     {
-        int prioLevel = 0;
+        int prioLevel = 100;
         int count = Cijfer.GetGradesFromStudent(studID).Count;
-
-        //Berekend het prioProcent van de student.
+        
+        //Berekend het prioProcent van de student
+        // haalt het cijfer op van de student
         foreach (Cijfer c in Cijfer.GetGradesFromStudent(studID))
         {
-            //Als het een cijfer is waar 1 ec gemist is.
-            if(c.Cijfertje < 6 && (c.EcS == 1 && (c.EcS != c.gekregenEcS)))
-                    prioLevel = prioLevel + 5;
+            // kijkt of het cijfer lager is als 6
+            // haalt het vak op
+            Vak vak = Vak.GetSubject(c.VakID);
+            if(c.Cijfertje <6)
+            {
+            // ziet hoeveel ec's het vak waard is en haalt het bijbehoorende aantal prioprocent weg
+            if(vak.EC == 1)
+                    prioLevel = prioLevel - 5;
 
-            //Als het een cijfer is waar 1 ec gemist is.
-            if(c.Cijfertje < 6 && (c.EcS == 2 && (c.EcS != c.gekregenEcS)))
-                    prioLevel = prioLevel + 10;
+            if(vak.EC == 2)
+                    prioLevel = prioLevel - 10;
 
-            //Als het een cijfer is waar 1 ec gemist is.
-             if(c.Cijfertje < 6 && (c.EcS == 3 && (c.EcS != c.gekregenEcS)))
-                    prioLevel = prioLevel +  15;
+            if(vak.EC == 3)
+                    prioLevel = prioLevel -  15;
 
-            //Als het een cijfer is waar 1 ec gemist is.
-            if(c.Cijfertje < 6 && (c.EcS > 3 && (c.EcS != c.gekregenEcS)))
-                    prioLevel = prioLevel +  20;
-        }
-
+            if(vak.EC > 3 )
+                    prioLevel = prioLevel -  20;
+                    }
+            }
         return prioLevel;
     }
 }   

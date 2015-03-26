@@ -10,6 +10,45 @@ td{
     margin-top: -5px;
     margin-bottom: -5px;
 }
+
+.picturediv { 
+    position: relative; 
+    height: 235px; 
+    width: 188px;    
+}
+.picturediv img { 
+    position: absolute; 
+    right: 0; 
+    bottom: 0; 
+    min-height: 100%;
+    max-height: 235px;
+}
+.picturedivstu { 
+    position: relative; 
+    height: 125px; 
+    width: 80px;    
+}
+.picturedivstu img { 
+    position: absolute; 
+    right: 0; 
+    bottom: 0;
+    max-height: 125px;
+    max-height: 125px;
+}
+
+.picturedivslb { 
+    position: relative; 
+    height: 32px; 
+    width: 28px;    
+}
+.picturedivslb img { 
+    position: absolute; 
+    right: 0; 
+    bottom: 0;
+    max-width: 28px;
+    max-height: 32px;
+}
+
 .pager li > .ui-datepicker-trigger:hover,
 .pager li > .ui-datepicker-trigger:focus {
   text-decoration: none;
@@ -22,6 +61,11 @@ td{
   border: 1px solid #ddd;
   border-radius: 15px;
   color: #337ab7;
+}
+.picture {
+    border: 1px solid black;
+    //margin-top: 2px;
+    //overflow: hidden;
 }
 .jumbotron h1{
     text-align: left;
@@ -170,4 +214,35 @@ min-height: 100%;
 .img{
     height: 15px;
     width: 15px;
+}
+
+.img-zoom {
+    width: 32px;
+    -webkit-transition: all .2s ease-in-out;
+    -moz-transition: all .2s ease-in-out;
+    -o-transition: all .2s ease-in-out;
+    -ms-transition: all .2s ease-in-out;
+}
+.img-zoomstu {
+    width: 100px;
+    -webkit-transition: all .2s ease-in-out;
+    -moz-transition: all .2s ease-in-out;
+    -o-transition: all .2s ease-in-out;
+    -ms-transition: all .2s ease-in-out;
+}
+
+.img-zoomgeb {
+    width: 188px;
+    -webkit-transition: all .2s ease-in-out;
+    -moz-transition: all .2s ease-in-out;
+    -o-transition: all .2s ease-in-out;
+    -ms-transition: all .2s ease-in-out;
+}
+
+ 
+.transition {
+    -webkit-transform: scale(7); 
+    -moz-transform: scale(7);
+    -o-transform: scale(7);
+    transform: scale(7);
 }

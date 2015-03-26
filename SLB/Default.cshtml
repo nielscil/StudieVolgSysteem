@@ -1,8 +1,20 @@
 ﻿@{
     Layout = "~/Shared/_Layout.cshtml";
-    Page.Title = "SLB Dashboard";
+    Page.Title = "SLB Dashboard | Home";
     List<Student> studenten = Student.GetStudents(WebSecurity.CurrentUserId);
+    List<Agenda> a = Agenda.GetAgendas(WebSecurity.CurrentUserId);
+    List<Afspraak> x = Afspraak.GetAfspraakSLB(WebSecurity.CurrentUserId);
 }
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.img-zoom').hover(function () {
+            $(this).addClass('transition');
+
+        }, function () {
+            $(this).removeClass('transition');
+        });
+    });
+</script>
 
 @section navbar{
     <ul class="nav navbar-nav">
@@ -11,42 +23,127 @@
         <li><a href="@Href("Leerling")"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Studenten</a></li>
     </ul>
 }
-    <!--Lijst met studenten-->
+<!--Lijst met studenten-->
 <div class="row">
-    <div class="col-lg-10">
+    <div class="col-lg-8">
         <div class="panel panel-default">
             <div class="panel-heading">
-                Komende afspraken</div> <!--/panel-heading-->
+                <div class="panel-title">Timeline</div>
+            </div>
             <div class="panel-body">
-                Hier komt een soort twitter-achtige timeline met afspraken en deadlines                
-            </div> <!--/panel-body-->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="panel panel-success">
+                            <div class="panel-heading">
+                                <div class="panel-title">Aankomende afspraken</div>
+                            </div>
+                            @{
+                                int index = 0;
+                                foreach (Agenda ag in a)
+                                {
+                                    Student student = Student.GetStudent(ag.StudentID);
+                                    if (index > 10)
+                                    {
+                                        break;
+                                    }
+                                    if (ag.Datum > DateTime.Today && ag.Datum < DateTime.Today.AddDays(2) && ag.Definitief)
+                                    {
+                                        index++;
+                                        <a href="Agenda?agendaid=@ag.AfspaakID&action=update" class="list-group-item">@ag.Datum.ToString("dd-MM-yyyy HH:mm")<br>@ag.Locatie<br>@student.Naam @student.Achternaam</a>
+                                    }
+                                }
+                                if (index == 0)
+                                {
+                                    <div class="list-group-item">Geen aangevraagde afspraken gevonden</div>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="panel panel-info">
+                            <div class="panel-heading"><div class="panel-title">Aangevraagde afspraken</div></div>
+                            @{
+                                index = 0;
+                                foreach (Agenda ag in a)
+                                {
+                                    Student student = Student.GetStudent(ag.StudentID);
+                                    if (index > 5)
+                                    {
+                                        break;
+                                    }
+                                    if (ag.Datum > DateTime.Today && (!ag.Definitief || ag.Definitief == null))
+                                    {
+                                        index++;
+                                        <a href="Agenda?agendaid=@ag.AfspaakID&action=aanvraag" class="list-group-item">@ag.Datum.ToString("dd-MM-yyyy HH:mm")<br>@ag.Locatie<br>@student.Naam @student.Achternaam</a>
+                                    }
+                                }
+                                if (index == 0)
+                                {
+                                    <div class="list-group-item">Geen aangevraagde afspraken gevonden</div>
+                                }
+                            }
+                        </div>
+                        <div class="panel panel-danger">
+                            <div class="panel-heading">
+                                <div class="panel-title">Verlopen overeenkomsten</div>
+                            </div>
+                            @{
+                                index = 0;
+                                foreach (Afspraak af in x)
+                                {
+                                    if (index > 5)
+                                    {
+                                        break;
+                                    }
+                                    if (af.Deathline < DateTime.Today && !af.afgevinkt)
+                                    {
+                                        index++;
+                                        Student student = Student.GetStudent(Agenda.GetAgenda(Evaluatie.GetEvaluatieGesprekid(af.GesprekID).AgendaID).StudentID);
+                                        <div class="list-group-item">@af.opmerking<br><h6>Verlopen op:</h6>@af.Deathline.Date.ToString("d")<br>@student.Naam @student.Achternaam</div>
+                                    }
+                                }
+                                if (index == 0)
+                                {
+                                    <div class="list-group-item">Geen verlopen overeenkomsten gevonden</div>
+                                }
+
+
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="panel-footer"></div>
-        </div> <!--/panel-default-->
+        </div>
     </div>
-    <div class="col-lg-2">
+    <div class="col-lg-4">
         <div class="panel panel-default">
             <div class="panel-heading">Studenten</div>
             <table class="table">
-                @if(studenten.Count > 0){
+                @if (studenten.Count > 0)
+                {
                     foreach (Student s in studenten) //laadt lijstje met studenten
                     {
                         <tr>
-                            <td><a href="#">@s.Naam @s.Achternaam</a></td>
-                            @if(Algoritme.ber_Prioriteit(s.GebruikerID) >= 75) 
+                            <td><img class="img-zoom" src="@Href("~/Content/images/UserPictures/Default?userid=" + s.GebruikerID)" alt="userpic" /></td>
+                            <td><a href="leerling?studentid=@s.GebruikerID">@s.Naam @s.Achternaam</a></td>
+                            @if (Algoritme.ber_Prioriteit(s.GebruikerID) >= 75)
                             {
                                 <td><img src="~/content/images/GreenDot.png" class="img" alt="green" /></td> //groen bolletje als de student het goed doet
                             }
-                            else if((Algoritme.ber_Prioriteit(s.GebruikerID) <= 75) && (Algoritme.ber_Prioriteit(s.GebruikerID) >= 50)) 
+                            else if ((Algoritme.ber_Prioriteit(s.GebruikerID) <= 75) && (Algoritme.ber_Prioriteit(s.GebruikerID) >= 50))
                             {
                                 <td><img src="~/content/images/OrangeDot.png" class="img" alt="orange" /></td> //oranje is minder goed
                             }
-                            else 
+                            else
                             {
                                 <td><img src="~/content/images/RedDot.png" class="img" alt="red" /></td> //rood is slecht
                             }
                         </tr>
                     }
-                }else{
+                }
+                else
+                {
                     <tr>
                         <td>Geen studenten gevonden</td>
                     </tr>

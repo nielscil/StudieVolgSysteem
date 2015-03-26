@@ -1,5 +1,5 @@
 ﻿@{
-   if(!WebSecurity.IsAuthenticated && !Roles.IsUserInRole(WebSecurity.CurrentUserName,"Admin"))
+   if(!WebSecurity.IsAuthenticated || !Roles.IsUserInRole(WebSecurity.CurrentUserName,"Admin"))
    {
        Response.Redirect("~");
    }

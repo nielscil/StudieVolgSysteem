@@ -1,6 +1,7 @@
 ﻿@{
     Layout = "~/Shared/_Layout.cshtml";
     Page.Title = "Admin Dashboard | Home";
+    List<Gebruiker> recenteGebruikers = Gebruiker.GetRecentUsers();
 }
 
 @section navbar{
@@ -20,15 +21,36 @@
     <div class="col-lg-6">
         <!--Page-->
         <div class="panel panel-default">
-            <div class="panel-heading">Welkom</div>
-            <div class="panel-body">admin Stuff</div>
-            <div class="panel-footer">footer</div>
-        </div> <!--/pane; default-->
+            <div class="panel-heading"><div class="panel-title">Recent toegevoegde gebruikers</div></div>
+            <div class="panel-body">
+                <div class="list-group">
+                            @foreach(Gebruiker g in recenteGebruikers){
+                                bool isStudent = false;
+                                string roles = "";
+                                foreach (string role in g.Role)
+                                {
+                                    roles += role;
+                                    if (role == "Student")
+                                    {
+                                        isStudent = true;
+                                    }
+                                }
+                                if(isStudent){
+                                    <a href="gebruikers?userid=@g.GebruikerID&action=updatestudent" class="list-group-item">@g.Naam @g.Achternaam | @g.Role.FirstOrDefault()</a>
+                                }
+                                else{
+                                    <a href="gebruikers?userid=@g.GebruikerID&action=update" class="list-group-item">@g.Naam @g.Achternaam | @g.Role.FirstOrDefault()</a>
+                                }
+                            }
+                 </div>
+            </div>
+            <div class="panel-footer"></div>
+        </div> <!--/panel default-->
     </div> <!--/col-lg-6-->
     <!--laat statistieken zien voor de admin-->
     <div class="col-lg-6">
         <div class="panel panel-default">
-            <div class="panel-heading">Welkom</div>
+            <div class="panel-heading"><div class="panel-title">Statistieken</div></div>
             <div class="panel-body">
                 <div class="list-group">
                     <a href="gebruikers" class="list-group-item">Gebruikers <span class="badge">@Gebruiker.Count()</span></a>
@@ -50,7 +72,7 @@
                         </li>
                     </ul> 
             </div><!-- einde panel body-->
-            <div class="panel-footer">footer</div>
+            <div class="panel-footer"></div>
         </div>
     </div>
     <!--einde page-->

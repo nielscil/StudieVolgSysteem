@@ -74,7 +74,8 @@ public class Regexval : RequestFieldValidatorBase
     /// <returns>true als t matcht, anders false</returns>
     protected override bool IsValid(HttpContextBase httpContext, string value)
     {
-        return Regex.IsMatch(value, regex);
+        bool test = Regex.IsMatch(value, regex);
+        return test;
     }
 
 }

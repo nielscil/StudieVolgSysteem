@@ -14,8 +14,6 @@ public class Cijfer
     public int StudentID { get; set; }
     public int VakID { get; set; }
     public int Cijfertje { get; set; }
-    public int EcS {get;set;}
-    public int gekregenEcS {get;set;}
     /// <summary>
     /// Maakt cijfer aan
     /// </summary>

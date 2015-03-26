@@ -29,6 +29,7 @@
     var vakid = Request.QueryString["vakid"];
     var action = Request.QueryString["action"];
     string vaknaam = "";
+    string ec = "";
     List<Opleiding> opleidingen = Opleiding.GetStudies();
     if (zoektext != null)
     {
@@ -40,7 +41,7 @@
         {
             try
             {
-                Vak.UpdateSubject(vakid.AsInt(),Request.Form["naam"]);
+                Vak.UpdateSubject(vakid.AsInt(),Request.Form["naam"],Request.Form["ec"].AsInt());
             }
             catch
             {
@@ -50,9 +51,11 @@
         }
         else if(!Request["add"].IsEmpty())
         {
+            vaknaam = Request.Form["naam"];
+            ec = Request.Form["ec"];
             try
             {
-                int id = Vak.AddSubject(Request.Form["naam"]);
+                int id = Vak.AddSubject(Request.Form["naam"],Request.Form["ec"].AsInt());
                 if(id == -1)
                 {
                     Response.Redirect("Vakken?succesful=false&message=Er ging iets fout, probeer het opnieuw.");
@@ -71,6 +74,8 @@
         }
         else if(!Request["add_addopl"].IsEmpty())
         {
+            vaknaam = Request.Form["naam"];
+            ec = Request.Form["ec"];
             var opleidingid = Request.Form["opleiding"];
             if((opleidingid != null || opleidingid.IsInt()) && opleidingid != "-1")
             {
@@ -96,6 +101,8 @@
         }
         else if(!Request["add_opldel"].IsEmpty())
         {
+            vaknaam = Request.Form["naam"];
+            ec = Request.Form["ec"];
             int index = Request.Form["index"].AsInt();
             if( index >= 0)
             {
@@ -258,6 +265,10 @@ else if (vakid.IsInt())
                                     <td>Naam</td>
                                     <td><input type="text" name="naam" value="@o.Naam" required /></td>
                                 </tr>
+                                <tr>
+                                    <td>EC's</td>
+                                    <td><input type="text" name="EC" value="@o.EC" required /></td>
+                                </tr>
                             </table>
                         </div>
                         <div class="panel-footer">
@@ -391,6 +402,10 @@ else if (action == "add")
                                 <tr>
                                     <td>Naam</td>
                                     <td><input type="text" name="naam" value="@vaknaam" required /></td>
+                                </tr>
+                               <tr>
+                                    <td>EC's</td>
+                                    <td><input type="text" name="EC" value="@ec" required /></td>
                                 </tr>
                             </table>
                         </div>

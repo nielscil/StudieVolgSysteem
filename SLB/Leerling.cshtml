@@ -1,106 +1,223 @@
-﻿@{;
-        Layout = "~/Shared/_Layout.cshtml"; 
-    Page.Title = "SLB Dashboard";
+﻿@{
+    Layout = "~/Shared/_Layout.cshtml";
+    Page.Title = "SLB Dashboard | Leerlingen";
     List<Student> studenten = Student.GetStudents(WebSecurity.CurrentUserId);
+
     var studid = Request.QueryString["studentid"]; //student id opvragen
-    Algoritme algoritme = new Algoritme();
+    //Algoritme algoritme = new Algoritme();
+    if (IsPost)
+    {
+        bool check = false;
+        if (Request.Form["check"] == "on")
+        {
+            check = true;
+        }
+        Afspraak.UpdateAfspraak(Request.Form["afspraakid"].AsInt(), check);
+    }
+
 }
 
 @section navbar{
-  <ul class="nav navbar-nav"> 
+    <ul class="nav navbar-nav">
         <li><a href="@Href("Default")"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span> Dashboard</a></li>
-      <li><a href="@Href("Agenda")"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
-        <li  class="active"><a href="leerling"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Studenten</a></li>
-      </ul>
+        <li><a href="@Href("Agenda")"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Agenda</a></li>
+        <li class="active"><a href="leerling"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Studenten</a></li>
+    </ul>
 }
 
-@if(studid == null) {
+
+@if (studid == null)
+{
     <!--Lijst met studenten-->
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-default">
-                <div class="panel-heading">Studenten</div>
-                    <div class="panel-body">
-                        <table class="table">
-                            @foreach(Student s in studenten){ //lijst met studenten laden
-                                <tr>
-                                    <td><a href="">@s.Naam @s.Achternaam</a></td>
-                                    @if(Algoritme.ber_Prioriteit(s.GebruikerID) >= 75) 
-                                    {
-                                        <td><img src="~/content/images/GreenDot.png" class="img" alt="green" /></td> //groen bolletje als de student het goed doet
-                                    }
-                                    else if((Algoritme.ber_Prioriteit(s.GebruikerID) <= 75) && (Algoritme.ber_Prioriteit(s.GebruikerID) >= 50)) 
-                                    {
-                                        <td><img src="~/content/images/OrangeDot.png" class="img" alt="orange" /></td> //oranje minder goed
-                                    }
-                                    else 
-                                    {
-                                        <td><img src="~/content/images/RedDot.png" class="img" alt="red" /></td> //rood slecht
-                                    }
-                                </tr>
-                            }
-                        </table>
-                    </div><!--panel body-->
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>StudentNummer</th>
+                            <th>Voornaam</th>
+                            <th>Achternaam</th>
+                            <th>E-Mail</th>
+                            <th>Opmerking</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Student s in studenten)
+                        {
+                            int index = 0;
+                            <tr>
+                                @* <th scope="row">index += 1;</th> *@
+                                <td><a href="leerling?studentid=@s.GebruikerID">@s.StudentNr</a></td>
+                                <td><a href="leerling?studentid=@s.GebruikerID">@s.Naam</a></td>
+                                <td><a href="leerling?studentid=@s.GebruikerID">@s.Achternaam</a></td>
+                                <td>@s.Email</td>
+                                <td>@s.Opmerkingen</td>
+                                @if (Algoritme.ber_Prioriteit(s.GebruikerID) >= 75)
+                                {
+                                    <td><img src="~/content/images/GreenDot.png" class="img" alt="green" /></td> //groen bolletje als de student het goed doet
+                                }
+                                else if ((Algoritme.ber_Prioriteit(s.GebruikerID) <= 75) && (Algoritme.ber_Prioriteit(s.GebruikerID) >= 50))
+                                {
+                                    <td><img src="~/content/images/OrangeDot.png" class="img" alt="orange" /></td> //oranje is minder goed
+                                }
+                                else
+                                {
+                                    <td><img src="~/content/images/RedDot.png" class="img" alt="red" /></td> //rood is slecht
+                                } <!--hier komt nog een algoritme-->
+                            </tr>
+                        }
+                    </tbody>
+                </table>
                 <div class="panel-footer"></div>
             </div> <!--panel-default-->
         </div> <!--/col-lg-12-->
     </div> <!--/lijst met studenten-->
 }
 
-//Nog niet af
-else {
+//bijna af
+else
+{
+
     Student gebruiker = Student.GetStudent(studid.AsInt()); //als er op een student geklikt wordt, worden gegevens geladen
-    <div class="col-lg-8">
-        <div class="panel panel-default">
-            <div class="panel-heading">@gebruiker.Naam @gebruiker.Achternaam</div>
-            <table>
-                <tr>
-                    <td>Naam</td>
-                    <td>@gebruiker.Naam</td>
-            
-                </tr>
-                <tr>
-                    <td>Achternaam</td>
-                    <td>@gebruiker.Achternaam</td>
-                </tr>
-                <tr>
-                    <td>E-mailadres</td>
-                    <td>@gebruiker.Email</td>
+    List<Afspraak> afspraken = Afspraak.GetAfsprakenStudent(gebruiker.GebruikerID);
+    List<Cijfer> cijfers = Cijfer.GetGradesFromStudent(gebruiker.GebruikerID);
 
-                </tr>
-                <tr>
-                    <td>Straat + huis nr.</td>
-                    <td>@gebruiker.Adres</td>
-                </tr>
-                <tr>
-                    <td>Postcode</td>
-                    <td>@gebruiker.Postcode</td>
-                </tr>
-                <tr>
-                    <td>Woonplaats</td>
-                        <td>@gebruiker.Woonplaats</td>
-                </tr>
-                <tr>
-                    <td>Telefoonnummer</td>
-                    <td>@gebruiker.TelefoonNr</td>
-                </tr>
-            </table>
-            <div class="panel-footer">
-                <a href="Gebruikers" class="btn btn-default">Terug</a>
-                <a href="Gebruikers" class="btn btn-primary">Afspraak plannen</a>
-            </div><!--panel footer-->
-        </div><!--panel-->
-    </div><!--class col-lg-8-->
+    for (int i = 0; i < afspraken.Count; i++)
+    {
+        <script type="text/javascript">
+            //Als checkbox bij afspraken veranderd wordt, pagina refreshen
+            $(function () {
+                $('.checkbox@(i)').on('change', function () {
+                    $('#form@(i)').submit();
+                });
+            });
+        </script>
+    }
 
-    <!--Nog niet af panel met cijfer-->
+    <!--panel met basisgegevens-->
     <div class="col-lg-4">
         <div class="panel panel-default">
+            <div class="panel-heading">Gegevens</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-9">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>@gebruiker.StudentNr</th>
+                                    <th><!--Studentnummer--></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Naam</td>
+                                    <td>@gebruiker.Naam</td>
+
+                                </tr>
+                                <tr>
+                                    <td>Achternaam</td>
+                                    <td>@gebruiker.Achternaam</td>
+                                </tr>
+                                <tr>
+                                    <td>E-mailadres</td>
+                                    <td>@gebruiker.Email</td>
+
+                                </tr>
+                                <tr>
+                                    <td>Straat + huis nr.</td>
+                                    <td>@gebruiker.Adres</td>
+                                </tr>
+                                <tr>
+                                    <td>Postcode</td>
+                                    <td>@gebruiker.Postcode</td>
+                                </tr>
+                                <tr>
+                                    <td>Woonplaats</td>
+                                    <td>@gebruiker.Woonplaats</td>
+                                </tr>
+                                <tr>
+                                    <td>Telefoonnummer</td>
+                                    <td>@gebruiker.TelefoonNr</td>
+                                </tr>
+                                <tr>
+                                    <td>Opmerking</td>
+                                    <td>@gebruiker.Opmerkingen</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div><!--col-md-9-->
+                    <div class="col-md-3">
+                        <img class="img-zoomstu" src="@Href("~/Content/images/UserPictures/Default?userid=" + gebruiker.GebruikerID.ToString())" class="picture" alt="Foto" />
+                    </div><!--col-md-3-->
+                </div><!--row-->
+            </div> <!--panel-body-->
+            <div class="panel-footer">
+                <a href="javascript:history.go(-1)" class="btn btn-default">Terug</a>
+                <a href="agenda" class="btn btn-primary">Afspraak plannen</a>
+            </div><!--panel footer-->
+        </div><!--panel-->
+    </div><!--class col-lg-4-->
+
+    <!--panel met cijfer-->
+    <div class="col-md-6 col-lg-4">
+        <div class="panel panel-default">
             <div class="panel-heading">Cijfers</div>
-            <table>
-                <tr>
-                 <td><!--cijfers en shit--></td>
-                </tr>
-            </table>      
-        </div>    
-    </div>
- }
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Vak</th>
+                            <th>Cijfer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Cijfer c in cijfers)
+                        {
+                            Vak vak = Vak.GetSubject(c.VakID);
+                            <tr>
+                                <td>@vak.Naam</td>
+                                <td>@c.Cijfertje</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div><!--panel-body-->
+        </div><!--/panel-default-->
+    </div><!--/col-lg-4-->
+
+    <!--afspraken-->
+    <div class="col-md-12 col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">Overeenkomsten</div>
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nagekomen</th>
+                            <th>Deadline</th>
+                            <th>Overeenkomst</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                        int index = 0;
+                        foreach (Afspraak a in afspraken)
+                        {
+                            <form id="form@(index)" method="post" action="">
+                                <tr>
+                                    <td><input type="checkbox" checked="@a.afgevinkt" name="check" class="checkbox@(index)" /><input name="afspraakid" value="@a.afspraakID" hidden /></td>
+                                    <td>@a.Deathline</td>
+                                    <td>@a.opmerking</td>
+                                </tr>
+                            </form>
+                            index++;
+                        }
+                        }
+                    </tbody>
+                </table>
+            </div><!--/panel-body-->
+        </div> <!--/panel-default-->
+    </div><!--/col-lg-4-->
+}

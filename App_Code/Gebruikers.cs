@@ -1,18 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Web;
 using System.Web.Security;
 using WebMatrix.Data;
 using WebMatrix.WebData;
 
-/// <summary>
-/// Constante waardes
-/// </summary>
-public static class Constants{
-    //database naam invullen
-    public static string DBName = "Demo";
-    //meer constanten toevoegen
-}
 
 /// <summary>
 /// Gebruiker uitwisselen met database
@@ -104,7 +97,19 @@ public class Gebruiker
         }
         return lijst;
     }
-
+    public static List<Gebruiker> GetRecentUsers()
+    {
+        Database db = Database.Open(Constants.DBName);
+        var row = db.Query("SELECT TOP 5 * FROM gebruikers ORDER BY gebruikerId DESC ");
+        db.Close();
+        List<Gebruiker> lijst = new List<Gebruiker>();
+        foreach(var r in row)
+        {
+            Gebruiker g = new Gebruiker(r.GebruikerID, r.Email, Roles.GetRolesForUser(r.Email),r.Naam, r.Achternaam, r.Woonplaats, r.Adres, r.Telefoon_nr, r.Postcode);
+           lijst.Add(g);
+        }
+        return lijst;
+    }
     /// <summary>
     /// Geeft een gebruiker terug
     /// </summary>
@@ -123,11 +128,11 @@ public class Gebruiker
     public static Gebruiker GetUser(string passreset)
     {
         Database db = Database.Open(Constants.DBName);
-        var r1 = db.QuerySingle("SELECT userid FROM webpages_Membership WHERE PasswordResetToken=@0",passreset);
+        var r1 = db.QuerySingle("SELECT userid FROM webpages_Membership WHERE passwordverificationtoken=@0",passreset);
         if(r1 == null){
             throw new Exception("Niet gevonden");
         }
-        var row = db.QuerySingle("SELECT * FROM gebruikers WHERE gebruikerid=();",r1.UserID);
+        var row = db.QuerySingle("SELECT * FROM gebruikers WHERE gebruikerid=@0;",r1.UserId);
         db.Close();
         if(row == null)
             throw new Exception("Niet gevonden");
@@ -147,23 +152,22 @@ public class Gebruiker
     /// <param name="telefoonnr">telefoonnummer</param>
     /// <param name="postcode">postcode</param>
     /// <returns>true als het goed gegaan is, false wanneer dit niet het geval is</returns>
-    public static bool AddUser(string email,string[] roles,string wachtwoord,string naam,string achternaam,string woonplaats,string adres, string telefoonnr,string postcode)
+    public static int AddUser(string email, string[] roles, string wachtwoord, string naam, string achternaam, string woonplaats, string adres, string telefoonnr, string postcode)
     {
         Database db = Database.Open(Constants.DBName);
-        db.Execute("INSERT INTO gebruikers (Email,naam,achternaam,woonplaats,adres,telefoon_nr,postcode) Values (@0,@1,@2,@3,@4,@5,@6);",email,naam,achternaam,woonplaats,adres,telefoonnr,postcode);
+        db.Execute("INSERT INTO gebruikers (Email,naam,achternaam,woonplaats,adres,telefoon_nr,postcode) Values (@0,@1,@2,@3,@4,@5,@6);", email, naam, achternaam, woonplaats, adres, telefoonnr, postcode);
+        var id = db.GetLastInsertId();
         db.Close();
-        try
+        if (id == null)
         {
-            WebSecurity.CreateAccount(email, wachtwoord, false);
-            Roles.AddUserToRoles(email, roles);
+            return -1;
         }
-        catch
+        else
         {
-            return false;
+            Roles.AddUserToRoles(GetUser((int)id).Email,roles);
+            return (int)id;
         }
-        return true;
     }
-
     /// <summary>
     /// Update een bepaalde gebruiker
     /// </summary>
@@ -368,22 +372,23 @@ public class Student : Gebruiker
     /// <param name="opmerking">opmerking</param>
     /// <param name="studentNr">student nummer</param>
     /// <returns>true als het goed gegaan is, false wanneer dit niet het geval is</returns>
-    public static bool AddUser(string email,string wachtwoord,string[] roles,string naam,string achternaam,string woonplaats,string adres, string telefoonnr,string postcode,int slberID,string opmerking,string studentNr)
+    public static int AddUser(string email,string wachtwoord,string[] roles,string naam,string achternaam,string woonplaats,string adres, string telefoonnr,string postcode,int slberID,string opmerking,string studentNr)
     {
         Database db = Database.Open(Constants.DBName);
         db.Execute("INSERT INTO gebruikers (Email,naam,achternaam,woonplaats,adres,telefoon_nr,postcode) Values (@0,@1,@2,@3,@4,@5,@6);",email,naam,achternaam,woonplaats,adres,telefoonnr,postcode);
-        int id = db.QueryValue("SELECT gebruikerID FROM gebruikers WHERE email = @0",email);
-        db.Execute("INSERT INTO Student (SLBerID,opmerking,studentnummer,studentID) VALUES (@0,@1,@2,@3)",slberID,opmerking,studentNr,id);
-         db.Close();
-        try{
-            WebSecurity.CreateAccount(email, wachtwoord, false);
-            Roles.AddUserToRoles(email, roles);
-        }
-        catch
+        var id = db.GetLastInsertId();
+        
+        if(id == null)
         {
-            return false;
+            db.Close();
+            return -1;
+        }else
+        {
+            db.Execute("INSERT INTO Student (SLBerID,opmerking,studentnummer,studentID) VALUES (@0,@1,@2,@3)",slberID,opmerking,studentNr,(int)id);
+            db.Close();
+            Roles.AddUserToRoles(GetUser((int)id).Email,roles);
+            return (int)id;
         }
-        return true;
     }
 
     /// <summary>
@@ -476,6 +481,50 @@ public class Student : Gebruiker
             throw new Exception("Geen student gevonden");
         return new Student(r.GebruikerID,r.Email,Roles.GetRolesForUser(r.Email),r.Naam,r.Achternaam,r.Woonplaats,r.Adres,r.Telefoon_nr,r.postcode,r.SLBerID,r.Opmerking,r.StudentNummer);
     }
+
+    public static bool HasImage(int studentid)
+    {
+        Database db = Database.Open(Constants.DBName);
+        var row = db.QuerySingle("SELECT * FROM profilepic WHERE gebruikerid=@0", studentid);
+        db.Close();
+        if(row == null)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    public static void SaveImage(int studentid,byte[] img)
+    {
+        Database db = Database.Open(Constants.DBName);
+        if(HasImage(studentid))
+        {
+            db.Execute("UPDATE profilepic SET image=@0 WHERE gebruikerid=@1", img, studentid);
+        }
+        else
+        {
+            db.Execute("INSERT INTO profilepic (gebruikerid,image) VALUES (@0,@1)", studentid, img);
+        }
+        db.Close();
+    }
+
+    public static byte[] LoadImage(int studentid)
+    {
+        Database db = Database.Open(Constants.DBName);
+        var row = db.QuerySingle("SELECT * FROM profilepic WHERE gebruikerid=@0", studentid);
+        db.Close();
+        if(row == null)
+        {
+            string filepath = HttpContext.Current.Server.MapPath("~/Content/images/UserPictures/anoniem.jpg");
+            byte[] anoniem = File.ReadAllBytes(filepath);
+            return anoniem;          
+        }
+        else
+        {
+            byte[] foto = row.image;
+            return foto;
+        }     
+    }
 }
 
 public class SLB : Gebruiker
@@ -550,6 +599,14 @@ public class SLB : Gebruiker
     {
         this.URL = url;
     }
+
+    public static void AddSLB(int slbid)
+    {
+        Database db = Database.Open(Constants.DBName);
+        db.Execute("INSERT INTO SLBers (slberid) VALUES (@0)", slbid);
+        db.Close();
+    }
+
     /// <summary>
     /// Controleert of slber een student heeft
     /// </summary>
@@ -560,7 +617,7 @@ public class SLB : Gebruiker
     {
         Database db = Database.Open(Constants.DBName);
         var row = db.QueryValue("SELECT URL FROM SLBers WHERE slberid=@0", slberid);
-        if(row == null || row == DBNull.Value.ToString())
+        if(row == null || DBNull.Value.Equals(row))
         {
             return "";
         }
@@ -585,7 +642,7 @@ public class SLB : Gebruiker
     public static List<SLB> GetSLBers()
     {
         Database db = Database.Open(Constants.DBName);
-        var rows = db.Query("SELECT  FROM gebruikers WHERE gebruikerID in (SELECT UserID FROM webpages_UsersInRoles WHERE RoleID = 2);");
+        var rows = db.Query("SELECT * FROM gebruikers WHERE gebruikerID in (SELECT UserID FROM webpages_UsersInRoles WHERE RoleID = 2);");
         db.Close();
         List<SLB> lijst = new List<SLB>();
         foreach(var r in rows)

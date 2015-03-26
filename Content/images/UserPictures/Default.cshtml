@@ -1,0 +1,27 @@
+﻿@using System.IO;
+@{
+    if (!WebSecurity.IsAuthenticated && (!Roles.IsUserInRole(WebSecurity.CurrentUserName, "SLB") || !Roles.IsUserInRole(WebSecurity.CurrentUserName, "Admin")))
+    {
+        Response.Redirect("~");
+    }
+    try
+    {
+        var gebruikerid = Request.QueryString["userid"];
+        if (gebruikerid != null && Roles.IsUserInRole(Gebruiker.GetUser(gebruikerid.AsInt()).Email, "Student"))
+        {
+
+            byte[] foto = Student.LoadImage(gebruikerid.AsInt());
+            Response.ContentType = "image";
+            Response.BinaryWrite(foto);
+        }
+        else
+        {
+            Response.Redirect("~");
+        }
+    }
+    catch
+    {
+        
+    }
+    
+}

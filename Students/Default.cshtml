@@ -3,7 +3,7 @@
 @{
     Student student = Student.GetStudent(WebSecurity.CurrentUserId);
     Layout = "~/Shared/_Layout.cshtml";
-    Page.Title = "Agenda";
+    Page.Title = "Student Dashboard";
     DateTime now = DateTime.Now;
     Calendar cal = CultureInfo.CurrentCulture.Calendar;
     DateTimeFormatInfo dfi = DateTimeFormatInfo.CurrentInfo;
@@ -23,7 +23,7 @@
         jaar = DateTime.Now.Year.ToString();
     }
     DateTime FirstDayOfWeek = Agenda.FirstDateOfWeek(jaar.AsInt(), weeknr.AsInt());
-    List<Agenda> agenda = Agenda.GetAgendaStudent(student.GebruikerID);
+    List<Agenda> agenda = Agenda.GetAgendas(student.GebruikerID);
     DateTime mindate;
     if (agenda.Count > 0)
     {
@@ -44,13 +44,13 @@
         {
                 DateTime afspraak = Request.Form["date"].AsDateTime();
                 Agenda.AddAgenda(student.GebruikerID, student.SLBerID, afspraak, Request.Form["begin"].AsInt());
-                Response.Redirect("agenda?week=" + cal.GetWeekOfYear(afspraak, dfi.CalendarWeekRule, dfi.FirstDayOfWeek) + "&jaar=" + afspraak.Year);
+                Response.Redirect("Default?week=" + cal.GetWeekOfYear(afspraak, dfi.CalendarWeekRule, dfi.FirstDayOfWeek) + "&jaar=" + afspraak.Year);
         }
         else if (!Request["delete"].IsEmpty())
         {
             Agenda ag = Agenda.GetAgenda(Request.Form["agendaid"].AsInt());
             Agenda.DeleteAgenda(ag.AfspaakID);
-            Response.Redirect("Agenda?week=" + cal.GetWeekOfYear(ag.Datum, dfi.CalendarWeekRule, dfi.FirstDayOfWeek).ToString() + "&jaar=" + ag.Datum.Year.ToString());
+            Response.Redirect("Default?week=" + cal.GetWeekOfYear(ag.Datum, dfi.CalendarWeekRule, dfi.FirstDayOfWeek).ToString() + "&jaar=" + ag.Datum.Year.ToString());
         }
     }
 }
@@ -83,7 +83,7 @@
                 var date = $(this).datepicker('getDate');
                 var week = date.getWeek();
                 var year = date.getFullYear();
-                window.location.replace("Agenda?week=" + week + "&jaar=" + year);
+                window.location.replace("Default?week=" + week + "&jaar=" + year);
                 selectCurrentWeek();
             },
             beforeShow: function () {
@@ -124,7 +124,7 @@
     int weekVol = cal.GetWeekOfYear(FirstDayOfWeek.AddDays(7), dfi.CalendarWeekRule, dfi.FirstDayOfWeek);
     if (weekVor >= minweek)
     {
-        <li><a href="Agenda?week=@weekVor&jaar=@yearVor"><span aria-hidden="true">&larr;</span> Week @weekVor.ToString()</a></li>
+        <li><a href="Default?week=@weekVor&jaar=@yearVor"><span aria-hidden="true">&larr;</span> Week @weekVor.ToString()</a></li>
     }
     else
     {
@@ -132,7 +132,7 @@
     }
                         }
                         <li><input type="text" id="weekpicker" hidden /></li>
-                        <li><a href="Agenda?week=@weekVol&jaar=@yearVol">Week @weekVol.ToString() <span aria-hidden="true">&rarr;</span></a></li>
+                        <li><a href="Default?week=@weekVol&jaar=@yearVol">Week @weekVol.ToString() <span aria-hidden="true">&rarr;</span></a></li>
                     </ul>
                 </nav>
             </div>
@@ -180,7 +180,7 @@
                     <td style="width:230px">
                         <div class="list-group">
                             @{
-                    int[] lijst = Agenda.GetAgendaDayStudent(student.SLBerID, FirstDayOfWeek.AddDays(j));
+                    int[] lijst = Agenda.GetAgendaDay(student.SLBerID, FirstDayOfWeek.AddDays(j));
                     for (int i = 0; i < 32; i++)
                     {
                         if (lijst[i] > 0)
@@ -196,7 +196,7 @@
                                 }
                                 else
                                 {
-                                    url = string.Format("Agenda?agendaid={0}&action=update", ag.AfspaakID);
+                                    url = string.Format("Default?agendaid={0}&action=update", ag.AfspaakID);
                                 }
                                 if (i == ag.Begin && ag.Tijdsduur > 1)
                                 {
@@ -242,12 +242,12 @@
                             }
                             else
                             {
-                                <a href="agenda?action=add&datum=@date.AddDays(j).Date.ToString("d")&begin=@i" class="list-group-item list-group-item-info" style="height: 20px; padding-top: 0"></a>
+                                <a href="Default?action=add&datum=@date.AddDays(j).Date.ToString("d")&begin=@i" class="list-group-item list-group-item-info" style="height: 20px; padding-top: 0"></a>
                             }
 
-                        } 
+                        }
                     }
-                            }
+}
                         </div>
                     </td>
                 }
@@ -295,7 +295,7 @@ else if (action == "add" && datum != null && begin != null)
                 <input type="text" name="begin" value="@begin" hidden/>
             </div>
             <div class="panel-footer">
-                <a href="Agenda?week=@week&jaar=@afspraak.Year" class="btn btn-default">Annuleren</a>
+                <a href="Default?week=@week&jaar=@afspraak.Year" class="btn btn-default">Annuleren</a>
                 <input type="submit" class="btn btn-primary" name="add" value="Aanvragen" />
             </div>
         </form>
@@ -333,7 +333,7 @@ else if (action == "update" && agendaid != null && agendaid.IsInt())
             </div>
             <div class="panel-footer">
                 <input type="text" name="agendaid" value="@ag.AfspaakID" hidden />
-                <a href="Agenda?week=@cal.GetWeekOfYear(ag.Datum,dfi.CalendarWeekRule,dfi.FirstDayOfWeek)&jaar=@ag.Datum.Year" class="btn btn-default">Terug</a>
+                <a href="Default?week=@cal.GetWeekOfYear(ag.Datum,dfi.CalendarWeekRule,dfi.FirstDayOfWeek)&jaar=@ag.Datum.Year" class="btn btn-default">Terug</a>
                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Deletebev">Verwijderen</button>
             </div>
     </div>
