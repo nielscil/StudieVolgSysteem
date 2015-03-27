@@ -15,6 +15,40 @@
         });
     });
 </script>
+<script>
+    $(document).ready(function () {
+        $("#hideraankomend").click(function () {
+            $("#hideaankomend").show(1000);
+            $("#hideraankomend").hide();
+            $("#unhideraankomend").show();
+        });
+        $("#unhideraankomend").click(function () {
+            $("#hideaankomend").hide(1000);
+            $("#hideraankomend").show();
+            $("#unhideraankomend").hide();
+        });
+        $("#hideraangevraagd").click(function () {
+            $("#hideaangevraagd").show(1000);
+            $("#hideraangevraagd").hide();
+            $("#unhideraangevraagd").show();
+        });
+        $("#unhideraangevraagd").click(function () {
+            $("#hideaangevraagd").hide(1000);
+            $("#hideraangevraagd").show();
+            $("#unhideraangevraagd").hide();
+        });
+        $("#hiderovereenkomst").click(function () {
+            $("#hideovereenkomst").show(1000);
+            $("#hiderovereenkomst").hide();
+            $("#unhiderovereenkomst").show();
+        });
+        $("#unhiderovereenkomst").click(function () {
+            $("#hideovereenkomst").hide(1000);
+            $("#hiderovereenkomst").show();
+            $("#unhiderovereenkomst").hide();
+        });
+    });
+</script>
 
 @section navbar{
     <ul class="nav navbar-nav">
@@ -39,24 +73,36 @@
                             </div>
                             @{
                                 int index = 0;
-                                foreach (Agenda ag in a)
+                                bool first =  false;
+                                for (int i = 0; i < a.Count; i++)
                                 {
-                                    Student student = Student.GetStudent(ag.StudentID);
-                                    if (index > 10)
+                                    if (index == 10 && !first)
                                     {
-                                        break;
+                                        @:<div id="hideaankomend" class="hideable">
+                                        first = true;
                                     }
+                                    Agenda ag = a[i];
+                                    Student student = Student.GetStudent(ag.StudentID);
                                     if (ag.Datum > DateTime.Today && ag.Datum < DateTime.Today.AddDays(2) && ag.Definitief)
                                     {
                                         index++;
                                         <a href="Agenda?agendaid=@ag.AfspaakID&action=update" class="list-group-item">@ag.Datum.ToString("dd-MM-yyyy HH:mm")<br>@ag.Locatie<br>@student.Naam @student.Achternaam</a>
+                                    }
+                                    if (index > 10 && i == (a.Count - 1))
+                                    {
+                                        @:</div>
                                     }
                                 }
                                 if (index == 0)
                                 {
                                     <div class="list-group-item">Geen aangevraagde afspraken gevonden</div>
                                 }
-                            }
+                                else if(index > 10)
+                                {
+                                    <div id="hideraankomend" class="list-group-item mouse text-center">Meer...</div>
+                                    <div id="unhideraankomend" class="list-group-item hideable mouse text-center">Minder...</div>
+                                }
+}
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -64,24 +110,36 @@
                             <div class="panel-heading"><div class="panel-title">Aangevraagde afspraken</div></div>
                             @{
                                 index = 0;
-                                foreach (Agenda ag in a)
+                                first = false;
+                                for (int i = 0; i < a.Count; i++)
                                 {
+                                    Agenda ag = a[i];
                                     Student student = Student.GetStudent(ag.StudentID);
-                                    if (index > 5)
+                                    if (index == 5 && !first)
                                     {
-                                        break;
+                                        @:<div id="hideaangevraagd" class="hideable">
+                                        first = true;
                                     }
                                     if (ag.Datum > DateTime.Today && (!ag.Definitief || ag.Definitief == null))
                                     {
                                         index++;
                                         <a href="Agenda?agendaid=@ag.AfspaakID&action=aanvraag" class="list-group-item">@ag.Datum.ToString("dd-MM-yyyy HH:mm")<br>@ag.Locatie<br>@student.Naam @student.Achternaam</a>
                                     }
+                                    if (index > 5 && i == (a.Count - 1))
+                                    {
+                                        @:</div>
+                                    }
                                 }
                                 if (index == 0)
                                 {
                                     <div class="list-group-item">Geen aangevraagde afspraken gevonden</div>
                                 }
-                            }
+                                else if (index > 5)
+                                {
+                                    <div id="hideraangevraagd" class="list-group-item mouse text-center">Meer...</div>
+                                    <div id="unhideraangevraagd" class="list-group-item hideable mouse text-center">Minder...</div>
+                                }
+}
                         </div>
                         <div class="panel panel-danger">
                             <div class="panel-heading">
@@ -89,11 +147,14 @@
                             </div>
                             @{
                                 index = 0;
-                                foreach (Afspraak af in x)
+                                first = false;
+                                for (int i = 0; i < x.Count; i++)
                                 {
-                                    if (index > 5)
+                                    Afspraak af = x[i];
+                                    if (index == 5 && !first)
                                     {
-                                        break;
+                                        @:<div id="hideovereenkomst" class="hideable">
+                                        first = true;
                                     }
                                     if (af.Deathline < DateTime.Today && !af.afgevinkt)
                                     {
@@ -101,15 +162,26 @@
                                         Student student = Student.GetStudent(Agenda.GetAgenda(Evaluatie.GetEvaluatieGesprekid(af.GesprekID).AgendaID).StudentID);
                                         <div class="list-group-item">@af.opmerking<br><h6>Verlopen op:</h6>@af.Deathline.Date.ToString("d")<br>@student.Naam @student.Achternaam</div>
                                     }
+                                    if (index > 5 && i == (a.Count - 1))
+                                    {
+                                        @:</div>
+                                    }
                                 }
                                 if (index == 0)
                                 {
                                     <div class="list-group-item">Geen verlopen overeenkomsten gevonden</div>
                                 }
+                                else if (index > 5)
+                                {
+                                    <div id="hiderovereenkomst" class="list-group-item mouse text-center">Meer...</div>
+                                    <div id="unhiderovereenkomst" class="list-group-item hideable mouse text-center">Minder...</div>
+                                }
+
+}
+</div>
 
 
-                            }
-                        </div>
+
                     </div>
                 </div>
             </div>

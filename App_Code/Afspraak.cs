@@ -108,6 +108,7 @@ public class Afspraak
                 
             }
         }
+        afspraken.Sort((x, y) => DateTime.Compare(x.Deathline, y.Deathline));
         return afspraken;
     }
 
@@ -126,7 +127,7 @@ public class Afspraak
             {
                 
             }
-        }
+        }       
         return afspraken;
     }
 

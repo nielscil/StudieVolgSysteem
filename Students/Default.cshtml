@@ -49,7 +49,7 @@
         else if (!Request["delete"].IsEmpty())
         {
             Agenda ag = Agenda.GetAgenda(Request.Form["agendaid"].AsInt());
-            Agenda.DeleteAgenda(ag.AfspaakID);
+            Agenda.UpdateAgenda(ag.AfspaakID,Request.Form["reason"],false,1);
             Response.Redirect("Default?week=" + cal.GetWeekOfYear(ag.Datum, dfi.CalendarWeekRule, dfi.FirstDayOfWeek).ToString() + "&jaar=" + ag.Datum.Year.ToString());
         }
     }
@@ -186,7 +186,7 @@
                         if (lijst[i] > 0)
                         {
                             Agenda ag = Agenda.GetAgenda(lijst[i]);
-                            if (ag.StudentID == student.GebruikerID)
+                            if (ag.StudentID == student.GebruikerID && !(ag.Locatie != "" && ag.Definitief == false))
                             {
                                 DateTime date = FirstDayOfWeek.Date.AddHours(8);
                                 string url = "";
@@ -223,6 +223,10 @@
                                     <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0"></a>
                                 }
 
+                            }
+                            else if(ag.StudentID == student.GebruikerID && !(ag.Locatie != "" && ag.Definitief == false))
+                            {
+                                <a href="" class="list-group-item list-group-item-danger" style="height: 20px; padding-top: 0">Geannuleerd</a>
                             }
                             else
                             {
@@ -345,17 +349,19 @@ else if (action == "update" && agendaid != null && agendaid.IsInt())
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="myModalLabel">Waarschuwing!</h4>
                 </div>
+                <form method="post">
                 <div class="modal-body">
                     U staat op het punt om een Afspraak te verwijderen!<br> Weet u zeker dat u door wilt gaan? <br>
-                    Dit proces is niet omkeerbaar!
+                    Dit proces is niet omkeerbaar!<br>
+                    Wat is uw reden om te annuleren: <input type="text" name="reason"/>
                 </div>
                 <div class="modal-footer">
-                    <form method="post">
+                    
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
                         <input type="text" name="agendaid" hidden value="@ag.AfspaakID" />
-                        <input type="submit" class="btn btn-danger" name="delete" value="Verwijderen" />
-                    </form>
+                        <input type="submit" class="btn btn-danger" name="delete" value="Verwijderen" />                 
                 </div> <!--/modal-footer-->
+                    </form>
             </div> <!--/modal-content-->
         </div> <!--/model-dialog-->
     </div> <!--/modal fade-->

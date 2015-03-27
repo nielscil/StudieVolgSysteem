@@ -250,7 +250,7 @@
                                 <a href="@url" class="list-group-item list-group-item-success" style="height: 20px; padding-top: 0"></a>
                             }
                         }
-                        else
+                        else if(!ag.Definitief && (ag.Locatie == null || ag.Locatie == ""))
                         {
                             url = "";
                             if (date.AddDays(j).AddMinutes(15 * i) < DateTime.Now)
@@ -262,6 +262,10 @@
                                 url = string.Format("Agenda?agendaid={0}&action=aanvraag", ag.AfspaakID);
                             }
                             <a href="@url" class="list-group-item list-group-item-warning" style="height: 20px; padding-top: 0">@st.Naam @st.Achternaam</a>
+                        }
+                        else
+                        {
+                            <a href="Agenda?agendaid=@ag.AfspaakID&action=geannuleerd" class="list-group-item list-group-item-danger" style="height: 20px; padding-top: 0">@st.Naam @st.Achternaam | Geannuleerd</a>
                         }
 
                     }
@@ -570,5 +574,82 @@ else if (action == "aanvraag")
             </div> <!--/modal-content-->
         </div> <!--/model-dialog-->
     </div> <!--/modal fade-->
+}
+else if (action == "geannuleerd" && agendaid != null && agendaid.IsInt())
+{
+    Agenda ag = Agenda.GetAgenda(agendaid.AsInt());
+    Student student = Student.GetStudent(ag.StudentID);
+    string achter;
+    if (ag.Begin % 4 == 0)
+    {
+        achter = "00";
+    }
+    else
+    {
+        achter = ((ag.Begin % 4) * 15).ToString();
+    }
+    DateTime afspraak = ag.Datum;
+    int[] day = Agenda.GetAgendaDay(WebSecurity.CurrentUserId, afspraak);
+    int count = 0;
+    for (int i = ag.Begin + ag.Tijdsduur; i < 32; i++)
+    {
+        if (day[i] != 0)
+        {
+            break;
+        }
+        count++;
+    }
+    count += ag.Tijdsduur;
+    if (count > 4)
+    {
+        count = 4;
+    }
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="panel-title">Afspraak Geannuleerd | @ag.Datum.Date.ToString("d") @((ag.Begin / 4 + 8).ToString() + ":" + achter)</div>
+        </div>
+            <div class="panel-body">
+                <table>
+                    <tr>
+                        <td>Student</td>
+                        <td>
+                            @student.Naam @student.Achternaam
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Reden</td>
+                        <td>@ag.Locatie</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="panel-footer">
+                <a href="javascript:history.go(-1)" class="btn btn-default">Terug</a>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Deletebev">Verwijderen</button>
+            </div>
+    </div>
+ <!--Begin popup verwijderbevestiging-->
+    <div class="modal fade" id="Deletebev" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Waarschuwing!</h4>
+                </div>
+                <div class="modal-body">
+                    U staat op het punt om een Afspraak te verwijderen!<br> Weet u zeker dat u door wilt gaan? <br>
+                    Dit proces is niet omkeerbaar!
+                </div>
+                <div class="modal-footer">
+                    <form method="post">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
+                        <input type="text" name="agendaid" hidden value="@ag.AfspaakID" />
+                        <input type="submit" class="btn btn-danger" name="delete" value="Verwijderen" />
+                    </form>
+                </div> <!--/modal-footer-->
+            </div> <!--/modal-content-->
+        </div> <!--/model-dialog-->
+    </div> <!--/modal fade-->
+
+    <!--Einde popup verwijderbevestiging-->
 }
 

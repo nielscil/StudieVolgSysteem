@@ -71,14 +71,14 @@ public class Agenda
     /// <param name="datum">datum</param>
     /// <param name="locatie">locatie</param>
     /// <param name="begin">begintijd</param>
-    public Agenda(int afspraakid, int studentid, int slberid, DateTime datum,int begin)
+    public Agenda(int afspraakid, int studentid, int slberid, DateTime datum,int begin,string locatie)
     {
         this.AfspaakID = afspraakid;
         this.StudentID = studentid;
         this.SLBerID = slberid;
         this.Datum = datum;
         this.Begin = begin;
-        //this.Locatie = locatie;
+        this.Locatie = locatie;
     }
     /// <summary>
     /// Agenda afspraak aanmaken
@@ -105,10 +105,10 @@ public class Agenda
     /// <param name="locatie">locatie</param>
     /// <param name="begin">begin</param>
     /// <returns>agendaid van de toegevoegde afspraak</returns>
-    public static int AddAgenda(int studentid, int slberid, DateTime datum,int begin)
+    public static int AddAgenda(int studentid, int slberid, DateTime datum,int begin,string locatie)
     {
         Database db = Database.Open(Constants.DBName);
-        db.Execute("INSERT INTO agenda (studentid,slberid,datum, [begin] ) VALUES(@0,@1,@2,@3)", studentid, slberid, datum,begin);
+        db.Execute("INSERT INTO agenda (studentid,slberid,datum, [begin],locatie ) VALUES(@0,@1,@2,@3,@4)", studentid, slberid, datum,begin,locatie);
         var id = db.GetLastInsertId();
         db.Close();
         if (id == null)
@@ -173,7 +173,7 @@ public class Agenda
             }
             else
             {
-                Agenda a = new Agenda(r.AfspraakID, r.StudentID, r.SLBerID, r.Datum, r.Begin);
+                Agenda a = new Agenda(r.AfspraakID, r.StudentID, r.SLBerID, r.Datum, r.Begin, r.locatie);
                 list.Add(a);
             }
             
@@ -197,7 +197,7 @@ public class Agenda
             }
             else
             {
-                Agenda a = new Agenda(r.AfspraakID, r.StudentID, r.SLBerID, r.Datum, r.Begin);
+                Agenda a = new Agenda(r.AfspraakID, r.StudentID, r.SLBerID, r.Datum, r.Begin,r.locatie);
                 list.Add(a);
             }
 
@@ -244,7 +244,7 @@ public class Agenda
          }
          else
          {
-             return new Agenda(r.AfspraakID, r.StudentID,r.SLBerID,r.Datum,r.Begin);
+             return new Agenda(r.AfspraakID, r.StudentID, r.SLBerID, r.Datum, r.Begin, r.locatie);
          }
         
     }
