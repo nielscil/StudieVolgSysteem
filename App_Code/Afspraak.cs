@@ -21,6 +21,7 @@ public class Afspraak
     /// <param name="AfspraakID">afspraakid</param>
     /// <param name="Opmerking">opmerking</param>
     /// <param name="Afgevinkt">afgevinkt</param>
+    /// <param name="Deathline">Deathline</param>
     /// <param name="gesprekID">gesprekid van evaluatie</param>
     public Afspraak(long AfspraakID, string Opmerking, bool Afgevinkt, int gesprekID,DateTime Deathline)
     {
@@ -35,6 +36,7 @@ public class Afspraak
     /// </summary>
     /// <param name="Opmerking">opmerking</param>
     /// <param name="Afgevinkt">afgevinkt</param>
+    /// <param name="Deathline">Deathline</param>
     /// <param name="gesprekID">gesprekid van evaluatie</param>
     public Afspraak(string Opmerking, bool Afgevinkt, int gesprekID,DateTime Deathline)
     {
@@ -47,6 +49,7 @@ public class Afspraak
     /// Afspraak toevoegen aan database
     /// </summary>
     /// <param name="Opmerking">opmerking</param>
+    /// <param name="Deathline">Deathline</param>
     /// <param name="gesprekID">gesprekid van evaluatie</param>
     public static void AddAfspraak(string Opmerking, int gesprekID,DateTime deathline)
     {
@@ -65,7 +68,13 @@ public class Afspraak
         db.Close();
         return count;
     }
-
+    /// <summary>
+    /// update de afspraak
+    /// </summary>
+    /// <param name="agendaid">agendaid</param>
+    /// <param name="locatie">locatie</param>
+    /// <param name="definitief">definitief</param>
+    /// <param name="tijdsduur">tijdsduur</param>
     public static void UpdateAgenda(int agendaid,string locatie, bool definitief,int tijdsduur)
     {
         Database db = Database.Open(Constants.DBName);
@@ -73,6 +82,11 @@ public class Afspraak
         db.Close();
     }
 
+    /// <summary>
+    /// update de overeenkomst
+    /// </summary>
+    /// <param name="afspraakid">id van overeenkomst</param>
+    /// <param name="check">afgevinkt</param>
     public static void UpdateAfspraak(int afspraakid, bool check) 
     {
         Database db = Database.Open(Constants.DBName);
@@ -80,6 +94,11 @@ public class Afspraak
         db.Close();
     }
 
+    /// <summary>
+    /// haalt lijst met overeenkomsten op bij bepaalde afspraak
+    /// </summary>
+    /// <param name="gesprekid">id van overeenkomst</param>
+    /// <returns>lijst met overeenkomsten</returns>
     public static List<Afspraak> GetAfspraken(int gesprekid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -93,6 +112,11 @@ public class Afspraak
         return list;
     }
 
+    /// <summary>
+    /// Haalt lijst van overeenkomsten op bij een slb'er
+    /// </summary>
+    /// <param name="slberid">slb'erid</param>
+    /// <returns>lijst met overeenkomsten</returns>
     public static List<Afspraak> GetAfspraakSLB(int slberid)
     {
         List<Agenda> agendas = Agenda.GetAgendas(slberid);
@@ -112,6 +136,11 @@ public class Afspraak
         return afspraken;
     }
 
+    /// <summary>
+    /// haalt overeenkomsten op bij student
+    /// </summary>
+    /// <param name="studentID">studentid</param>
+    /// <returns>lijst met overeenkomsten</returns>
     public static List<Afspraak> GetAfsprakenStudent(int studentID)
     {
         List<Agenda> agendas = Agenda.GetAgendas(Student.GetStudent(studentID).SLBerID,studentID);
@@ -131,6 +160,10 @@ public class Afspraak
         return afspraken;
     }
 
+    /// <summary>
+    /// Verwijderd een overeenkomst
+    /// </summary>
+    /// <param name="afspraakid">id van overeenkomst</param>
     public static void DeleteAfspraak(long afspraakid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -138,7 +171,9 @@ public class Afspraak
         db.Close();
     }
 }
-
+/// <summary>
+/// hulpklasse voor overeenkomsten
+/// </summary>
 public class HulpAfspraak
 {
     public string Opmerking {get;set;}

@@ -5,6 +5,9 @@ using System.Web.Security;
 using WebMatrix.Data;
 using WebMatrix.WebData;
 
+/// <summary>
+/// Algoritme van status student
+/// </summary>
 public class Algoritme
 {
     enum Prioriteit {Laag=1, Gemiddeld, Hoog};
@@ -12,6 +15,11 @@ public class Algoritme
 
     //Berekent de prioriteit.
 
+    /// <summary>
+    /// berekend de status van de student
+    /// </summary>
+    /// <param name="studID">studentid</param>
+    /// <returns>status als integer</returns>
     public static int ber_Prioriteit(int studID)
     {
         int prioLevel = 100;

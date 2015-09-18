@@ -97,6 +97,11 @@ public class Gebruiker
         }
         return lijst;
     }
+
+    /// <summary>
+    /// haalt recente gebruikers op
+    /// </summary>
+    /// <returns>lijst van gebruikers</returns>
     public static List<Gebruiker> GetRecentUsers()
     {
         Database db = Database.Open(Constants.DBName);
@@ -125,6 +130,11 @@ public class Gebruiker
         return new Gebruiker(row.GebruikerID,row.Email,Roles.GetRolesForUser(row.Email),row.Naam,row.Achternaam,row.Woonplaats,row.Adres,row.Telefoon_nr,row.Postcode);
     }
 
+    /// <summary>
+    /// Geeft gebruiker terug
+    /// </summary>
+    /// <param name="passreset">wachtwoord resettoken</param>
+    /// <returns>gebruiker</returns>
     public static Gebruiker GetUser(string passreset)
     {
         Database db = Database.Open(Constants.DBName);
@@ -165,6 +175,7 @@ public class Gebruiker
         else
         {
             Roles.AddUserToRoles(GetUser((int)id).Email,roles);
+            WebSecurity.CreateAccount(email,wachtwoord,false);
             return (int)id;
         }
     }
@@ -185,7 +196,7 @@ public class Gebruiker
         Database db = Database.Open(Constants.DBName);
         try
         {
-            db.Execute("UPDATE gebruikers SET naam=@0,achternaam=@1,woonplaats=@2,adres=@3,telefoon_nr=@4,postcode=@5 WHERE gebruikersid=@6 );", naam, achternaam, woonplaats, adres, telefoonnr, postcode, gebruikerid);
+            db.Execute("UPDATE gebruikers SET naam=@0, achternaam=@1, woonplaats=@2, adres=@3, telefoon_nr=@4, postcode=@5 WHERE gebruikerid=@6;", naam, achternaam, woonplaats, adres, telefoonnr, postcode, gebruikerid);
             db.Close();
             string gebruikersnaam = GetUser(gebruikerid).Email;
             foreach (string s in roles)
@@ -348,6 +359,8 @@ public class Student : Gebruiker
         db.Execute("DELETE FROM webpages_usersinroles WHERE userid=@0;",userid);
         db.Execute("DELETE FROM gebruikers WHERE gebruikerid=@0",userid);
         db.Execute("DELETE FROM student WHERE studentid=@0",userid);
+        db.Execute("DELETE FROM agenda WHERE studentid=@0",userid);
+        db.Execute("DELETE FROM cijfers WHERE studentid=@0",userid);
         var row = db.QuerySingle("SELECT * FROM gebruikers WHERE gebruikerid=@0",userid);
         db.Close();
         if(row == null)
@@ -386,6 +399,7 @@ public class Student : Gebruiker
         {
             db.Execute("INSERT INTO Student (SLBerID,opmerking,studentnummer,studentID) VALUES (@0,@1,@2,@3)",slberID,opmerking,studentNr,(int)id);
             db.Close();
+            WebSecurity.CreateAccount(email,wachtwoord,false);
             Roles.AddUserToRoles(GetUser((int)id).Email,roles);
             return (int)id;
         }
@@ -482,6 +496,31 @@ public class Student : Gebruiker
         return new Student(r.GebruikerID,r.Email,Roles.GetRolesForUser(r.Email),r.Naam,r.Achternaam,r.Woonplaats,r.Adres,r.Telefoon_nr,r.postcode,r.SLBerID,r.Opmerking,r.StudentNummer);
     }
 
+    /// <summary>
+    /// geeft lijst met studenten die een afspraak nodig hebben
+    /// </summary>
+    /// <param name="slberid">slberid</param>
+    /// <param name="maanden">aantal maanden</param>
+    /// <returns>lijst met studenten</returns>
+    public static List<Student> StudentsNeedAppointment(int slberid, int maanden)
+    {
+        List<Student> students = GetStudents(slberid);
+        List<Student> needapp = new List<Student>();
+        foreach(Student student in students)
+        {
+            if(Agenda.NeedsAppointment(student.GebruikerID,maanden))
+            {
+                needapp.Add(student);
+            }
+        }
+        return needapp;
+    }
+
+    /// <summary>
+    /// zoekt uit of een student een foto heeft
+    /// </summary>
+    /// <param name="studentid">studentid</param>
+    /// <returns>true als student een foto heeft, anders false</returns>
     public static bool HasImage(int studentid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -494,6 +533,11 @@ public class Student : Gebruiker
         return true;
     }
 
+    /// <summary>
+    /// slaat afbeelding op voor student
+    /// </summary>
+    /// <param name="studentid">studentid</param>
+    /// <param name="img">byte array van de foto</param>
     public static void SaveImage(int studentid,byte[] img)
     {
         Database db = Database.Open(Constants.DBName);
@@ -508,6 +552,11 @@ public class Student : Gebruiker
         db.Close();
     }
 
+    /// <summary>
+    /// laadt afbeelding voor student
+    /// </summary>
+    /// <param name="studentid">studentid</param>
+    /// <returns>byte array voor foto</returns>
     public static byte[] LoadImage(int studentid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -527,6 +576,9 @@ public class Student : Gebruiker
     }
 }
 
+/// <summary>
+/// SLB'er
+/// </summary>
 public class SLB : Gebruiker
 {
     public int SLBerID {get;set;}
@@ -600,6 +652,10 @@ public class SLB : Gebruiker
         this.URL = url;
     }
 
+    /// <summary>
+    /// voegt gebruiker aan SLB toe
+    /// </summary>
+    /// <param name="slbid">slbid</param>
     public static void AddSLB(int slbid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -626,6 +682,12 @@ public class SLB : Gebruiker
             return (string)row;
         }
     }
+
+    /// <summary>
+    /// checkt of slber minstens 1 student heeft
+    /// </summary>
+    /// <param name="slbid">slberid</param>
+    /// <returns>true als hij een student heeft,anders false</returns>
     public static bool HasStudent(int slbid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -654,6 +716,11 @@ public class SLB : Gebruiker
         return lijst;
     }
 
+    /// <summary>
+    /// Update kalender van slber
+    /// </summary>
+    /// <param name="slberid">slberid</param>
+    /// <param name="URL">link van het rooster</param>
     public static void UpdateUrl(int slberid,string URL)
     {
         if(URL.Contains("webcal"))

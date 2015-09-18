@@ -15,19 +15,53 @@ public static class Constants
     public static string DBName = "Demo";
     //meer constanten toevoegen
 
-    public static void SentMail(string emailadres,string onderwerp,string body)
+
+    /// <summary>
+    /// stuurt mail
+    /// </summary>
+    /// <param name="emailadres">emailadres</param>
+    /// <param name="onderwerp">onderwerp</param>
+    /// <param name="body">tekst of html van het bericht</param>
+    public static bool SentMail(string emailadres,string onderwerp,string body)
     {
-        string filepath = HttpContext.Current.Server.MapPath("~/Content/email.html");
-        string emailtemplate = File.ReadAllText(filepath);
-        emailtemplate = emailtemplate.Replace("{0}", onderwerp).Replace("{1}", body).Replace("{2}", DateTime.Now.Year.ToString());
-        WebMail.Send(emailadres, onderwerp,isBodyHtml: true,body: emailtemplate);
+        try
+        {
+            string filepath = HttpContext.Current.Server.MapPath("~/Content/email.html");
+            string emailtemplate = File.ReadAllText(filepath);
+            emailtemplate = emailtemplate.Replace("{0}", onderwerp).Replace("{1}", body).Replace("{2}", DateTime.Now.Year.ToString());
+            WebMail.Send(emailadres, onderwerp, isBodyHtml: true, body: emailtemplate);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+
     }
 
-    public static void SentMail(string emailadres, string onderwerp, string body,string buttonlink,string buttontext)
+    /// <summary>
+    /// stuurt mail
+    /// </summary>
+    /// <param name="emailadres">e-mailadres</param>
+    /// <param name="onderwerp">onderwerp</param>
+    /// <param name="body">tekst of html van het bericht</param>
+    /// <param name="buttonlink">link van de knop</param>
+    /// <param name="buttontext">tekst van de knop</param>
+    /// <returns></returns>
+    public static bool SentMail(string emailadres, string onderwerp, string body,string buttonlink,string buttontext)
     {
-        string filepath = HttpContext.Current.Server.MapPath("~/Content/emailbutton.html");
-        string emailtemplate = File.ReadAllText(filepath);
-        emailtemplate = emailtemplate.Replace("{0}", onderwerp).Replace("{1}", body).Replace("{2}",buttonlink).Replace("{3}",buttontext).Replace("{4}", DateTime.Now.Year.ToString());
-        WebMail.Send(emailadres, onderwerp, isBodyHtml: true, body: emailtemplate);
+        try
+        {
+            string filepath = HttpContext.Current.Server.MapPath("~/Content/emailbutton.html");
+            string emailtemplate = File.ReadAllText(filepath);
+            emailtemplate = emailtemplate.Replace("{0}", onderwerp).Replace("{1}", body).Replace("{2}", buttonlink).Replace("{3}", buttontext).Replace("{4}", DateTime.Now.Year.ToString());
+            WebMail.Send(emailadres, onderwerp, isBodyHtml: true, body: emailtemplate);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+
     }
 }

@@ -22,13 +22,13 @@
     Validation.RequireField("username", "Je moet een gebruikersnaam invullen.");
     Validation.RequireField("password", "Je moet een wachtwoord invullen.");
     Validation.Add("password", Validator.StringLength(maxLength: Int32.MaxValue, minLength: 3, errorMessage: "Wachtwoord moet minimaal 8 characters lang zijn."));
+    username = Request.Form["username"];
+    rememberMe = Request.Form["rememberMe"].AsBool();
     if (IsPost)
     {
         if (Validation.IsValid())
         {
-            username = Request.Form["username"];
             password = Request.Form["password"];
-            rememberMe = Request.Form["rememberMe"].AsBool();
             if (WebSecurity.UserExists(username) && WebSecurity.GetPasswordFailuresSinceLastSuccess(username) > 4 && WebSecurity.GetLastPasswordFailureDate(username).AddSeconds(60) > DateTime.UtcNow)
             {
                 Response.Redirect("~/Account/AccountLockedOut");

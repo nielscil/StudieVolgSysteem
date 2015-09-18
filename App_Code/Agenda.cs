@@ -138,6 +138,14 @@ public class Agenda
         else
             return (int)id;
     }
+
+    /// <summary>
+    /// update afspraak
+    /// </summary>
+    /// <param name="agendaid">afspraakid</param>
+    /// <param name="locatie">locatie</param>
+    /// <param name="definitief">definitief</param>
+    /// <param name="tijdsduur">lengte van afspraak</param>
     public static void UpdateAgenda(int agendaid,string locatie, bool definitief,int tijdsduur)
     {
         Database db = Database.Open(Constants.DBName);
@@ -145,6 +153,10 @@ public class Agenda
         db.Close();
     }
 
+    /// <summary>
+    /// verwijderd de afspraak
+    /// </summary>
+    /// <param name="agendaid">afspraakid</param>
     public static void DeleteAgenda(int agendaid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -181,6 +193,50 @@ public class Agenda
         return list;
     }
 
+    /// <summary>
+    /// haalt laatste afspraak voor een student op
+    /// </summary>
+    /// <param name="studentid">studentid</param>
+    /// <returns>afspraak</returns>
+    public static Agenda GetLastestAgenda(int studentid)
+    {
+        Database db = Database.Open(Constants.DBName);
+        var r = db.QuerySingle("SELECT top 1 * FROM agenda WHERE afspraakid IN (SELECT afspraakid FROM agenda WHERE studentid=@0 AND (definitief = 1 OR definitief IS NOT NULL)) ORDER BY datum DESC", studentid);
+        db.Close();
+        return new Agenda(r.AfspraakID, r.StudentID, r.SLBerID, r.Datum, r.locatie, r.Definitief, r.Begin, r.Tijdsduur);
+    }
+
+    /// <summary>
+    /// Zoekt uit of een student een afspraak nodig heeft
+    /// </summary>
+    /// <param name="studentid">studentid</param>
+    /// <param name="maanden">aantal maanden wanneer een afspraak ingepland moet worden</param>
+    /// <returns>true wanneer er een afspraak aangevraagd moet worden, anders false</returns>
+    public static bool NeedsAppointment(int studentid,int maanden)
+    {
+        Database db = Database.Open(Constants.DBName);
+        var row = db.QuerySingle("SELECT top 1 * FROM agenda WHERE afspraakid IN (SELECT afspraakid FROM agenda WHERE studentid=@0 AND (definitief = 1 OR definitief IS NOT NULL)) ORDER BY datum DESC",studentid);
+        db.Close();
+        if(row != null)
+        {
+            DateTime datum = row.Datum;
+            if(datum.AddMonths(maanden).Date < DateTime.Now.Date)
+            {
+                return true;
+            }
+            else
+            return false; 
+        }
+        else
+            return true;
+    }
+
+    /// <summary>
+    /// haalt lijst van afspraken op voor een bepaald student
+    /// </summary>
+    /// <param name="slberid">slberid</param>
+    /// <param name="studentid">studentid</param>
+    /// <returns>lijst van afspraken</returns>
     public static List<Agenda> GetAgendas(int slberid,int studentid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -225,6 +281,7 @@ public class Agenda
         }
         return returnlist;
     }
+
     /// <summary>
     /// Haal specifieke afspraak op
     /// </summary>

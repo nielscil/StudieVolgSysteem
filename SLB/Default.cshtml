@@ -4,6 +4,7 @@
     List<Student> studenten = Student.GetStudents(WebSecurity.CurrentUserId);
     List<Agenda> a = Agenda.GetAgendas(WebSecurity.CurrentUserId);
     List<Afspraak> x = Afspraak.GetAfspraakSLB(WebSecurity.CurrentUserId);
+    List<Student> needappointment = Student.StudentsNeedAppointment(WebSecurity.CurrentUserId,4);
 }
 <script type="text/javascript">
     $(document).ready(function () {
@@ -66,6 +67,32 @@
             </div>
             <div class="panel-body">
                 <div class="row">
+                    @if(needappointment.Count > 0)
+                    {
+                        <div class="panel panel-warning">
+                            <div class="panel-heading">
+                                <div class="panel-title">Mogelijk nieuwe afspraak plannen voor:</div>
+                            </div>
+                            @foreach(Student student in needappointment)
+                            {
+                                string datum = "";
+                                try
+                                {
+                                    Agenda agenda = Agenda.GetLastestAgenda(student.GebruikerID);
+                                    datum = agenda.Datum.Date.ToString("d");
+                                }
+                                catch
+                                { 
+                                    datum = "-";
+                                }
+                                
+                                <a href="leerling?studentid=@student.GebruikerID" class="list-group-item">@student.Naam @student.Achternaam | Laatste afspraak was: @datum</a>
+                            }
+                        </div>
+                    }
+
+                </div>
+                <div class="row">
                     <div class="col-md-6">
                         <div class="panel panel-success">
                             <div class="panel-heading">
@@ -95,7 +122,7 @@
                                 }
                                 if (index == 0)
                                 {
-                                    <div class="list-group-item">Geen aangevraagde afspraken gevonden</div>
+                                    <div class="list-group-item">Geen aankomende afspraken gevonden</div>
                                 }
                                 else if(index > 10)
                                 {
@@ -120,7 +147,7 @@
                                         @:<div id="hideaangevraagd" class="hideable">
                                         first = true;
                                     }
-                                    if (ag.Datum > DateTime.Today && (!ag.Definitief || ag.Definitief == null))
+                                    if (ag.Datum > DateTime.Today && ((!ag.Definitief || ag.Definitief == null) && (ag.Locatie == ""|| ag.Locatie == null)))
                                     {
                                         index++;
                                         <a href="Agenda?agendaid=@ag.AfspaakID&action=aanvraag" class="list-group-item">@ag.Datum.ToString("dd-MM-yyyy HH:mm")<br>@ag.Locatie<br>@student.Naam @student.Achternaam</a>

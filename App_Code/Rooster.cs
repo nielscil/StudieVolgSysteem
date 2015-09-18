@@ -7,7 +7,7 @@ using WebMatrix.WebData;
 using DDay.iCal;
 
 /// <summary>
-/// Summary description for Rooster
+/// Rooster an de SLB'er
 /// </summary>
 public class Rooster
 {
@@ -17,6 +17,14 @@ public class Rooster
     public int Tijdsduur { get; set; }
     public DateTime Datum { get; set; }
 
+    /// <summary>
+    /// Rooster
+    /// </summary>
+    /// <param name="roosterID">roosterid</param>
+    /// <param name="slberid">slberid</param>
+    /// <param name="begin">begintijd</param>
+    /// <param name="tijdsduur">tijdsduur</param>
+    /// <param name="datum">datum</param>
     public Rooster(long roosterID,int slberid,int begin,int tijdsduur,DateTime datum)
     {
         this.RoosterID = roosterID;
@@ -26,6 +34,13 @@ public class Rooster
         this.Datum = datum;
     }
 
+    /// <summary>
+    /// Rooster
+    /// </summary>
+    /// <param name="slberid">slberid</param>
+    /// <param name="begin">begintijd</param>
+    /// <param name="tijdsduur">tijdsduur</param>
+    /// <param name="datum">datum</param>
     public Rooster(int slberid, int begin, int tijdsduur,DateTime datum)
     {
         this.SLBerID = slberid;
@@ -34,6 +49,11 @@ public class Rooster
         this.Datum = datum;
     }
 
+    /// <summary>
+    /// Haalt rooster op voor slber
+    /// </summary>
+    /// <param name="slberid">slberid</param>
+    /// <returns>lijst van roosteritems</returns>
     public static List<Rooster> GetRooster(int slberid)
     {
         Database db = Database.Open(Constants.DBName);
@@ -47,6 +67,12 @@ public class Rooster
         }
         return rooster;
     }
+    /// <summary>
+    /// Haalt specifieke dag op van rooster
+    /// </summary>
+    /// <param name="slberid">slberid</param>
+    /// <param name="day">dag</param>
+    /// <returns>lijst van roosteritems</returns>
     public static List<Rooster> GetRoosterDay(int slberid, DateTime day)
     {
         List<Rooster> raw = GetRooster(slberid);
@@ -61,6 +87,11 @@ public class Rooster
         return niew;
     }
 
+    /// <summary>
+    /// Update rooster
+    /// </summary>
+    /// <param name="slberid">slberid</param>
+    /// <param name="url">rooster url</param>
     public static void UpdateRooster(int slberid, string url)
     {
         DeleteRooster(slberid);
@@ -91,6 +122,11 @@ public class Rooster
         }
         db.Close();
     }
+
+    /// <summary>
+    /// verwijder rooster
+    /// </summary>
+    /// <param name="slberid">slberid</param>
     private static void DeleteRooster(int slberid)
     {
         Database db = Database.Open(Constants.DBName);

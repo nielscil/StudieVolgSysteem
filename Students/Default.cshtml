@@ -43,7 +43,7 @@
         if (!Request["add"].IsEmpty())
         {
                 DateTime afspraak = Request.Form["date"].AsDateTime();
-                Agenda.AddAgenda(student.GebruikerID, student.SLBerID, afspraak, Request.Form["begin"].AsInt());
+                Agenda.AddAgenda(student.GebruikerID, student.SLBerID, afspraak, Request.Form["begin"].AsInt(),"");
                 Response.Redirect("Default?week=" + cal.GetWeekOfYear(afspraak, dfi.CalendarWeekRule, dfi.FirstDayOfWeek) + "&jaar=" + afspraak.Year);
         }
         else if (!Request["delete"].IsEmpty())

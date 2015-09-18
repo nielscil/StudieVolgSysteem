@@ -19,6 +19,7 @@ public class Vak
     /// </summary>
     /// <param name="vakid">vakid</param>
     /// <param name="naam">naam</param>
+    /// <param name="ec">ec's</param>
 	public Vak(int vakid,string naam,int ec)
 	{
         this.VakID = vakid;
@@ -30,6 +31,7 @@ public class Vak
     /// Maakt vak aan
     /// </summary>
     /// <param name="naam">naam</param>
+    /// <param name="ec">ec's</param>
     public Vak(string naam,int ec)
     {
         this.Naam = naam;
@@ -110,6 +112,7 @@ public class Vak
     /// Voegt nieuw vak toe
     /// </summary>
     /// <param name="naam">naam</param>
+    /// <param name="ec">ec's</param>
     /// <returns>id van toegevoegde vak</returns>
     public static int AddSubject(string naam,int ec)
     {
@@ -128,6 +131,7 @@ public class Vak
     /// </summary>
     /// <param name="vakid">vakid</param>
     /// <param name="naam">naam</param>
+    /// <param name="ec">ec's</param>
     public static void UpdateSubject(int vakid,string naam,int ec)
     {
         Database db = Database.Open(Constants.DBName);
